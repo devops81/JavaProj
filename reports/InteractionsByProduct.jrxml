@@ -1,0 +1,1169 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="InteractionsByProduct"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Landscape"
+		 pageWidth="792"
+		 pageHeight="612"
+		 columnWidth="792"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="startDate" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["01/01/"+((new Date()).getYear()+1900)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="endDate" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[((new Date()).getMonth()+1)+"/"+(new Date()).getDate()+"/"+((new Date()).getYear()+1900)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="reportRegion" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="reportTerritory" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="product" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["'%%'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="usersList" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[($P{reportTherapeuticArea}.equals("All")? new String("I.USERID"): new String("-1"))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="productList" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["ID"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="userId" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="reportQueryTA" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[$P{reportTherapeuticArea}.equals("All")?"%":$P{reportTherapeuticArea}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="productInteraction" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="paramPI" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[($P{productInteraction}.equals("All")? new String("IDATA.LOVID, IDATA.SECONDARY_LOVID, IDATA.TERTIARY_LOVID"): new String("IDATA.LOVID"))]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[SELECT
+		  PROD_NAME,
+		  prod_id,
+		  FACE_INTERACTION_COUNT,
+		  FACE_IMPACTED_COUNT,
+		  GROUP_INTERACTION_COUNT,
+		  GROUP_IMPACTED_COUNT,
+		  EMAIL_INTERACTION_COUNT,
+		  EMAIL_IMPACTED_COUNT,
+		  TELE_INTERACTION_COUNT,
+		  TELE_IMPACTED_COUNT,
+		  (FACE_INTERACTION_COUNT + GROUP_INTERACTION_COUNT + EMAIL_INTERACTION_COUNT + TELE_INTERACTION_COUNT) TOTAL_INTERACTION_COUNT,
+		  (FACE_IMPACTED_COUNT + GROUP_IMPACTED_COUNT + EMAIL_IMPACTED_COUNT + TELE_IMPACTED_COUNT) TOTAL_IMPACTED_COUNT
+		FROM (
+		  SELECT
+			PRODUCTS.NAME PROD_NAME, products.id as prod_id,
+			COALESCE(FACE_INTERACTION.INTERACTIONS, 0) FACE_INTERACTION_COUNT,
+			COALESCE(FACE_INTERACTION.IMPACTED, 0) FACE_IMPACTED_COUNT,
+			COALESCE(TELE_INTERACTION.INTERACTIONS, 0) TELE_INTERACTION_COUNT,
+			COALESCE(TELE_INTERACTION.IMPACTED, 0) TELE_IMPACTED_COUNT,
+			COALESCE(EMAIL_INTERACTION.INTERACTIONS, 0) EMAIL_INTERACTION_COUNT,
+			COALESCE(EMAIL_INTERACTION.IMPACTED, 0) EMAIL_IMPACTED_COUNT,
+			COALESCE(GROUP_INTERACTION.INTERACTIONS, 0) GROUP_INTERACTION_COUNT,
+			COALESCE(GROUP_INTERACTION.IMPACTED, 0) GROUP_IMPACTED_COUNT  
+		  FROM (
+			SELECT ID, OPTVALUE NAME FROM OPTION_LOOKUP WHERE OPTION_ID IN (
+			  SELECT ID FROM OPTION_NAMES WHERE UPPER(NAME) = 'PRODUCT')
+			  AND ID IN 
+			  (select id from option_lookup where option_id = 
+						(select id from option_names where upper(name) like 'PRODUCT')
+						and parent in (select id from option_lookup where optvalue like $P{reportQueryTA}
+						and option_id = (select id from option_names where name like 'Therapeutic Area'))
+						and id not in 
+						(select feature_id from feature_usergroup_map where permission_on_feature = 2 and usergroup_id like '%,'||(select group_id from user_group_map where user_id in $P!{userId})||',%')
+				)
+			  AND OPTVALUE LIKE $P!{product}
+			) PRODUCTS
+			LEFT OUTER JOIN 
+			(select 
+			optl_intertype.optValue as TYPE, opt1_prod.id as PROD_ID,
+			opt1_prod.optValue as PROD, count(distinct(i.interaction_id)) as INTERACTIONS,
+			sum(interactiondetailattendeecount(i.interaction_id)) as IMPACTED
+			from interaction i, interaction_data idata,
+			option_lookup optl_intertype, option_lookup opt1_prod
+			where 
+			idata.interaction_id = i.interaction_id
+			and idata.type = 'productMultiselectIds'
+			and optl_intertype.id = i.interaction_type_id
+			and opt1_prod.id in ($P!{paramPI})
+			and i.interactiondate is not null
+			and i.interactiondate >= TO_TIMESTAMP($P{startDate},'MM/DD/YYYY')
+			and i.interactiondate <= TO_TIMESTAMP($P{endDate}, 'MM/DD/YYYY')
+			and i.deleteflag = 'N'
+			and optl_intertype.optValue = '1:1 Face to Face (2 or less)'
+			and i.userid in ($P!{usersList})
+			and opt1_prod.id in 
+			  (select id from option_lookup where option_id = 
+				(select id from option_names where upper(name) like 'PRODUCT')
+				and parent in (select id from option_lookup where optvalue like $P{reportQueryTA}
+				  and option_id = (select id from option_names where name like 'Therapeutic Area'))
+				and id not in 
+				(select feature_id from feature_usergroup_map where permission_on_feature = 2 
+				  and usergroup_id 
+				  like '%,'||(select group_id from user_group_map where user_id in $P!{userId})||',%')
+			  )
+			and opt1_prod.optValue like $P!{product}
+			GROUP BY optl_intertype.OPTVALUE, opt1_prod.id, opt1_prod.optValue
+			) FACE_INTERACTION
+			ON FACE_INTERACTION.PROD_ID = PRODUCTS.ID
+			LEFT OUTER JOIN 
+			(select 
+			optl_intertype.optValue as TYPE, opt1_prod.id as PROD_ID,
+			opt1_prod.optValue as PROD, count(distinct(i.interaction_id)) as INTERACTIONS,
+			sum(interactiondetailattendeecount(i.interaction_id)) as IMPACTED
+			from interaction i, interaction_data idata,
+			option_lookup optl_intertype, option_lookup opt1_prod
+			where 
+			idata.interaction_id = i.interaction_id
+			and idata.type = 'productMultiselectIds'
+			and optl_intertype.id = i.interaction_type_id
+			and opt1_prod.id in ($P!{paramPI})
+			and i.interactiondate is not null
+			and i.interactiondate >= TO_TIMESTAMP($P{startDate},'MM/DD/YYYY')
+			and i.interactiondate <= TO_TIMESTAMP($P{endDate}, 'MM/DD/YYYY')
+			and i.deleteflag = 'N'
+			and optl_intertype.optValue = 'Group Presentation (3 or more)'
+			and i.userid in ($P!{usersList})
+			and opt1_prod.id in 
+			  (select id from option_lookup where option_id = 
+				(select id from option_names where upper(name) like 'PRODUCT')
+				and parent in (select id from option_lookup where optvalue like $P{reportQueryTA}
+				  and option_id = (select id from option_names where name like 'Therapeutic Area'))
+				and id not in 
+				(select feature_id from feature_usergroup_map where permission_on_feature = 2 
+				  and usergroup_id 
+				  like '%,'||(select group_id from user_group_map where user_id in $P!{userId})||',%')
+			  )
+			and opt1_prod.optValue like $P!{product}
+			GROUP BY optl_intertype.OPTVALUE, opt1_prod.id, opt1_prod.optValue
+			) GROUP_INTERACTION
+			ON GROUP_INTERACTION.PROD_ID = PRODUCTS.ID
+			LEFT OUTER JOIN 
+			(select 
+			optl_intertype.optValue as TYPE, opt1_prod.id as PROD_ID,
+			opt1_prod.optValue as PROD, count(distinct(i.interaction_id)) as INTERACTIONS,
+			sum(interactiondetailattendeecount(i.interaction_id)) as IMPACTED
+			from interaction i, interaction_data idata,
+			option_lookup optl_intertype, option_lookup opt1_prod
+			where 
+			idata.interaction_id = i.interaction_id
+			and idata.type = 'productMultiselectIds'
+			and optl_intertype.id = i.interaction_type_id
+			and opt1_prod.id in ($P!{paramPI})
+			and i.interactiondate is not null
+			and i.interactiondate >= TO_TIMESTAMP($P{startDate},'MM/DD/YYYY')
+			and i.interactiondate <= TO_TIMESTAMP($P{endDate}, 'MM/DD/YYYY')
+			and i.deleteflag = 'N'
+			and optl_intertype.optValue = 'Email'
+			and i.userid in ($P!{usersList})
+			and opt1_prod.id in 
+			  (select id from option_lookup where option_id = 
+				(select id from option_names where upper(name) like 'PRODUCT')
+				and parent in (select id from option_lookup where optvalue like $P{reportQueryTA}
+				  and option_id = (select id from option_names where name like 'Therapeutic Area'))
+				and id not in 
+				(select feature_id from feature_usergroup_map where permission_on_feature = 2 
+				  and usergroup_id 
+				  like '%,'||(select group_id from user_group_map where user_id in $P!{userId})||',%')
+			  )
+			and opt1_prod.optValue like $P!{product}
+			GROUP BY optl_intertype.OPTVALUE, opt1_prod.id, opt1_prod.optValue
+			) EMAIL_INTERACTION
+			ON EMAIL_INTERACTION.PROD_ID = PRODUCTS.ID
+			LEFT OUTER JOIN 
+			(select 
+			optl_intertype.optValue as TYPE, opt1_prod.id as PROD_ID,
+			opt1_prod.optValue as PROD, count(distinct(i.interaction_id)) as INTERACTIONS,
+			sum(interactiondetailattendeecount(i.interaction_id)) as IMPACTED
+			from interaction i, interaction_data idata,
+			option_lookup optl_intertype, option_lookup opt1_prod
+			where 
+			idata.interaction_id = i.interaction_id
+			and idata.type = 'productMultiselectIds'
+			and optl_intertype.id = i.interaction_type_id
+			and opt1_prod.id in ($P!{paramPI})
+			and i.interactiondate is not null
+			and i.interactiondate >= TO_TIMESTAMP($P{startDate},'MM/DD/YYYY')
+			and i.interactiondate <= TO_TIMESTAMP($P{endDate}, 'MM/DD/YYYY')
+			and i.deleteflag = 'N'
+			and optl_intertype.optValue = 'Telephone'
+			and i.userid in ($P!{usersList})
+			and opt1_prod.id in 
+			  (select id from option_lookup where option_id = 
+				(select id from option_names where upper(name) like 'PRODUCT')
+				and parent in (select id from option_lookup where optvalue like $P{reportQueryTA}
+				  and option_id = (select id from option_names where name like 'Therapeutic Area'))
+				and id not in 
+				(select feature_id from feature_usergroup_map where permission_on_feature = 2 
+				  and usergroup_id 
+				  like '%,'||(select group_id from user_group_map where user_id in $P!{userId})||',%')
+			  )
+			and opt1_prod.optValue like $P!{product}
+			GROUP BY optl_intertype.OPTVALUE, opt1_prod.id, opt1_prod.optValue
+			) TELE_INTERACTION
+			ON TELE_INTERACTION.PROD_ID = PRODUCTS.ID
+		)
+		ORDER BY PROD_NAME]]></queryString>
+
+	<field name="PROD_NAME" class="java.lang.String"/>
+	<field name="PROD_ID" class="java.math.BigDecimal"/>
+	<field name="FACE_INTERACTION_COUNT" class="java.math.BigDecimal"/>
+	<field name="FACE_IMPACTED_COUNT" class="java.math.BigDecimal"/>
+	<field name="GROUP_INTERACTION_COUNT" class="java.math.BigDecimal"/>
+	<field name="GROUP_IMPACTED_COUNT" class="java.math.BigDecimal"/>
+	<field name="EMAIL_INTERACTION_COUNT" class="java.math.BigDecimal"/>
+	<field name="EMAIL_IMPACTED_COUNT" class="java.math.BigDecimal"/>
+	<field name="TELE_INTERACTION_COUNT" class="java.math.BigDecimal"/>
+	<field name="TELE_IMPACTED_COUNT" class="java.math.BigDecimal"/>
+	<field name="TOTAL_INTERACTION_COUNT" class="java.math.BigDecimal"/>
+	<field name="TOTAL_IMPACTED_COUNT" class="java.math.BigDecimal"/>
+
+	<variable name="SUM_FACE_INTERACTION" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{FACE_INTERACTION_COUNT}]]></variableExpression>
+	</variable>
+	<variable name="SUM_FACE_IMPACTED" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{FACE_IMPACTED_COUNT}]]></variableExpression>
+	</variable>
+	<variable name="SUM_TELE_INTERACTION" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{TELE_INTERACTION_COUNT}]]></variableExpression>
+	</variable>
+	<variable name="SUM_TELE_IMPACTED" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{TELE_IMPACTED_COUNT}]]></variableExpression>
+	</variable>
+	<variable name="SUM_EMAIL_INTERACTION" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{EMAIL_INTERACTION_COUNT}]]></variableExpression>
+	</variable>
+	<variable name="SUM_EMAIL_IMPACTED" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{EMAIL_IMPACTED_COUNT}]]></variableExpression>
+	</variable>
+	<variable name="SUM_GROUP_INTERACTION" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{GROUP_INTERACTION_COUNT}]]></variableExpression>
+	</variable>
+	<variable name="SUM_GROUP_IMPACTED" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{GROUP_IMPACTED_COUNT}]]></variableExpression>
+	</variable>
+	<variable name="SUM_TOTAL_INTERACTIONS" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{TOTAL_INTERACTION_COUNT}]]></variableExpression>
+	</variable>
+	<variable name="SUM_TOTAL_IMPACTED" class="java.math.BigDecimal" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{TOTAL_IMPACTED_COUNT}]]></variableExpression>
+	</variable>
+	<variable name="TA_TITLE" class="java.lang.String" resetType="Report" calculation="Nothing">
+		<initialValueExpression><![CDATA[($P{reportTherapeuticArea}.equals("All")? new String("All TAs"): $P{reportTherapeuticArea})]]></initialValueExpression>
+	</variable>
+	<variable name="MSL_TITLE" class="java.lang.String" resetType="Report" calculation="Nothing">
+		<initialValueExpression><![CDATA[($P{reportTerritory}.equals("All")? new String("All MSLs"): $P{reportTerritory})]]></initialValueExpression>
+	</variable>
+	<variable name="PROD_INT_TITLE" class="java.lang.String" resetType="Report" calculation="Nothing">
+		<initialValueExpression><![CDATA[new String("1st Product Interactions Only")]]></initialValueExpression>
+	</variable>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="80"  isSplitAllowed="true" >
+				<printWhenExpression><![CDATA[new Boolean ( $V{PAGE_NUMBER}.intValue() ==  1 )]]></printWhenExpression>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="27"
+						y="0"
+						width="411"
+						height="15"
+						key="textField-3"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{TA_TITLE} + " Medical Science"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="27"
+						y="15"
+						width="411"
+						height="15"
+						key="textField-3"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Interactions by Product"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="27"
+						y="30"
+						width="411"
+						height="15"
+						key="textField-3"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Interactions Reported " + $P{startDate} + " - " + $P{endDate}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="487"
+						y="0"
+						width="287"
+						height="15"
+						key="textField-3"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Top">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Report Criteria"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="487"
+						y="15"
+						width="287"
+						height="15"
+						key="textField-3"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Top">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Field Positions: " + $V{MSL_TITLE}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="487"
+						y="30"
+						width="287"
+						height="15"
+						key="textField-3"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Top">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Prod. Int.: " + $V{PROD_INT_TITLE}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="487"
+						y="45"
+						width="287"
+						height="15"
+						key="textField-3"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Top">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Cur/Prev MSL Int.: Cur. & Prev. MSL"]]></textFieldExpression>
+				</textField>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="80"  isSplitAllowed="false" >
+				<printWhenExpression><![CDATA[new Boolean ( $V{PAGE_NUMBER}.intValue() ==  1 )]]></printWhenExpression>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="89"
+						y="0"
+						width="153"
+						height="29"
+						forecolor="#000000"
+						key="staticText-8"
+						stretchType="RelativeToTallestObject"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="true" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[1:1 face to face visit(2 or less)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="242"
+						y="0"
+						width="156"
+						height="29"
+						forecolor="#000000"
+						key="staticText-9"
+						stretchType="RelativeToTallestObject"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="true" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[Group Presentation(3 or more)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="398"
+						y="0"
+						width="137"
+						height="29"
+						forecolor="#000000"
+						key="staticText-10"
+						stretchType="RelativeToTallestObject"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="true" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[Email]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="535"
+						y="0"
+						width="136"
+						height="29"
+						forecolor="#000000"
+						key="staticText-11"
+						stretchType="RelativeToTallestObject"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="true" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[Telephone]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="671"
+						y="0"
+						width="120"
+						height="29"
+						forecolor="#000000"
+						key="staticText-12"
+						stretchType="RelativeToTallestObject"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="true" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[Total]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="89"
+						y="29"
+						width="70"
+						height="20"
+						forecolor="#000000"
+						key="staticText-6"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[#]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="159"
+						y="29"
+						width="83"
+						height="20"
+						forecolor="#000000"
+						key="staticText-7"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[#]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="242"
+						y="29"
+						width="80"
+						height="20"
+						forecolor="#000000"
+						key="staticText"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[#]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="322"
+						y="29"
+						width="76"
+						height="20"
+						forecolor="#000000"
+						key="staticText"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[#]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="398"
+						y="29"
+						width="63"
+						height="20"
+						forecolor="#000000"
+						key="staticText"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[#]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="461"
+						y="29"
+						width="74"
+						height="20"
+						forecolor="#000000"
+						key="staticText"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[#]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="535"
+						y="29"
+						width="67"
+						height="20"
+						forecolor="#000000"
+						key="staticText-3"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[#]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="602"
+						y="29"
+						width="69"
+						height="20"
+						forecolor="#000000"
+						key="staticText-4"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[#]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="671"
+						y="29"
+						width="63"
+						height="20"
+						forecolor="#000000"
+						key="staticText"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[#]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="734"
+						y="29"
+						width="57"
+						height="20"
+						forecolor="#000000"
+						key="staticText"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[#]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="1"
+						y="50"
+						width="88"
+						height="20"
+						forecolor="#000000"
+						key="staticText"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="true" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[Product]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="89"
+						y="50"
+						width="70"
+						height="20"
+						forecolor="#000000"
+						key="staticText-13"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="true" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[Inter.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="159"
+						y="50"
+						width="83"
+						height="20"
+						forecolor="#000000"
+						key="staticText-14"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="true" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[Impacted]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="242"
+						y="50"
+						width="80"
+						height="20"
+						forecolor="#000000"
+						key="staticText-15"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="true" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[Inter.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="322"
+						y="50"
+						width="76"
+						height="20"
+						forecolor="#000000"
+						key="staticText-16"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="true" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[Impacted]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="398"
+						y="50"
+						width="63"
+						height="20"
+						forecolor="#000000"
+						key="staticText-17"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="true" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[Inter.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="461"
+						y="50"
+						width="74"
+						height="20"
+						forecolor="#000000"
+						key="staticText-18"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="true" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[Impacted]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="535"
+						y="50"
+						width="67"
+						height="20"
+						forecolor="#000000"
+						key="staticText-19"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="true" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[Inter.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="602"
+						y="50"
+						width="69"
+						height="20"
+						forecolor="#000000"
+						key="staticText-20"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="true" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[Impacted]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="671"
+						y="50"
+						width="63"
+						height="20"
+						forecolor="#000000"
+						key="staticText-22"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="true" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[Inter.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="734"
+						y="50"
+						width="57"
+						height="20"
+						forecolor="#000000"
+						key="staticText-21"
+						isPrintRepeatedValues="false"
+						isPrintInFirstWholeBand="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="true" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[Impacted]]></text>
+				</staticText>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="25"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="1"
+						y="0"
+						width="88"
+						height="16"
+						forecolor="#000000"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Top">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{PROD_NAME}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="89"
+						y="0"
+						width="70"
+						height="16"
+						forecolor="#000000"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{FACE_INTERACTION_COUNT}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="159"
+						y="0"
+						width="83"
+						height="16"
+						forecolor="#000000"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{FACE_IMPACTED_COUNT}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="242"
+						y="0"
+						width="80"
+						height="16"
+						forecolor="#000000"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{GROUP_INTERACTION_COUNT}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="322"
+						y="0"
+						width="76"
+						height="16"
+						forecolor="#000000"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{GROUP_IMPACTED_COUNT}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="398"
+						y="0"
+						width="63"
+						height="16"
+						forecolor="#000000"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{EMAIL_INTERACTION_COUNT}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="461"
+						y="0"
+						width="74"
+						height="16"
+						forecolor="#000000"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{EMAIL_IMPACTED_COUNT}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="535"
+						y="0"
+						width="67"
+						height="16"
+						forecolor="#000000"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{TELE_INTERACTION_COUNT}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="602"
+						y="0"
+						width="69"
+						height="16"
+						forecolor="#000000"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{TELE_IMPACTED_COUNT}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="671"
+						y="0"
+						width="63"
+						height="16"
+						forecolor="#000000"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{TOTAL_INTERACTION_COUNT}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="734"
+						y="0"
+						width="57"
+						height="16"
+						forecolor="#000000"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font size="10" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{TOTAL_IMPACTED_COUNT}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="25"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="1"
+						y="0"
+						width="88"
+						height="16"
+						key="staticText-23"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<text><![CDATA[Total]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" pattern="##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="89"
+						y="0"
+						width="70"
+						height="16"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{SUM_FACE_INTERACTION}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="159"
+						y="0"
+						width="83"
+						height="16"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{SUM_FACE_IMPACTED}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="242"
+						y="0"
+						width="80"
+						height="16"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{SUM_GROUP_INTERACTION}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="322"
+						y="0"
+						width="76"
+						height="16"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{SUM_GROUP_IMPACTED}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="398"
+						y="0"
+						width="63"
+						height="16"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{SUM_EMAIL_INTERACTION}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="461"
+						y="0"
+						width="74"
+						height="16"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{SUM_EMAIL_IMPACTED}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="535"
+						y="0"
+						width="67"
+						height="16"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{SUM_TELE_INTERACTION}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="602"
+						y="0"
+						width="69"
+						height="16"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{SUM_TELE_IMPACTED}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="671"
+						y="0"
+						width="63"
+						height="16"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{SUM_TOTAL_INTERACTIONS}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="##0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="734"
+						y="0"
+						width="57"
+						height="16"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true" isItalic="false" isUnderline="false" isPdfEmbedded ="false" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{SUM_TOTAL_IMPACTED}]]></textFieldExpression>
+				</textField>
+			</band>
+		</summary>
+</jasperReport>

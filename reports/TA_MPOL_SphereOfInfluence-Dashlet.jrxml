@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="TA_MPOL_SphereOfInfluence-Dashlet"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Landscape"
+		 pageWidth="300"
+		 pageHeight="230"
+		 columnWidth="300"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<style 
+		name="DefaultStyle"
+		isDefault="true"
+		fontName="Verdana"
+	/>
+	<style 
+		name="TableHeader-BlueBack"
+		isDefault="false"
+		style="DefaultStyle"
+		mode="Opaque"
+		forecolor="#FFFFFF"
+		backcolor="#000080"
+		fontName="Verdana"
+		fontSize="11"
+		isBold="true"
+	/>
+	<style 
+		name="TableRow-GrayBack"
+		isDefault="false"
+		style="DefaultStyle"
+		mode="Opaque"
+		backcolor="#C0C0C0"
+		fontName="Verdana"
+	/>
+
+	<subDataset name="CVMET Sphere of Influence" >
+
+		<parameter name="startDate" isForPrompting="false" class="java.lang.String"/>
+		<parameter name="endDate" isForPrompting="false" class="java.lang.String"/>
+		<parameter name="usersList" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["ut.id"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="now" isForPrompting="false" class="java.util.Date">
+			<defaultValueExpression ><![CDATA[new Date()]]></defaultValueExpression>
+		</parameter>
+		<parameter name="taName" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["CVMET"]]></defaultValueExpression>
+		</parameter>
+		<queryString><![CDATA[SELECT COUNT(A.ID) AS COUNT , S.VALUE AS SPHERE,
+(
+SELECT COUNT(ut.kolid) FROM String_attribute st ,
+string_attribute st1,
+user_table ut
+WHERE st.attribute_id in
+(select attribute_id from attributetable where upper(name) like upper('Sphere of Influence'))
+  and ut.kolid= st.root_entity_id and 
+ut.id in (select con.kolid from contacts con where con.staffid in 
+(select ut.staffid from user_table ut  where ut.id in ($P!{usersList}))
+and ($P{now}-con.beginDate)>=0
+and ($P{now}-con.endDate)<=0
+)
+and st1.root_entity_id = ut.kolid
+and st1.value like 'TL') AS TOTAL
+FROM
+USER_TABLE A
+LEFT OUTER JOIN STRING_ATTRIBUTE R
+ON (R.ROOT_ENTITY_ID = A.KOLID AND R.ATTRIBUTE_ID = 83396591)
+LEFT OUTER JOIN STRING_ATTRIBUTE S
+ON (S.ROOT_ENTITY_ID = A.KOLID AND S.ATTRIBUTE_ID in
+(select attribute_id from attributetable where upper(name) like upper('Sphere of Influence')))
+WHERE A.DELETEFLAG='N' AND A.USER_TYPE_ID=4 
+and a.id in (select con.kolid from contacts con where con.staffid in 
+(select ut.staffid from user_table ut where ut.id in ($P!{usersList}) )
+and ($P{now}-con.beginDate)>=0
+and ($P{now}-con.endDate)<=0
+)
+AND R.ROOT_ENTITY_ID = S.ROOT_ENTITY_ID
+AND R.VALUE LIKE 'TL'
+GROUP BY S.VALUE]]></queryString>
+
+		<field name="COUNT" class="java.math.BigDecimal"/>
+		<field name="SPHERE" class="java.lang.String"/>
+		<field name="TOTAL" class="java.math.BigDecimal"/>
+
+	</subDataset>
+
+	<parameter name="startDate" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["01/01/1900"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="endDate" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["01/01/2099"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="usersList" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["ut.id"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="now" isForPrompting="false" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="taName" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[SELECT 1 AS ID FROM DUAL]]></queryString>
+
+	<field name="ID" class="java.math.BigDecimal"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="230"  isSplitAllowed="false" >
+				<pieChart>
+					<chart  hyperlinkTarget="Self" >
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="0"
+						y="20"
+						width="300"
+						height="210"
+						backcolor="#FAF9F2"
+						key="element-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						<chartLegend textColor="#000000" backgroundColor="#FFFFFF" >
+					</chartLegend>
+					</chart>
+					<pieDataset>
+						<dataset >
+							<datasetRun subDataset="CVMET Sphere of Influence">
+								<datasetParameter  name="startDate">
+									<datasetParameterExpression><![CDATA[$P{startDate}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="endDate">
+									<datasetParameterExpression><![CDATA[$P{endDate}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="usersList">
+									<datasetParameterExpression><![CDATA[$P{usersList}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="now">
+									<datasetParameterExpression><![CDATA[$P{now}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="taName">
+									<datasetParameterExpression><![CDATA[$P{taName}]]></datasetParameterExpression>
+								</datasetParameter>
+							</datasetRun>
+						</dataset>
+						<keyExpression><![CDATA[$F{SPHERE}!=null?$F{SPHERE}:"N/A"]]></keyExpression>
+						<valueExpression><![CDATA[$F{COUNT}]]></valueExpression>
+						<labelExpression><![CDATA[new DecimalFormat("#00.0").format(($F{COUNT}.intValue()*100.0)/$F{TOTAL}.intValue())+"%"]]></labelExpression>
+				<sectionHyperlink >
+				</sectionHyperlink>
+					</pieDataset>
+					<piePlot>
+						<plot backgroundAlpha="0.0" />
+					</piePlot>
+				</pieChart>
+				<staticText>
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="107"
+						y="0"
+						width="193"
+						height="20"
+						forecolor="#847C40"
+						backcolor="#F2F0DE"
+						key="staticText-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<text><![CDATA[ TL Sphere of Influence]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="107"
+						height="20"
+						forecolor="#847C40"
+						backcolor="#F2F0DE"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{taName}]]></textFieldExpression>
+				</textField>
+			</band>
+		</summary>
+</jasperReport>

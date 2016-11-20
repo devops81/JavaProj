@@ -1,0 +1,574 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="SC_Activity_Summary"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="612"
+		 pageHeight="792"
+		 columnWidth="468"
+		 columnSpacing="0"
+		 leftMargin="72"
+		 rightMargin="72"
+		 topMargin="72"
+		 bottomMargin="72"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<style 
+		name="TA_Colour"
+		isDefault="false"
+		fontName="Verdana"
+		isBold="true"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[new Boolean ($V{TA}.equals( "CVMET" ) )]]></conditionExpression>
+			<style 
+				name="TA_Colour"
+				isDefault="false"
+				mode="Opaque"
+				forecolor="#333364"
+				backcolor="#FFFF00"
+			/>
+		</conditionalStyle>
+			<conditionalStyle>
+				<conditionExpression><![CDATA[new Boolean ($V{TA}.equals( "Neuro" ) )]]></conditionExpression>
+				<style 
+					name="TA_Colour"
+					isDefault="false"
+					mode="Opaque"
+					forecolor="#333364"
+					backcolor="#3399FF"
+				/>
+			</conditionalStyle>
+				<conditionalStyle>
+					<conditionExpression><![CDATA[new Boolean ($V{TA}.equals( "Immunoscience" ) )]]></conditionExpression>
+					<style 
+						name="TA_Colour"
+						isDefault="false"
+						mode="Opaque"
+						forecolor="#3333FF"
+						backcolor="#CC66FF"
+					/>
+				</conditionalStyle>
+					<conditionalStyle>
+						<conditionExpression><![CDATA[new Boolean ($V{TA}.equals( "Virology" ) )]]></conditionExpression>
+						<style 
+							name="TA_Colour"
+							isDefault="false"
+							mode="Opaque"
+							forecolor="#3333FF"
+							backcolor="#CCCCCC"
+						/>
+					</conditionalStyle>
+						<conditionalStyle>
+							<conditionExpression><![CDATA[new Boolean ($V{TA}.equals( "Health Outcomes" ) )]]></conditionExpression>
+							<style 
+								name="TA_Colour"
+								isDefault="false"
+								mode="Opaque"
+								forecolor="#3333FF"
+								backcolor="#99FF99"
+							/>
+						</conditionalStyle>
+							<conditionalStyle>
+								<conditionExpression><![CDATA[new Boolean ($V{TA}.equals( "Oncology" ) )]]></conditionExpression>
+								<style 
+									name="TA_Colour"
+									isDefault="false"
+									mode="Opaque"
+									forecolor="#3333FF"
+									backcolor="#FF6600"
+								/>
+							</conditionalStyle>
+	</style>
+	<style 
+		name="leftmostcolumn"
+		isDefault="false"
+		forecolor="#000066"
+	/>
+
+	<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["All"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="startDate" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["01/01/"+(new SimpleDateFormat("yyyy").format(new Date(System.currentTimeMillis())))]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["01/01/"+(new SimpleDateFormat("yyyy").format(new Date(System.currentTimeMillis())))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="endDate" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA[(new SimpleDateFormat("MM/dd/yyyy").format(new Date(System.currentTimeMillis())))]]></parameterDescription>
+		<defaultValueExpression ><![CDATA[(new SimpleDateFormat("MM/dd/yyyy").format(new Date(System.currentTimeMillis())))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="userId" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["'84702011'" "'90407761'"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="title" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[($P{reportTherapeuticArea}) + " " + $P{startDate} + " - " + $P{endDate} + " Activities Summary "]]></defaultValueExpression>
+	</parameter>
+	<parameter name="daysBetweenDateRange" isForPrompting="false" class="java.lang.Long">
+		<defaultValueExpression ><![CDATA[new Long( ( new SimpleDateFormat("MM/dd/yyyy").parse($P{endDate}).getTime() - new SimpleDateFormat("MM/dd/yyyy").parse($P{startDate}).getTime())/(24 * 60 * 60 * 1000 ) )]]></defaultValueExpression>
+	</parameter>
+	<parameter name="userGroupId" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["-1"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="allowedProducts" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["select productLOV.id from option_lookup productLOV where productLOV.parent = (select parent.id from option_lookup parent where parent.optvalue = siv.interaction_ta and parent.option_id = 44)"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["select productLOV.id from option_lookup productLOV where productLOV.parent = (select parent.id from option_lookup parent where parent.optvalue = siv.interaction_ta and parent.option_id = 44)"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="restrictedLOVs" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["select  feature_id from feature_usergroup_map where permission_on_feature = 2 and feature_usergroup_map.usergroup_id like '%,'||$P!{userGroupId}||',%'"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["select  feature_id from feature_usergroup_map where permission_on_feature = 2 and feature_usergroup_map.usergroup_id like '%,'||$P!{userGroupId}||',%'"]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[Select INTERACTION_TA, FIELD_NAME, nvl( FIELD_VALUE, 0) as FIELD_VALUE,
+  (select value from global_constants where name = 'SCORECARD_NOT_PERMITTED_MSG' ) as SCORECARD_NOT_PERMITTED_MSG,
+(select GET_USER_REPORT_LEVEL( $P!{userId} ) from dual ) as user_report_level
+from
+(
+  SELECT MSL_TA as INTERACTION_TA, '11# Field MSLs' AS FIELD_NAME, trim(to_char(COUNT(DISTINCT MSL_USER_ID), '9,999,999,999,999,999,999'))  AS FIELD_VALUE
+  FROM SC_MSL_VIEW
+where MSL_TA like ( case when $P{reportTherapeuticArea} != 'All' then  $P{reportTherapeuticArea} else '%' end)
+and end_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and begin_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+  GROUP BY MSL_TA  
+UNION ALL  
+  SELECT MSL_TA as INTERACTION_TA, '12# MP TLs' AS FIELD_NAME, trim(to_char(count(*), '9,999,999,999,999,999,999')) AS FIELD_VALUE
+  FROM SC_MSL_MPOL_VIEW
+where MSL_TA like ( case when $P{reportTherapeuticArea} != 'All' then  $P{reportTherapeuticArea} else '%' end)
+and end_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and begin_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+  GROUP BY MSL_TA  
+UNION ALL  
+select proactive_count_query.INTERACTION_TA, '13# Proactive Visits'||chr(13)||chr(10)||'(% of Total)' as FIELD_NAME,
+trim(to_char(proactive_count_query.Proactive_Visits, '9,999,999,999,999,999,999'))||chr(13)||chr(10)||'('||round  ( ( proactive_count_query.Proactive_Visits * 100 )/
+( proactive_count_query.Proactive_Visits + reactive_count_query.Field_Response_Visits), 1)||'%)' as FIELD_VALUE
+from
+(
+  SELECT INTERACTION_TA, COUNT(*) AS Proactive_Visits
+  FROM SC_INTERACTION_PROACTIVE_VIEW
+where interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then  $P{reportTherapeuticArea} else '%' end)
+and interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+  GROUP BY interaction_ta 
+) proactive_count_query
+left outer join 
+(
+SELECT INTERACTION_TA, COUNT(*) AS Field_Response_Visits
+  FROM SC_INTERACTION_REACTIVE_VIEW
+where interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then  $P{reportTherapeuticArea} else '%' end)
+and interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+  GROUP BY interaction_ta  
+) reactive_count_query
+on (proactive_count_query.interaction_ta = reactive_count_query.interaction_ta)
+UNION ALL
+select proactive_count_query.INTERACTION_TA, '14# Field Response Visits'||chr(13)||chr(10)||'(% of Total)' as FIELD_NAME,
+trim(to_char(reactive_count_query.Field_Response_Visits, '9,999,999,999,999,999,999'))||chr(13)||chr(10)||'('||round  ( ( reactive_count_query.Field_Response_Visits * 100 )/
+( proactive_count_query.Proactive_Visits + reactive_count_query.Field_Response_Visits), 1)||'%)' as FIELD_VALUE
+from
+(
+  SELECT INTERACTION_TA, COUNT(*) AS Proactive_Visits
+  FROM SC_INTERACTION_PROACTIVE_VIEW
+where interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then  $P{reportTherapeuticArea} else '%' end)
+and interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+  GROUP BY interaction_ta 
+) proactive_count_query
+left outer join 
+(
+SELECT INTERACTION_TA, COUNT(*) AS Field_Response_Visits
+  FROM SC_INTERACTION_REACTIVE_VIEW
+where interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then  $P{reportTherapeuticArea} else '%' end)
+and interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+  GROUP BY interaction_ta  
+) reactive_count_query
+on (proactive_count_query.interaction_ta = reactive_count_query.interaction_ta)
+UNION ALL
+
+select interaction_ta, '15Unsolicited Off-Label Questions' AS FIELD_NAME, trim(to_char(COUNT(siv.inquiry_topic), '9,999,999,999,999,999,999')) AS FIELD_VALUE
+from sc_inquiry_view siv
+where siv.interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then  $P{reportTherapeuticArea} else '%' end)
+and siv.interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and siv.interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+and siv.inquiry_product_id in ( $P!{allowedProducts} )
+and siv.inquiry_product_id not in ( $P!{restrictedLOVs} )
+group by siv.interaction_ta
+
+UNION ALL
+  SELECT INTERACTION_TA, '16TL Email Interactions' AS FIELD_NAME, trim(to_char(COUNT(*), '9,999,999,999,999,999,999')) AS FIELD_VALUE
+  FROM SC_INTERACTION_EMAIL_VIEW
+where interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then  $P{reportTherapeuticArea} else '%' end)
+and interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+  GROUP BY interaction_ta    
+UNION ALL
+  SELECT INTERACTION_TA, '17TL Telephone Interactions' AS FIELD_NAME, trim(to_char(COUNT(*), '9,999,999,999,999,999,999')) AS FIELD_VALUE
+  FROM sc_INTERACTION_phone_view
+where interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then  $P{reportTherapeuticArea} else '%' end)
+and interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+  GROUP BY interaction_ta   
+UNION ALL
+  SELECT INTERACTION_TA, '18HCM Presentations' AS FIELD_NAME, trim(to_char(COUNT(*), '9,999,999,999,999,999,999')) AS FIELD_VALUE
+  FROM sc_INTERACTION_hcmpres_view
+where interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then  $P{reportTherapeuticArea} else '%' end)
+and interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+  GROUP BY interaction_ta   
+UNION ALL
+  SELECT INTERACTION_TA, '19Other Group Presentations' AS FIELD_NAME, trim(to_char(COUNT(*), '9,999,999,999,999,999,999')) AS FIELD_VALUE
+  FROM sc_INTERACTION_otherpres_view
+where interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then  $P{reportTherapeuticArea} else '%' end)
+and interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+  GROUP BY interaction_ta      
+UNION ALL
+  SELECT INTERACTION_TA, '20Total 1 on 1 Impacted' AS FIELD_NAME, trim(to_char(SUM(TOTAL_ATTENDEE_COUNT), '9,999,999,999,999,999,999')) as FIELD_VALUE
+  FROM sc_1on1_attendee_count_view
+where interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then  $P{reportTherapeuticArea} else '%' end)
+and interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+  GROUP BY interaction_ta  
+UNION ALL
+select total_1to1_impacted_query.INTERACTION_TA, '21Avg 1 on 1 Impacts per MSL per Day' as FIELD_NAME,
+trim(to_char(nvl(round((total_1to1_impacted_query.total_1to1_impacted / field_msl_query.field_msl)/
+( (188 * $P{daysBetweenDateRange})/ 365), 1 ), 0), '9,999,999,999,999,999,999.9')) as FIELD_VALUE
+from
+(
+SELECT INTERACTION_TA,  SUM(TOTAL_ATTENDEE_COUNT) as total_1to1_impacted
+  FROM sc_1on1_attendee_count_view
+where interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then  $P{reportTherapeuticArea} else '%' end)
+and interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+GROUP BY interaction_ta
+) total_1to1_impacted_query
+left outer join
+(
+  SELECT MSL_TA as INTERACTION_TA, COUNT(DISTINCT MSL_USER_ID)  AS field_msl
+  FROM SC_MSL_VIEW
+where MSL_TA like ( case when $P{reportTherapeuticArea} != 'All' then  $P{reportTherapeuticArea} else '%' end)
+and end_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and begin_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+  GROUP BY MSL_TA 
+) field_msl_query
+on ( total_1to1_impacted_query.interaction_ta = field_msl_query.interaction_ta )
+UNION ALL
+  SELECT INTERACTION_TA, '22Total Impacted (group, 1-1, phone & email)' AS FIELD_NAME, trim(to_char(SUM(TOTAL_ATTENDEE_COUNT), '9,999,999,999,999,999,999')) AS FIELD_VALUE
+  FROM sc_attendee_count_view
+where interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then  $P{reportTherapeuticArea} else '%' end)
+and interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+  GROUP BY interaction_ta  
+UNION ALL
+select total_impacted_query.INTERACTION_TA, '23Avg Impacts/MSL/Day' as FIELD_NAME,
+trim(to_char(nvl(round((total_impacted_query.total_impacted / field_msl_query.field_msl)/
+( (188 * $P{daysBetweenDateRange})/ 365), 1 ), 0), '9,999,999,999,999,999,999.9')) as FIELD_VALUE
+from
+(
+ SELECT interaction_ta,  sum(total_attendee_count) as Total_Impacted
+  FROM SC_ATTENDEE_COUNT_VIEW
+where interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then  $P{reportTherapeuticArea} else '%' end)
+and interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+GROUP BY interaction_ta
+) total_impacted_query
+left outer join
+(
+  SELECT MSL_TA as INTERACTION_TA, COUNT(DISTINCT MSL_USER_ID)  AS field_msl
+  FROM SC_MSL_VIEW
+where MSL_TA like ( case when $P{reportTherapeuticArea} != 'All' then  $P{reportTherapeuticArea} else '%' end)
+and end_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and begin_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+  GROUP BY MSL_TA 
+) field_msl_query
+on ( total_impacted_query.interaction_ta = field_msl_query.interaction_ta )
+UNION ALL
+  SELECT INTERACTION_TA, '24Total Interactions (group, 1-1, phone & email)' AS FIELD_NAME, trim(to_char(COUNT(*), '9,999,999,999,999,999,999')) AS FIELD_VALUE
+  FROM SC_INTERACTION_VIEW
+where interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then  $P{reportTherapeuticArea} else '%' end)
+and interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+  GROUP BY interaction_ta  
+)]]></queryString>
+
+	<field name="INTERACTION_TA" class="java.lang.String"/>
+	<field name="SCORECARD_NOT_PERMITTED_MSG" class="java.lang.String"/>
+	<field name="USER_REPORT_LEVEL" class="java.math.BigDecimal"/>
+	<field name="FIELD_NAME" class="java.lang.String"/>
+	<field name="FIELD_VALUE" class="java.lang.String"/>
+
+	<variable name="showFootNote" class="java.lang.Boolean" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[new Boolean ( new SimpleDateFormat("MM/dd/yyyy").parse($P{startDate}).compareTo( new SimpleDateFormat("MM/dd/yyyy").parse("04/01/2009")) < 0 ? true : false )]]></variableExpression>
+	</variable>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="26"  isSplitAllowed="true" >
+				<printWhenExpression><![CDATA[new Boolean( $F{USER_REPORT_LEVEL}.intValue() != 3 && $F{USER_REPORT_LEVEL}.intValue() != 4 )]]></printWhenExpression>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="466"
+						height="26"
+						key="textField-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" size="14" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{SCORECARD_NOT_PERMITTED_MSG}]]></textFieldExpression>
+				</textField>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="143"  isSplitAllowed="true" >
+				<printWhenExpression><![CDATA[new Boolean( $F{USER_REPORT_LEVEL}.intValue() == 3 || $F{USER_REPORT_LEVEL}.intValue() == 4 )]]></printWhenExpression>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="466"
+						height="26"
+						key="textField">
+							<printWhenExpression><![CDATA[new Boolean ( $P{reportTherapeuticArea}.equals( "All" ) )]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{title}]]></textFieldExpression>
+				</textField>
+				<crosstab >
+					<reportElement
+						x="0"
+						y="26"
+						width="466"
+						height="60"
+						key="crosstab-1"
+						positionType="Float"/>
+					<crosstabHeaderCell>						<cellContents mode="Transparent">
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+				<staticText>
+					<reportElement
+						style="leftmostcolumn"
+						x="0"
+						y="0"
+						width="99"
+						height="24"
+						key="staticText-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Topic]]></text>
+				</staticText>
+						</cellContents>
+					</crosstabHeaderCell>					<rowGroup name="Field" width="100">
+						<bucket>
+							<bucketExpression class="java.lang.String"><![CDATA[$F{FIELD_NAME}]]></bucketExpression>
+						</bucket>
+						<crosstabRowHeader>
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="leftmostcolumn"
+						x="0"
+						y="0"
+						width="100"
+						height="30"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Top">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{Field}.substring( 2 )]]></textFieldExpression>
+				</textField>
+						</cellContents>
+						</crosstabRowHeader>
+					</rowGroup>
+					<columnGroup name="TA" height="25" headerPosition="Center">
+						<bucket>
+							<bucketExpression class="java.lang.String"><![CDATA[$F{INTERACTION_TA}]]></bucketExpression>
+						</bucket>
+						<crosstabColumnHeader>
+						<cellContents mode="Transparent">
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="TA_Colour"
+						x="0"
+						y="0"
+						width="50"
+						height="25"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[($V{TA}.equals("CVMET"))?"CVMET":($V{TA}.equals("Neuro"))?"NS":($V{TA}.equals("Oncology"))?"Onc":($V{TA}.equals("Immunoscience"))?"Imm":($V{TA}.equals("Virology"))?"Vr":($V{TA}.equals("Health Outcomes"))?"HEOR":"NA"]]></textFieldExpression>
+				</textField>
+						</cellContents>
+						</crosstabColumnHeader>
+					</columnGroup>
+
+					<measure name="value" class="java.lang.String">
+						<measureExpression><![CDATA[$F{FIELD_VALUE}]]></measureExpression>
+					</measure>
+					<crosstabCell width="50" height="30">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="50"
+						height="30"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[( $V{value} != null ? $V{value}  : "0" )]]></textFieldExpression>
+				</textField>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="30" columnTotalGroup="TA">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="50" height="0" rowTotalGroup="Field">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="0" rowTotalGroup="Field" columnTotalGroup="TA">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<whenNoDataCell>						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+						</cellContents>
+					</whenNoDataCell>					</crosstab>
+				<staticText>
+					<reportElement
+						x="0"
+						y="90"
+						width="466"
+						height="22"
+						key="staticText-1"
+						positionType="Float">
+							<printWhenExpression><![CDATA[new Boolean ( !$P{reportTherapeuticArea}.equals( "All" ) )]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font fontName="Verdana" size="8"/>
+					</textElement>
+				<text><![CDATA[1. Per Day Averages assume 188 MSL-days
+per year.
+]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="112"
+						width="466"
+						height="31"
+						key="staticText-2"
+						positionType="Float">
+							<printWhenExpression><![CDATA[new Boolean ( $V{showFootNote}.booleanValue() && !$P{reportTherapeuticArea}.equals( "All" ) )]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font fontName="Verdana" size="8"/>
+					</textElement>
+				<text><![CDATA[2. Proactive/Field Response Data percentages
+will not be accurate for Start Dates prior
+to April 01, 2009.]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="466"
+						height="26"
+						key="textField-2">
+							<printWhenExpression><![CDATA[new Boolean ( !$P{reportTherapeuticArea}.equals( "All" ) )]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{title}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="0"
+						y="90"
+						width="466"
+						height="12"
+						key="staticText-3"
+						positionType="Float">
+							<printWhenExpression><![CDATA[new Boolean ( $P{reportTherapeuticArea}.equals( "All" ) )]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font fontName="Verdana" size="8"/>
+					</textElement>
+				<text><![CDATA[1. Per Day Averages assume 188 MSL-days per year.
+]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="0"
+						y="102"
+						width="466"
+						height="10"
+						key="staticText-4"
+						positionType="Float">
+							<printWhenExpression><![CDATA[new Boolean ( $V{showFootNote}.booleanValue() && $P{reportTherapeuticArea}.equals( "All" ) )]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font fontName="Verdana" size="8"/>
+					</textElement>
+				<text><![CDATA[2. Proactive/Field Response Data percentages will not be accurate for Start Dates prior to April 01, 2009.]]></text>
+				</staticText>
+			</band>
+		</summary>
+</jasperReport>

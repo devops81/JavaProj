@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="EducationalDialogue"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Landscape"
+		 pageWidth="800"
+		 pageHeight="600"
+		 columnWidth="800"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="reportRegion" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="startDate" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["01/01/"+((new Date()).getYear()+1900)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="endDate" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[((new Date()).getMonth()+1)+"/"+(new Date()).getDate()+"/"+((new Date()).getYear()+1900)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="usersList" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[($P{reportTherapeuticArea}.equals("All")? new String("I.USERID"): new String("-1"))]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[SELECT
+				OL_TA.OPTVALUE TA, OL_RAD.OPTVALUE RAD, U_RAD.LASTNAME || ', ' || U_RAD.FIRSTNAME RADOWNER,
+				OL_TR.OPTVALUE TERRITORY, U_MSL.ID MSL_ID, U_MSL.LASTNAME || ', ' || U_MSL.FIRSTNAME MSL_NAME,
+				U_OL.ID OL_ID, U_OL.LASTNAME || ', ' || U_OL.FIRSTNAME OL_NAME, EDV_OL.ADDR_CITY OL_CITY, OL_PRODUCT.OPTVALUE PRODUCT,
+				OL_QUEST.OPTVALUE QUESTION, OL_ANS.OPTVALUE ANSWER, TO_CHAR(I.INTERACTIONDATE, 'MM/DD/YYYY') IDATE
+			FROM INTERACTION I, INTERACTION_DATA DIALOGUE, OPTION_LOOKUP OL_TA, OPTION_LOOKUP OL_TR, USER_TABLE U_MSL,
+				USER_TABLE U_OL, ATTENDEES A, OPTION_LOOKUP OL_QUEST, OPTION_LOOKUP OL_ANS, USER_TABLE U_RAD,
+				USER_RELATIONSHIP UR_TER, USER_RELATIONSHIP UR_RAD, OPTION_LOOKUP OL_RAD, EXPERT_DETAILS_VIEW EDV_OL,
+				INTERACTION_DATA IDATA_PRODUCT, OPTION_LOOKUP OL_PRODUCT, OPTION_NAMES ON_PRODUCT
+			WHERE I.USERID IN ($P!{usersList})
+				AND I.DELETEFLAG != 'Y'
+				AND I.INTERACTIONDATE >= TO_TIMESTAMP($P{startDate},'MM/DD/YYYY')
+				AND I.INTERACTIONDATE <= TO_TIMESTAMP($P{endDate}, 'MM/DD/YYYY')
+				AND OL_TA.ID = I.TA
+				AND DIALOGUE.TYPE = 'educationalObjectivesMultiselectIds' AND DIALOGUE.INTERACTION_ID = I.INTERACTION_ID
+				AND A.INTERACTION_ID = I.INTERACTION_ID AND A.USERID = U_OL.ID AND EDV_OL.KOLID = U_OL.KOLID
+				AND U_RAD.ID = I.SUPERVISOR_ID AND UR_RAD.USER_ID = U_RAD.ID AND UR_RAD.RELATIONSHIP_TYPE = 2 AND OL_RAD.ID = UR_RAD.TERRITORY
+				AND U_MSL.ID = I.USERID AND UR_TER.USER_ID = U_MSL.ID AND UR_TER.RELATIONSHIP_TYPE = 1 AND OL_TR.ID = UR_TER.TERRITORY
+				AND ON_PRODUCT.NAME = 'Product' AND OL_PRODUCT.OPTION_ID = ON_PRODUCT.ID
+				AND IDATA_PRODUCT.INTERACTION_ID = I.INTERACTION_ID	AND IDATA_PRODUCT.LOVID = OL_PRODUCT.ID 
+				AND OL_QUEST.ID = DIALOGUE.LOVID AND OL_ANS.ID = DIALOGUE.SECONDARY_LOVID]]></queryString>
+
+	<field name="TA" class="java.lang.String"/>
+	<field name="RAD" class="java.lang.String"/>
+	<field name="RADOWNER" class="java.lang.String"/>
+	<field name="TERRITORY" class="java.lang.String"/>
+	<field name="MSL_ID" class="java.lang.String"/>
+	<field name="MSL_NAME" class="java.lang.String"/>
+	<field name="OL_ID" class="java.lang.String"/>
+	<field name="OL_NAME" class="java.lang.String"/>
+	<field name="OL_CITY" class="java.lang.String"/>
+	<field name="PRODUCT" class="java.lang.String"/>
+	<field name="QUESTION" class="java.lang.String"/>
+	<field name="ANSWER" class="java.lang.String"/>
+	<field name="IDATE" class="java.lang.String"/>
+
+	<sortField name="TA" />
+	<sortField name="RAD" />
+	<sortField name="TERRITORY" />
+	<sortField name="MSL_NAME" />
+	<sortField name="OL_NAME" />
+	<sortField name="PRODUCT" />
+
+	<variable name="TA_TITLE" class="java.lang.String" resetType="Report" calculation="Nothing">
+		<initialValueExpression><![CDATA[($P{reportTherapeuticArea}.equals("All")? new String("All TAs"): $P{reportTherapeuticArea})]]></initialValueExpression>
+	</variable>
+	<variable name="OL_TA_COUNT" class="java.lang.Integer" resetType="Group" resetGroup="TAGroup" calculation="Sum">
+		<variableExpression><![CDATA[$V{OL_COUNT}]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<variable name="OBJ_TA_COUNT" class="java.lang.Integer" resetType="Group" resetGroup="TAGroup" calculation="Sum">
+		<variableExpression><![CDATA[$V{OBJ_COUNT}]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<variable name="REGION_TITLE" class="java.lang.String" resetType="Report" calculation="Nothing">
+		<initialValueExpression><![CDATA[($P{reportRegion}.equals("All")? new String("All Regions"): $P{reportRegion})]]></initialValueExpression>
+	</variable>
+	<variable name="RAD" class="java.lang.String" resetType="Group" resetGroup="RADGroup" calculation="Nothing">
+		<variableExpression><![CDATA[$F{TA} + ": " + $F{RAD} + " (" + $F{RADOWNER} + ")"]]></variableExpression>
+		<initialValueExpression><![CDATA[$F{TA} + ": " + $F{RAD} + " (" + $F{RADOWNER} + ")"]]></initialValueExpression>
+	</variable>
+	<variable name="OL_RAD_COUNT" class="java.lang.Integer" resetType="Group" resetGroup="RADGroup" calculation="Sum">
+		<variableExpression><![CDATA[$V{OL_COUNT}]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<variable name="OBJ_RAD_COUNT" class="java.lang.Integer" resetType="Group" resetGroup="RADGroup" calculation="Sum">
+		<variableExpression><![CDATA[$V{OBJ_COUNT}]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<variable name="MSL" class="java.lang.String" resetType="Group" resetGroup="MSLGroup" calculation="Nothing">
+		<variableExpression><![CDATA[$F{MSL_NAME} + " (" + $F{TERRITORY} + ")"]]></variableExpression>
+		<initialValueExpression><![CDATA[$F{MSL_NAME} + " (" + $F{TERRITORY} + ")"]]></initialValueExpression>
+	</variable>
+	<variable name="OL_MSL_COUNT" class="java.lang.Integer" resetType="Group" resetGroup="MSLGroup" calculation="Sum">
+		<variableExpression><![CDATA[$V{OL_COUNT}]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<variable name="OBJ_MSL_COUNT" class="java.lang.Integer" resetType="Group" resetGroup="MSLGroup" calculation="Sum">
+		<variableExpression><![CDATA[$V{OBJ_COUNT}]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<variable name="OL" class="java.lang.String" resetType="Group" resetGroup="OLGroup" calculation="Nothing">
+		<variableExpression><![CDATA[$F{OL_NAME} + " (" + $F{OL_CITY} + ")"]]></variableExpression>
+		<initialValueExpression><![CDATA[$F{OL_NAME} + " (" + $F{OL_CITY} + ")"]]></initialValueExpression>
+	</variable>
+	<variable name="OL_COUNT" class="java.lang.Integer" resetType="Group" resetGroup="OLGroup" calculation="Nothing">
+		<variableExpression><![CDATA[new Integer(0)]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(1)]]></initialValueExpression>
+	</variable>
+	<variable name="PRODUCT" class="java.lang.String" resetType="Group" resetGroup="ProductGroup" calculation="Nothing">
+		<variableExpression><![CDATA[$F{PRODUCT}]]></variableExpression>
+		<initialValueExpression><![CDATA[$F{PRODUCT}]]></initialValueExpression>
+	</variable>
+	<variable name="SNO" class="java.lang.Integer" resetType="Group" incrementType="Column" resetGroup="ProductGroup" calculation="Nothing">
+		<variableExpression><![CDATA[new Integer($V{SNO}.intValue() + 1)]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<variable name="OBJ_COUNT" class="java.lang.Integer" resetType="Group" incrementType="Column" resetGroup="ProductGroup" calculation="Nothing">
+		<variableExpression><![CDATA[new Integer(1)]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(1)]]></initialValueExpression>
+	</variable>
+
+		<group  name="TAGroup" >
+			<groupExpression><![CDATA[$F{TA}]]></groupExpression>
+			<groupHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="40"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="800"
+						height="20"
+						backcolor="#00CCCC"
+						key="textField-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="8" isBold="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Total " + $F{TA} + " - " + $V{OL_TA_COUNT} + " OLs with Educational Objectives, " + $V{OBJ_TA_COUNT} + " Objectives Discussed"]]></textFieldExpression>
+				</textField>
+			</band>
+			</groupFooter>
+		</group>
+		<group  name="RADGroup" >
+			<groupExpression><![CDATA[$V{RAD}]]></groupExpression>
+			<groupHeader>
+			<band height="20"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="800"
+						height="20"
+						backcolor="#00CCCC"
+						key="textField-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="8" isBold="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{RAD}]]></textFieldExpression>
+				</textField>
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="40"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="25"
+						y="0"
+						width="800"
+						height="20"
+						backcolor="#00CCCC"
+						key="textField-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="8" isBold="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Total " + $F{RAD} + " - " + $V{OL_RAD_COUNT} + " OLs with Educational Objectives, " + $V{OBJ_RAD_COUNT} + " Objectives Discussed"]]></textFieldExpression>
+				</textField>
+			</band>
+			</groupFooter>
+		</group>
+		<group  name="MSLGroup" >
+			<groupExpression><![CDATA[$V{MSL}]]></groupExpression>
+			<groupHeader>
+			<band height="20"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="25"
+						y="0"
+						width="775"
+						height="20"
+						backcolor="#CCFFFF"
+						key="textField-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="8" isBold="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{MSL}]]></textFieldExpression>
+				</textField>
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="40"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="60"
+						y="0"
+						width="775"
+						height="20"
+						backcolor="#CCFFFF"
+						key="textField-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="8" isBold="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Total " + $F{MSL_NAME} + " - " + $V{OL_MSL_COUNT} + " OLs with Educational Objectives, " + $V{OBJ_MSL_COUNT} + " Objectives Discussed"]]></textFieldExpression>
+				</textField>
+			</band>
+			</groupFooter>
+		</group>
+		<group  name="OLGroup" >
+			<groupExpression><![CDATA[$V{OL}]]></groupExpression>
+			<groupHeader>
+			<band height="20"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="60"
+						y="0"
+						width="740"
+						height="20"
+						backcolor="#FFFFFF"
+						key="textField-3"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="8" isBold="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{OL}]]></textFieldExpression>
+				</textField>
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+			</groupFooter>
+		</group>
+		<group  name="ProductGroup" >
+			<groupExpression><![CDATA[$V{PRODUCT}]]></groupExpression>
+			<groupHeader>
+			<band height="20"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="95"
+						y="0"
+						width="705"
+						height="20"
+						backcolor="#FFFFFF"
+						key="textField-4"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="8" isBold="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{PRODUCT}]]></textFieldExpression>
+				</textField>
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+			</groupFooter>
+		</group>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="75"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="10"
+						width="800"
+						height="15"
+						key="textField-5"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{TA_TITLE} + " Medical Science"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="25"
+						width="800"
+						height="15"
+						key="textField-6"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["TL Education Objective Report"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="40"
+						width="800"
+						height="15"
+						key="textField-7"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{REGION_TITLE} + " " + $P{startDate} + " - " + $P{endDate}]]></textFieldExpression>
+				</textField>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="20"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="25"
+						height="20"
+						backcolor="#FFFFFF"
+						key="staticText-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="8" isBold="true" isUnderline="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="25"
+						y="0"
+						width="35"
+						height="20"
+						backcolor="#FFFFFF"
+						key="staticText-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="8" isBold="true" isUnderline="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<text><![CDATA[MSL]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="60"
+						y="0"
+						width="35"
+						height="20"
+						backcolor="#FFFFFF"
+						key="staticText-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="8" isBold="true" isUnderline="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<text><![CDATA[TL]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="95"
+						y="0"
+						width="55"
+						height="20"
+						backcolor="#FFFFFF"
+						key="staticText-3"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="8" isBold="true" isUnderline="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<text><![CDATA[Product]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="150"
+						y="0"
+						width="25"
+						height="20"
+						backcolor="#FFFFFF"
+						key="staticText-4"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="8" isBold="true" isUnderline="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="175"
+						y="0"
+						width="325"
+						height="20"
+						backcolor="#FFFFFF"
+						key="staticText-5"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="8" isBold="true" isUnderline="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<text><![CDATA[Educational Dialogue]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="500"
+						y="0"
+						width="225"
+						height="20"
+						backcolor="#FFFFFF"
+						key="staticText-6"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="8" isBold="true" isUnderline="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<text><![CDATA[Assessment]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="725"
+						y="0"
+						width="75"
+						height="20"
+						backcolor="#FFFFFF"
+						key="staticText-7"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="8" isBold="true" isUnderline="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<text><![CDATA[Date]]></text>
+				</staticText>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="40"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="150"
+						y="0"
+						width="25"
+						height="20"
+						key="textField-8"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Top">
+						<font fontName="Verdana" size="8" isPdfEmbedded ="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$V{SNO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="175"
+						y="0"
+						width="325"
+						height="40"
+						backcolor="#FFFFFF"
+						key="textField-9"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Top">
+						<font fontName="Verdana" size="8" isPdfEmbedded ="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{QUESTION}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="500"
+						y="0"
+						width="225"
+						height="20"
+						key="textField-10"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Top">
+						<font fontName="Verdana" size="8" isPdfEmbedded ="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ANSWER}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="725"
+						y="0"
+						width="75"
+						height="20"
+						key="textField-11"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Top">
+						<font fontName="Verdana" size="8" isPdfEmbedded ="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{IDATE}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

@@ -1,0 +1,20 @@
+/* ------------  ldap configuration  ---------------------- */
+AUTHENTICATION=DB
+
+INITIAL_CONTEXT_FACTORY=com.sun.jndi.ldap.LdapCtxFactory
+PROVIDER_URL=ldap://localhost:10389
+SECURITY_AUTHENTICATION_BASE=simple
+SECURITY_PRINCIPAL_BASE=uid=admin,ou=system
+SECURITY_CREDENTIALS_BASE=secret
+
+SECURITY_AUTHENTICATION=simple
+BASE_CONTEXT=ou=users,ou=system
+attr=uid
+
+CUSTOMER=Novartis
+DOCTOR=Expert
+HCP=Expert
+DOCTOR_SHORT=Exp
+
+/* ---------------------  ORX -------------------- */
+ORX_TYPE=file

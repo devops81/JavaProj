@@ -1,0 +1,1961 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="SaxaProfile"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Landscape"
+		 pageWidth="6400"
+		 pageHeight="842"
+		 columnWidth="6400"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="usersList" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["territory.userId"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="startDate" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["01/01/2000"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="endDate" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["01/01/2099"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="value" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="now" isForPrompting="false" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["All"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="reportRegion" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["All"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="reportTerritory" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["All"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[SELECT u.kolid,
+  u.lastname || ', ' || u.firstname ol,
+  Address.Addr_line1 address1,
+  Address.Addr_line2 address2,
+  Address.city AS city,
+  Address.country AS country,
+  Address.state AS state,
+  Address.zip AS zip,
+  Address.phone AS phone,
+  Address.fax AS fax,
+  Address.email AS email,
+  orgs.affiliation AS OrgName,
+  Address.mobile AS mobile, 
+  prefix.VALUE AS prefix,
+  degree.VALUE AS degree,
+  ol_selection_criteria.value1,
+  ol_selection_criteria.value2,
+  ol_selection_criteria.value3,
+  ol_selection_criteria.value4,
+  ol_selection_criteria.value5,
+  ol_selection_criteria.value6,
+  ol_selection_criteria.value7,
+  ol_selection_criteria.value8,
+  ol_Selection_Criteria.value9,
+  ol_Selection_Criteria.value10,
+  ol_Selection_Criteria.value11,
+  ol_Selection_Criteria.value12,
+  ol_Selection_Criteria.value13,
+  ol_Selection_Criteria.value14,
+  ol_Selection_Criteria.value15,
+  Territory.VALUE AS Territory,
+  Territory.userName as UserName,
+  Surveys.ans1,
+  Surveys.ans2,
+  Surveys.ans3,
+  Surveys.ans4,
+  Surveys.ans5,
+  Surveys.ans6,
+  Surveys.ans7,
+  Surveys.ans8,
+  Surveys.ans9,
+  Surveys.ans10,
+  Surveys.ans11,
+  Surveys.ans12,
+  Surveys.ans13,
+  Surveys.ans14,
+  Surveys.ans15,
+  Surveys.ans16,
+  Surveys.ans17,
+  Surveys.ans18,
+  Surveys.ans19,
+  Surveys.createdate,
+  Publications.value 
+  
+  FROM
+
+  (
+select 
+  kolid,
+  addr_line_1 addr_line1,
+  addr_city city,
+  addr_state state,
+  addr_postal_code zip,
+  addr_country country,
+  addr_line_2 addr_line2,
+  primary_phone phone,
+  primary_fax fax,
+  primary_email email,
+  primary_mobile mobile
+from expert_details_view  
+) Address,
+
+
+(SELECT kol,
+       LTRIM(MAX(SYS_CONNECT_BY_PATH(val,'~ '))
+       KEEP (DENSE_RANK LAST ORDER BY curr),'~ ') AS Affiliation
+FROM   (SELECT u.kolid kol,
+               st.value val,
+               ROW_NUMBER() OVER (PARTITION BY u.kolid ORDER BY st.value) AS curr,
+               ROW_NUMBER() OVER (PARTITION BY u.kolid ORDER BY st.value) -1 AS prev
+          from string_attribute st,
+entities_attribute en,
+org_ol_map org,
+user_table u
+where 
+u.id = org.olID
+and en.parent_id = org.ORGID
+and st.parent_id = en.myentity_id
+and st.attribute_id = 118)
+GROUP BY kol
+CONNECT BY prev = PRIOR curr AND kol = PRIOR kol
+START WITH curr = 1) orgs,
+
+  (SELECT st.VALUE,
+     u.kolid kol
+   FROM string_attribute st,
+     entities_attribute e,
+     entities_attribute en,
+     user_table u
+   WHERE u.kolid = en.parent_id
+   AND en.myentity_id = e.parent_id
+   AND e.myentity_id = st.parent_id
+   AND st.attribute_id = 17)
+prefix,
+
+   (SELECT kol
+     , RTRIM
+       ( xmlagg (xmlelement (c, val || '~ ') order by val).extract ('//text()')
+       , '~ ' ) AS value
+FROM   
+(select u.kolid kol, st.value val
+from user_table u
+left outer join string_attribute st
+on (st.root_entity_id = u.kolid and st.attribute_id = 10)
+where st.value != 'NA' and u.kolid != 0)
+GROUP BY kol) 
+degree,
+
+    (SELECT st.VALUE value1,
+     st1.VALUE value2,
+     st2.VALUE value3,
+     st3.VALUE value4,
+     st4.VALUE value5,
+     st5.VALUE value6,
+     st6.VALUE value7,
+     st7.VALUE value8,
+     st8.VALUE value9,
+     st9.VALUE value10,
+     st10.VALUE value11,
+     st11.VALUE value12,
+     st12.VALUE value13,
+     st13.VALUE value14,
+     st14.VALUE value15,
+     u.kolid kol
+   FROM string_attribute st,
+     string_attribute st1,
+     string_attribute st2,
+     string_attribute st3,
+     string_attribute st4,
+     string_attribute st5,
+     string_attribute st6,
+     string_attribute st7,
+     string_attribute st8,
+     string_attribute st9,
+     string_attribute st10,
+     string_attribute st11,
+     string_attribute st12,
+     string_attribute st13,
+     string_attribute st14,
+     entities_attribute e,
+     entities_attribute en,
+     user_table u
+   WHERE u.kolid = en.parent_id
+   AND en.myentity_id = e.parent_id
+   AND e.myentity_id = st.parent_id
+   AND st.parent_id = st1.parent_id
+   AND st.parent_id = st2.parent_id
+   AND st.parent_id = st3.parent_id
+   AND st.parent_id = st4.parent_id
+   AND st.parent_id = st5.parent_id
+   AND st.parent_id = st6.parent_id
+   AND st.parent_id = st7.parent_id
+   AND st.parent_id = st8.parent_id
+   AND st.parent_id = st9.parent_id
+   AND st.parent_id = st10.parent_id
+   AND st.parent_id = st11.parent_id
+   AND st.parent_id = st12.parent_id
+   AND st.parent_id = st13.parent_id
+   AND st.parent_id = st14.parent_id
+
+   AND st.attribute_id = 111995621
+   AND st1.attribute_id = 111995622
+   AND st2.attribute_id = 111995623
+   AND st3.attribute_id = 111995624
+   AND st4.attribute_id = 111995625
+   AND st5.attribute_id = 111995626
+   AND st6.attribute_id = 111995627
+   AND st7.attribute_id = 111995628
+   AND st8.attribute_id = 111995629
+   AND st9.attribute_id = 111995630
+   AND st10.attribute_id = 111995631
+   AND st11.attribute_id = 111995632
+   AND st12.attribute_id = 111995633
+   AND st13.attribute_id = 111995634
+   AND st14.attribute_id = 111995635)
+ol_selection_criteria,
+
+(select --distinct
+  u.kolid kol,
+  o.optvalue value,
+  u1.lastname||' ,'||u1.firstname userName,
+  u1.id
+  as userId,
+  c.beginDate st,
+  c.endDate en
+from 
+ user_table u,
+ user_table u1,
+ contacts c,
+ option_lookup o,
+ --contacts c1,
+ user_relationship ur
+where
+  c.kolid = u.id
+  and c.staffid = u1.staffid
+  and ur.user_id = u1.id
+  and o.id = ur.territory
+  and ur.begin_date <= sysdate
+  and ur.end_date >= sysdate
+  	
+  )
+Territory,
+
+(
+select distinct
+    q1.expertid,
+    u1.kolid kol,
+    q1.answer ans1,
+    q2.answer ans2,
+    q3.answer ans3,
+    q4.answer ans4,
+    q5.answer ans5,
+    q6.answer ans6,
+    q7.answer ans7,
+    q8.answer ans8,
+    q9.answer ans9,
+    q10.answer ans10,
+    q11.answer ans11,
+    q12.answer ans12,
+    q13.answer ans13,
+    q14.answer ans14,
+    q15.answer ans15,
+    q16.answer ans16,
+    q17.answer ans17,
+    q18.answer ans18,
+    q19.answer ans19,
+    q1.createdate createdate
+   
+    
+from    
+    user_table u1,
+    survey_saxa_view u,
+   (select distinct * from  survey_saxa_view  where questionnumber = 1 )q1,
+   (select distinct * from  survey_saxa_view where questionnumber = 2 )q2,
+   (select distinct * from  survey_saxa_view where questionnumber = 3 )q3,
+   (select distinct * from  survey_saxa_view where questionnumber = 4 )q4,
+   (select distinct * from  survey_saxa_view where questionnumber = 5 )q5,
+   (select distinct * from  survey_saxa_view where questionnumber = 6 )q6,
+   (select distinct * from  survey_saxa_view where questionnumber = 7 )q7,
+   (select distinct * from  survey_saxa_view where questionnumber = 8 )q8,
+   (select distinct * from  survey_saxa_view where questionnumber = 9 )q9,
+   (select distinct * from  survey_saxa_view where questionnumber = 10 )q10,
+   (select distinct * from  survey_saxa_view where questionnumber = 11 )q11,
+   (select distinct * from  survey_saxa_view where questionnumber = 12 )q12,
+   (select distinct * from  survey_saxa_view where questionnumber = 13)q13,
+   (select distinct * from  survey_saxa_view where questionnumber = 14)q14,
+   (select distinct * from  survey_saxa_view where questionnumber = 15)q15,
+   (select distinct * from  survey_saxa_view where questionnumber = 16)q16,
+   (select distinct * from  survey_saxa_view where questionnumber = 17)q17,
+   (select distinct * from  survey_saxa_view where questionnumber = 18)q18,
+   (select distinct * from  survey_saxa_view where questionnumber = 19)q19
+where
+u.expertid = q1.expertid
+and q1.surveyid = q2.surveyid(+)
+and q1.surveyid = q3.surveyid(+)
+and q1.surveyid = q4.surveyid(+)
+and q1.surveyid = q5.surveyid(+)
+and q1.surveyid = q6.surveyid(+)
+and q1.surveyid = q7.surveyid(+)
+and q1.surveyid = q8.surveyid(+)
+and q1.surveyid = q9.surveyid(+)
+and q1.surveyid = q10.surveyid(+)
+and q1.surveyid = q11.surveyid(+)
+and q1.surveyid = q12.surveyid(+)
+and q1.surveyid = q13.surveyid(+)
+and q1.surveyid = q14.surveyid(+)
+and q1.surveyid = q15.surveyid(+)
+and q1.surveyid = q16.surveyid(+)
+and q1.surveyid = q17.surveyid(+)
+and q1.surveyid = q18.surveyid(+)
+and q1.surveyid = q19.surveyid(+)
+and u.expertid = u1.id)
+Surveys,
+
+(SELECT kol
+     , RTRIM
+       ( xmlagg (xmlelement (c, val || '~ ') order by val).extract ('//text()')
+       , '~ ' ) AS value
+FROM   
+(select u.kolid kol,st.value||', '||st1.value||', '||st2.value val from string_attribute st,
+          string_attribute st1,
+          string_attribute st2,
+          string_attribute st3,
+          (select   distinct GETPUBMEDIDS(u.kolid) pubmedId,u.kolid kol  
+          from user_table u where u.kolid != 0 and GETPUBMEDIDS(u.kolid) != ',')pb,
+          user_table u
+where 
+--u.kolid = en1.parent_id
+ st.root_entity_id = u.kolid
+and st.attribute_id = 98
+and st1.attribute_id = 99
+and st2.attribute_id = 101
+and st3.attribute_id = 104
+and st.parent_id = st1.parent_id
+and st.parent_id = st2.parent_id
+and st.parent_id = st3.parent_id
+and pb.pubmedId like '%,'||st3.value||',%'
+and pb.kol = u.kolid
+)
+GROUP BY kol) publications,
+
+
+
+  user_table u
+
+WHERE u.kolid = address.kolid(+)
+  
+ AND u.kolid = orgs.kol(+)
+  
+ AND u.kolid = prefix.kol(+)
+ AND u.kolid = degree.kol(+)
+ AND u.kolid = ol_selection_criteria.kol(+)
+ AND u.kolid = Territory.kol
+ AND u.kolid = surveys.kol
+ and ($P{now}- territory.st )>=0
+ and (territory.en - $P{now})>=0
+ and u.kolid = publications.kol(+)
+ and territory.userId in ($P!{usersList})
+ and surveys.createdate >= TO_TIMESTAMP($P{startDate},'MM/DD/YYYY') 
+ AND surveys.createdate <= TO_TIMESTAMP($P{endDate},'MM/DD/YYYY')
+ AND u.kolid != 0
+order by username,ol]]></queryString>
+
+	<field name="KOLID" class="java.math.BigDecimal"/>
+	<field name="OL" class="java.lang.String"/>
+	<field name="ADDRESS1" class="java.lang.String"/>
+	<field name="ADDRESS2" class="java.lang.String"/>
+	<field name="CITY" class="java.lang.String"/>
+	<field name="COUNTRY" class="java.lang.String"/>
+	<field name="STATE" class="java.lang.String"/>
+	<field name="ZIP" class="java.lang.String"/>
+	<field name="PHONE" class="java.lang.String"/>
+	<field name="FAX" class="java.lang.String"/>
+	<field name="EMAIL" class="java.lang.String"/>
+	<field name="ORGNAME" class="java.lang.String"/>
+	<field name="MOBILE" class="java.lang.String"/>
+	<field name="PREFIX" class="java.lang.String"/>
+	<field name="DEGREE" class="java.lang.String"/>
+	<field name="VALUE1" class="java.lang.String"/>
+	<field name="VALUE2" class="java.lang.String"/>
+	<field name="VALUE3" class="java.lang.String"/>
+	<field name="VALUE4" class="java.lang.String"/>
+	<field name="VALUE5" class="java.lang.String"/>
+	<field name="VALUE6" class="java.lang.String"/>
+	<field name="VALUE7" class="java.lang.String"/>
+	<field name="VALUE8" class="java.lang.String"/>
+	<field name="VALUE9" class="java.lang.String"/>
+	<field name="VALUE10" class="java.lang.String"/>
+	<field name="VALUE11" class="java.lang.String"/>
+	<field name="VALUE12" class="java.lang.String"/>
+	<field name="VALUE13" class="java.lang.String"/>
+	<field name="VALUE14" class="java.lang.String"/>
+	<field name="VALUE15" class="java.lang.String"/>
+	<field name="TERRITORY" class="java.lang.String"/>
+	<field name="USERNAME" class="java.lang.String"/>
+	<field name="ANS1" class="java.lang.String"/>
+	<field name="ANS2" class="java.lang.String"/>
+	<field name="ANS3" class="java.lang.String"/>
+	<field name="ANS4" class="java.lang.String"/>
+	<field name="ANS5" class="java.lang.String"/>
+	<field name="ANS6" class="java.lang.String"/>
+	<field name="ANS7" class="java.lang.String"/>
+	<field name="ANS8" class="java.lang.String"/>
+	<field name="ANS9" class="java.lang.String"/>
+	<field name="ANS10" class="java.lang.String"/>
+	<field name="ANS11" class="java.lang.String"/>
+	<field name="ANS12" class="java.lang.String"/>
+	<field name="ANS13" class="java.lang.String"/>
+	<field name="ANS14" class="java.lang.String"/>
+	<field name="ANS15" class="java.lang.String"/>
+	<field name="ANS16" class="java.lang.String"/>
+	<field name="ANS17" class="java.lang.String"/>
+	<field name="ANS18" class="java.lang.String"/>
+	<field name="ANS19" class="java.lang.String"/>
+	<field name="Value" class="java.lang.String"/>
+	<field name="createdate" class="java.util.Date"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="78"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="1723"
+						y="0"
+						width="1467"
+						height="77"
+						key="staticText-59"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="14" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Thought Leader Criteria (Complete Prior to Interaction)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="3190"
+						y="0"
+						width="1017"
+						height="77"
+						key="staticText-60"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="14" isBold="true"/>
+					</textElement>
+				<text><![CDATA[1. Potential Speakers:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="4207"
+						y="0"
+						width="113"
+						height="77"
+						key="staticText-61"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" size="14" isBold="true"/>
+					</textElement>
+				<text><![CDATA[2. Other Potential Opinion Leaders:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="4320"
+						y="0"
+						width="678"
+						height="77"
+						key="staticText-62"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="14" isBold="true"/>
+					</textElement>
+				<text><![CDATA[3. Potential Clinical Trial Investigators (as appropriate):]]></text>
+				</staticText>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="107"  isSplitAllowed="true" >
+				<printWhenExpression><![CDATA[new Boolean ( $V{PAGE_NUMBER}.intValue() ==  1 )]]></printWhenExpression>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="139"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-1"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[TL Name]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="478"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-2"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Address1]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="591"
+						y="-1"
+						width="115"
+						height="107"
+						backcolor="#999999"
+						key="staticText-3"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Address2]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="706"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-4"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[City]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="1045"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-5"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Country]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="819"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-6"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[State]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="1158"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-8"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Phone]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="1271"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-9"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Fax]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="1384"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-10"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Email]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="1497"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-11"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Mobile]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="1610"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-12"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Business/Academic Affiliation:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="1723"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-13"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Member nat'l/internat'l treatment guideline committee w/i 2 yrs:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="1836"
+						y="-1"
+						width="111"
+						height="107"
+						backcolor="#999999"
+						key="staticText-14"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Member of scientific committee for nat'l or internat'l assoc w/i 2 years:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="1947"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-15"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Chairman/speaker nat'l or internat'l scientific meeting:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="2060"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-16"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Prof/Assoc Prof w/ academic affiliation associated w/ medical school:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="2173"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-17"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Previous or current PI, study chair or member of study steering committee for large multi-site Nat'l/Internat'l trial:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="2286"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-18"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Editor or member of editorial board for peer reviewed journal:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="2399"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-19"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Published peer reviewed journal w/i 2 years:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="3190"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-20"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Faculty with academic affiliation, assoc w/ medicine:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="365"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-24"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Prefix]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="252"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-25"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Academic Degree (s):]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="3303"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-26"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Member of editorial board for a peer review journal:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="3642"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-28"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Has an active medical or other healthcare professional licensure?
+]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="3755"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-29"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Serves or has served as a promotional speaker in diabetes?
+]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="3868"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-30"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Is willing to abide by the legal and compliance standards that apply to promotional speakers?
+]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="3981"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-31"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Is willing to travel in order to conduct promotional speaker programs sponsored by the BMS AZ Collaboration?
+]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="4094"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-32"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Is permitted by their employer to speak on behalf of a pharmaceutical company?
+]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="4207"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-33"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Does NOT appear on any exclusion list (see below)?*
+]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="4320"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-34"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Follows Type 2 Diabetes Guidelines?]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="4433"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-35"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[ Other Type 2 Diabetes Guidelines Followed?]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="4546"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-36"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Does the TL’s practice conduct clinical or outcomes research trials?
+]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="4659"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-37"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[If so, does he/she work with industry sponsored trials?
+]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="4772"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-38"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[ What types of clinical trial work are of greatest interest to him/her and the practice?
+]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="4998"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-39"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Describe areas of diabetes research that are of greatest interest or priority to him/her?
+]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="5111"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-40"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[ This TL should be considered for speaker selection?]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="5224"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-41"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[ This TL should be considered for Clinical Trials?]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="3416"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-48"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[ Experience in Public Speaking?]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="3529"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-49"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[ List Public Speaking Experience]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="4885"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-50"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[ Is he/she interested in authoring medical and scientific publications?]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="5337"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-51"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[ This TL should be considered for publication opportunities?]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="5450"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-52"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[ This TL should be considered for advisory opportunities?]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="5563"
+						y="-1"
+						width="690"
+						height="107"
+						backcolor="#999999"
+						key="staticText-53"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" size="10"/>
+					</textElement>
+				<text><![CDATA[Publications]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="1"
+						y="-1"
+						width="138"
+						height="107"
+						backcolor="#999999"
+						key="staticText-58"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[MSL Territory]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="932"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-63"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Zip]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="6253"
+						y="-1"
+						width="120"
+						height="107"
+						backcolor="#999999"
+						key="staticText-64"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Survey Date]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="2512"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-65"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Regional leader in clinical community; validated Scientific/ Clinical  expert (5 peer nominations):]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="2625"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-66"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Chair or leader in disease area at regional/state assoc/societies:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="2738"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-67"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Regionally recognized speaker: BMS or IME, national/regional speaker:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="2851"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-68"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Published in peer reviewed journal w/i 3 - 5 years:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="2964"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-69"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Decision makers providing input to organizations (eg. Managed Care Organizations) around pt access to meds:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="3077"
+						y="-1"
+						width="113"
+						height="107"
+						backcolor="#999999"
+						key="staticText-70"/>
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica" size="10" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Investigator at local clinical trial site (phase I-IV):]]></text>
+				</staticText>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="68"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="139"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{OL}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="478"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ADDRESS1}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="591"
+						y="-1"
+						width="115"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ADDRESS2}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="706"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{CITY}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1045"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{COUNTRY}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="819"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{STATE}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1158"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{PHONE}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1271"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{FAX}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1384"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{EMAIL}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1610"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ORGNAME}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1723"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{VALUE1}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1836"
+						y="-1"
+						width="111"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{VALUE2}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1947"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{VALUE3}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="2060"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{VALUE4}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="2173"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{VALUE5}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="2286"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{VALUE6}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="2399"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{VALUE7}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="3190"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{VALUE14}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="3303"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{VALUE15}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="365"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{PREFIX}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="252"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{DEGREE}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1497"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{MOBILE}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="3416"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ANS1}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="3529"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ANS2}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="3642"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ANS3}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="3755"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ANS4}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="3868"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ANS5}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="3981"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ANS6}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="4094"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ANS7}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="4207"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ANS8}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="4320"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ANS9}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="4433"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ANS10}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="4546"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ANS11}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="4659"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ANS12}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="4772"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ANS13}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="4885"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ANS14}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="4998"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ANS15}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="5111"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ANS16}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="5224"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ANS17}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="5337"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ANS18}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="5450"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ANS19}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="5563"
+						y="-1"
+						width="690"
+						height="68"
+						key="textField-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{Value}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1"
+						y="-1"
+						width="138"
+						height="68"
+						key="textField-3"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{USERNAME}+":"+$F{TERRITORY}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="932"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField-4"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ZIP}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="dd/MM/yyyy" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="6253"
+						y="-1"
+						width="120"
+						height="68"
+						key="textField-5"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.util.Date"><![CDATA[$F{createdate}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="2512"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField-6"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{VALUE8}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="2625"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField-7"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{VALUE9}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="2738"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField-8"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{VALUE10}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="2851"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField-9"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{VALUE11}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="2964"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField-10"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{VALUE12}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="3077"
+						y="-1"
+						width="113"
+						height="68"
+						key="textField-11"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="Thin" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{VALUE13}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="-1"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

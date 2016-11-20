@@ -1,0 +1,251 @@
+<project name="${customer}" default="compile">
+
+	<property file="build.properties" />
+
+	<property name="src" value="${basedir}/src"/>
+	<property name="res" value="${basedir}/res"/>
+	<property name="web" value="${basedir}/web"/>
+	<property name="lib" value="${web}/WEB-INF/lib"/>
+	<property name="custom" value="${basedir}/custom/${customer}" />
+	<property name="webinf" value="${web}/WEB-INF"/>
+
+	<property name="output" value="${basedir}/output"/>
+	<property name="publishDir" value="${publishDir}"/>
+	<property name="geocoderUS.stubs.dir" value="${output}/geocoderUS-stubs"/>
+	<property name="geocoderUS.stubs.classes.dir" value="${output}/geocoderUS-stubs-classes"/>
+	<property name="mappoint.stubs.dir" value="${output}/mappoint-stubs"/>
+	<property name="mappoint.stubs.classes.dir" value="${output}/mappoint-stubs-classes"/>
+	<property name="geocode.stubs.dist.dir" value="${output}/geocode-stubs-dist"/>
+	<property name="webapp" value="${output}/${war.file}"/>
+	<property name="toWebServer" value="${output}/bmsStatic"/>
+	<property name="web-inf" value="${webapp}/WEB-INF"/>
+	<property name="classes" value="${web-inf}/classes"/>
+	<property name="resources" value="${classes}/resources"/>
+	<property name="properties" value="${custom}/properties"/>
+
+	<property name="dist" value="${basedir}/dist"/>
+	<property name="app-name" value="openq"/>
+
+
+	<path id="libraries">
+		<fileset dir="${lib}">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+
+	<target name="clean" unless="noclean">
+		<delete dir="${dist}"/>
+		<delete dir="${output}"/>
+	</target>
+
+	<target name="init">
+		<mkdir dir="${webapp}"/>
+		<mkdir dir="${web-inf}"/>
+		<mkdir dir="${classes}"/>
+		<mkdir dir="${resources}"/>
+		<delete file="${res}/beans.xml"/>
+		<copy file="${res}/beans.xml.template" tofile="${res}/beans.xml"/>
+		<replace
+    	    file="${res}/beans.xml"
+    		replacefilterfile="build.properties"/>
+	</target>
+
+	<!-- This target is used to generate the stubs for accessing geocoderUS US WebService via SOAP -->
+	<!-- TODO: Figure out a policy for refreshing the stubs in case the web-service is upgraded -->
+	<target name="generate-geocoderUS-stubs" depends="init">
+		<mkdir dir="${geocoderUS.stubs.dir}"/>
+		<java classname="org.apache.axis.wsdl.WSDL2Java" fork="true" classpathref="libraries">
+			<arg line="-t -o ${geocoderUS.stubs.dir} http://geocoder.us/dist/eg/clients/GeoCoder.wsdl"/>
+		</java>
+	</target>
+
+	<target name="compile-geocoderUS-stubs" depends="generate-geocoderUS-stubs">
+		<echo message="compiling"/>
+		<mkdir dir="${geocoderUS.stubs.classes.dir}"/>
+		<javac destdir="${geocoderUS.stubs.classes.dir}">
+			<src path="${geocoderUS.stubs.dir}"/>
+			<classpath refid="libraries"/>
+		</javac>
+		<mkdir dir="${geocode.stubs.dist.dir}"/>
+		<jar jarfile="${geocode.stubs.dist.dir}/geocoder-US-client.jar" compress="true" basedir="${geocoderUS.stubs.classes.dir}"/>
+	</target>
+
+	<target name="generate-mappoint-stubs" depends="init">
+		<mkdir dir="${mappoint.stubs.dir}"/>
+		<java classname="org.apache.axis.wsdl.WSDL2Java" fork="true" classpathref="libraries">
+			<arg line="--verbose --server-side --skeletonDeploy true -o ${mappoint.stubs.dir} http://staging.mappoint.net/standard-30/mappoint.wsdl"/>
+		</java>
+	</target>
+
+	<target name="compile-mappoint-stubs" depends="generate-mappoint-stubs">
+		<echo message="Compiling Virtual Earth Stubs"/>
+		<mkdir dir="${mappoint.stubs.classes.dir}"/>
+		<javac destdir="${mappoint.stubs.classes.dir}">
+			<src path="${mappoint.stubs.dir}"/>
+			<classpath refid="libraries"/>
+		</javac>
+		<mkdir dir="${geocode.stubs.dist.dir}"/>
+		<jar jarfile="${geocode.stubs.dist.dir}/mappoint-client.jar" compress="true" basedir="${mappoint.stubs.classes.dir}"/>
+	</target>
+	<target name="compile" depends="init, copy-resources">
+		<javac srcdir="${src}"
+             destdir="${classes}"
+             classpathref="libraries"
+             debug="true"/>
+	</target>
+	
+	<target name="compileOnly">
+			<javac srcdir="${src}"
+	             destdir="${classes}"
+	             classpathref="libraries"
+	             debug="true"/>
+		</target>
+
+	<target name="copy-resources">
+		<echo>custom is set to ${custom}</echo>
+		<copy todir="${webapp}">
+			<fileset dir="${web}">
+			</fileset>
+		</copy>
+		<copy todir="${classes}">
+			<fileset dir="${res}">
+			</fileset>
+		</copy>
+		<copy todir="${resources}">
+			<fileset dir="${properties}">
+				<exclude name="${log.file}"/>
+			</fileset>
+		</copy>
+		<copy file="${properties}/${log.file}" tofile="${classes}/${log.file}"/>
+       <replaceregexp match="jndi.name.placeholder" replace="${jndi.local}" byline="true">
+            <fileset dir="${resources}" includes="ServerConfig.properties" />
+        </replaceregexp>
+        <replaceregexp match="jndi.name.placeholder" replace="${jndi.local}" byline="true">
+            <fileset dir="${web-inf}" includes="openq-servlet.xml" />
+        </replaceregexp>
+        <replaceregexp match="welcome.file.placeholder" replace="${welcome.file.local}" byline="true">
+            <fileset dir="${web-inf}" includes="web.xml" />
+        </replaceregexp>
+	</target>
+
+	<target name="copy-resources-warForProd" depends="clean, init">
+		<echo>custom is set to ${custom}</echo>
+		<mkdir dir="${toWebServer}"/>
+		<copy todir="${webapp}">
+			<fileset dir="${web}">
+				<include name="*.jsp"/>
+				<include name="*.jspf"/>
+				<include name ="**/WEB-INF/**"/>
+				<include name ="**/calendar/**"/>
+			</fileset>
+		</copy>
+		<copy todir="${toWebServer}">
+			<fileset dir="${web}">
+				<exclude name="*.jsp"/>
+				<exclude name="*.jspf"/>
+				<exclude name="**/WEB-INF/**" />
+			</fileset>
+		</copy>
+		<copy todir="${classes}">
+			<fileset dir="${res}">
+			</fileset>
+		</copy>
+		<copy todir="${resources}">
+			<fileset dir="${properties}">
+				<exclude name="${log.file}"/>
+			</fileset>
+		</copy>
+		<copy file="${properties}/${log.file}" tofile="${classes}/${log.file}"/>
+        <replaceregexp match="jndi.name.placeholder" replace="${jndi.prod}" byline="true">
+            <fileset dir="${resources}" includes="ServerConfig.properties" />
+        </replaceregexp>
+        <replaceregexp match="jndi.name.placeholder" replace="${jndi.prod}" byline="true">
+            <fileset dir="${web-inf}" includes="openq-servlet.xml" />
+        </replaceregexp>
+        <replaceregexp match="welcome.file.placeholder" replace="${welcome.file.prod}" byline="true">
+            <fileset dir="${web-inf}" includes="web.xml" />
+        </replaceregexp>
+	</target>
+	<target name="warForProd" depends="copy-resources-warForProd, compileOnly, updateSVNRevision">
+		<war destfile="${output}/${war.file}.war" webxml="${web}/WEB-INF/web.xml">
+			<fileset dir="${webapp}">
+				<include name="**/*.*" />
+				<exclude name="**/servlet-api.jar"/>
+			</fileset>
+		</war>
+	</target>
+	<target name="war" depends="copy-resources, compileOnly">
+			<war destfile="${output}/${war.file}.war" webxml="${web}/WEB-INF/web.xml">
+				<fileset dir="${webapp}">
+					<include name="**/*.*" />
+					<exclude name="**/servlet-api.jar"/>
+				</fileset>
+			</war>
+		</target>
+
+	<!--
+		The following builds the jar file containg the networkMap applet.
+		This should probably be incorporated into the broader build at some point
+		but I didn't want to mess with that quite yet.  I wanted to wait until we
+		figure out exactly where we want to keep the applet stuff.
+		
+		- Pete Giorgio 3/18/07
+	-->
+	<property name="tmp_dir" value="c:\\temp\\openQ-networkMap-build-dir"/>
+	<target name="buildNetworkMapAppletJar">
+		<delete dir="${tmp_dir}"/>
+		<mkdir  dir="${tmp_dir}"/>
+		<copy todir="${tmp_dir}">
+			<fileset dir="${basedir}/networkmap-applet/img">
+			</fileset>
+		</copy>
+		<javac srcdir="${basedir}/networkmap-applet/src" destdir="${tmp_dir}"/>
+		<jar destfile="${basedir}/web/applet/networkMap.jar.original" basedir="${tmp_dir}"/>
+		<signjar jar="${basedir}/web/applet/networkMap.jar.original" signedjar="${basedir}/web/applet/networkMap.jar" alias="tstkey" storepass="password"/>
+		<copy file="${basedir}/networkmap-applet/data/dummy_kol.xml" tofile="${basedir}/web/applet/dummy_kol.xml"/>
+	</target>
+	<tstamp>
+		<format property="current.timestamp" pattern="MM/dd/yyyy hh:mm:ss aa" locale="en,US"/>
+	</tstamp>
+	<path id="svnant.classpath"  >
+		<fileset dir="${SVNAnt.lib}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+	<target name="updateSVNRevision">
+		<description>This task adds svn info in output files</description>
+		<typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="svnant.classpath" />
+		<svn>
+			<wcVersion path= "${basedir}" />
+		</svn>
+		<!--svn><update path="${basedir}" force="true" recursive="true" /></svn-->
+		<echo message= "Subversion repository url: ${repository.url}" />
+		<echo message= "Highest revision number : ${revision.max}" />
+		<echo message= "Highest last commited revision number : ${committed.max}" />
+		<echo message= "Revision range if workingCopy is mixed  : ${revision.range}" />
+		<echo message= "Build version is :  ${build.version}" />
+		<echo message= "Build Date ( mm/dd/yyyy hh:mm:ss aa ) is : ${current.timestamp}" />
+
+        <replaceregexp match="svnHighestRevisionNumber=(.*)" replace="svnHighestRevisionNumber=${revision.max}>" byline="true">
+            <fileset dir="${webapp}" includes="${builf.info.files}" />
+        </replaceregexp>
+        <replaceregexp match="svnLastCommitedRevisionNumber=(.*)" replace="svnLastCommitedRevisionNumber=${committed.max}>" byline="true">
+        	 <fileset dir="${webapp}" includes="${builf.info.files}" />
+        </replaceregexp>
+        <replaceregexp match="buildVersionNumber=(.*)" replace="buildVersionNumber=${build.version}>" byline="true">
+        	 <fileset dir="${webapp}" includes="${builf.info.files}" />
+        </replaceregexp>
+        <replaceregexp match="buildDate=(.*)" replace="buildDate=${current.timestamp}>" byline="true">
+        	 <fileset dir="${webapp}" includes="${builf.info.files}" />
+        </replaceregexp>
+	</target>
+
+	<!-- Publishes the build products to the specified directory. Requires -DpublishDir command line
+  switch to pass in the directory where the build products should be published -->
+	<target name="publish" depends="war">
+		<copy todir="${publishDir}">
+			<fileset dir="${output}"/>
+		</copy>
+	</target>
+
+</project>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" destroy-method="close">
+                <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
+                <property name="url" value="jdbc:oracle:thin:@localhost:1521:lenovo"/>
+                <property name="username" value="openq32"/>
+                 <property name="password" value="openq32"/>
+    </bean>
+
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate.LocalSessionFactoryBean" depends-on="dataSource">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mappingResources">
+            <list>
+				<value>hbm/KeywordCrawlResult.hbm.xml</value>
+				<value>hbm/KeywordCategory.hbm.xml</value>
+
+            </list>
+        </property>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">net.sf.hibernate.dialect.Oracle9Dialect</prop>
+                <!--prop key="hibernate.dialect">net.sf.hibernate.dialect.MySQLDialect</prop-->
+
+                <!-- Echo all executed SQL to stdout -->
+                <!--prop key="hibernate.show_sql">true</prop-->
+                <prop key="hibernate.cglib.use_reflection_optimizer">false</prop>
+
+          <prop key="hibernate.c3p0.minPoolSize">5</prop>
+            <prop key="hibernate.c3p0.maxPoolSize">20</prop>
+                <prop key="hibernate.c3p0.timeout">100</prop>
+
+                 <prop key="hibernate.cache.use_query_cache ">false</prop>
+                 <prop key="hibernate.cache.use_minimal_puts">false</prop>
+                <!-- Drop and re-create the database schema on startup -->
+                <!--prop key="hibernate.hbm2ddl.auto">create-drop</prop-->
+
+                <!--prop key="hibernate.cache.provider_class">net.sf.hibernate.cache.EhCacheProvider</prop-->
+            </props>
+        </property>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.orm.hibernate.HibernateTransactionManager"
+          depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+
+  <!-- Define the Network Map Data Servie -->
+  <bean id="networkMapDataServiceTarget" class="com.openq.ig.pubmed.crawler.keyword.NetworkMapDataService" depends-on="sessionFactory">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+  <bean id="networkMapDataService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager" ref="transactionManager"/>
+      <property name="target" ref="networkMapDataServiceTarget"/>
+      <property name="transactionAttributes">
+        <props>
+            <prop key="set*">PROPAGATION_REQUIRED</prop>
+            <prop key="add*">PROPAGATION_REQUIRED</prop>
+            <prop key="update*">PROPAGATION_REQUIRED</prop>
+            <prop key="delete*">PROPAGATION_REQUIRED</prop>
+            <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            <prop key="is*">PROPAGATION_REQUIRED,readOnly</prop>
+        </props>
+      </property>
+  </bean>
+	
+
+</beans>

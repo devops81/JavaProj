@@ -1,0 +1,6 @@
+
+all:
+     [echo] value of install.home is: C:/test
+
+BUILD SUCCESSFUL
+Total time: 0 seconds

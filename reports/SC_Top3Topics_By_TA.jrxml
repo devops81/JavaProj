@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="SC_Top3Topics_By_TA"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="626"
+		 pageHeight="1000"
+		 columnWidth="566"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="startDate" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["01/01/"+(new SimpleDateFormat("yyyy").format(new Date(System.currentTimeMillis())))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="endDate" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA[(new SimpleDateFormat("MM/dd/yyyy").format(new Date(System.currentTimeMillis())))]]></parameterDescription>
+		<defaultValueExpression ><![CDATA[(new SimpleDateFormat("MM/dd/yyyy").format(new Date(System.currentTimeMillis())))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="unOffLabelProductList" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["'86850537','86850538','83398429','83398430','83398431','83398432','88287150','86850539','86860726','86850540','86850541','88287148','90260409','90260411','90260416','90260408','90260410','90260412','90260413','90260414','90260415','95466610'"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="userId" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["'84702011'" "'90407761'"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="unOffLabelProduct" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["siv.inquiry_product"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["siv.inquiry_product"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="finalProductList" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[( ("," + $P{unOffLabelProductList} + "," ).indexOf( ",'109238657'," ) != -1 ? $P{unOffLabelProductList} + ",'109238643'" : $P{unOffLabelProductList} )]]></defaultValueExpression>
+	</parameter>
+	<parameter name="finalProduct" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[( $P{unOffLabelProduct}.equals( "'Orencia'" ) ? "'Orencia', 'Abatacept'" : $P{unOffLabelProduct} )]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select (case when interaction_ta = 'Immunoscience' then 'Immuno' else interaction_ta end ) as interaction_ta, 
+(case when inquiry_topic = 'Clinical Pharmacology/Mechanism of Action' then 'Clinical Pharmacology/MOA' 
+      when inquiry_topic = 'Outcomes (disease & pharmacoeconomics)' then 'Outcomes (disease & PE)' 
+      when inquiry_topic = 'Treatment Guidelines/Consensus Statements' then 'Treatment Guidelines/CST' 
+      else inquiry_topic end ) as inquiry_topic, ct, totalcount, percent, rnk,
+(select value from global_constants where name = 'SCORECARD_NOT_PERMITTED_MSG' ) as SCORECARD_NOT_PERMITTED_MSG,
+(select GET_USER_REPORT_LEVEL( $P!{userId} ) from dual ) as user_report_level
+from
+(
+select interaction_ta, inquiry_topic, ct, totalcount, (ct*100)/totalcount as percent, rank() over (partition by interaction_ta order by ct desc) rnk
+from
+(
+select interaction_ta, inquiry_topic, count(inquiry_topic) ct, 
+(select count(*) from sc_inquiry_view siv
+where siv.interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and siv.interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and siv.interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+and siv.inquiry_product in ( $P!{finalProduct} )
+and siv.inquiry_product_id in ( $P!{finalProductList} ) ) as totalcount
+from sc_inquiry_view siv
+where siv.interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and siv.interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and siv.interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+and siv.inquiry_product in ( $P!{finalProduct} )
+and siv.inquiry_product_id in ( $P!{finalProductList} )
+group by interaction_ta, inquiry_topic 
+)
+)
+where rnk <4 
+order by interaction_ta, inquiry_topic, rnk]]></queryString>
+
+	<field name="INTERACTION_TA" class="java.lang.String"/>
+	<field name="INQUIRY_TOPIC" class="java.lang.String"/>
+	<field name="CT" class="java.math.BigDecimal"/>
+	<field name="TOTALCOUNT" class="java.math.BigDecimal"/>
+	<field name="PERCENT" class="java.math.BigDecimal"/>
+	<field name="RNK" class="java.math.BigDecimal"/>
+	<field name="SCORECARD_NOT_PERMITTED_MSG" class="java.lang.String"/>
+	<field name="USER_REPORT_LEVEL" class="java.math.BigDecimal"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="40"  isSplitAllowed="true" >
+				<printWhenExpression><![CDATA[new Boolean( $F{USER_REPORT_LEVEL}.intValue() != 3 && $F{USER_REPORT_LEVEL}.intValue() != 4 )
+]]></printWhenExpression>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="537"
+						height="40"
+						key="textField-1">
+							<printWhenExpression><![CDATA[new Boolean( $F{USER_REPORT_LEVEL}.intValue() != 3 && $F{USER_REPORT_LEVEL}.intValue() != 4 )]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" size="14" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{SCORECARD_NOT_PERMITTED_MSG}]]></textFieldExpression>
+				</textField>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="462"  isSplitAllowed="true" >
+				<printWhenExpression><![CDATA[new Boolean( $F{USER_REPORT_LEVEL}.intValue() == 3 || $F{USER_REPORT_LEVEL}.intValue() == 4 )
+]]></printWhenExpression>
+				<stackedBar3DChart>
+					<chart  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="562"
+						height="456"
+						key="element-2">
+							<printWhenExpression><![CDATA[new Boolean ( $P{reportTherapeuticArea}.equals( "All" ) )]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						<chartTitle color="#000000" >
+								<titleExpression><![CDATA[" BMS Medical Science " + $P{startDate} + " - " + $P{endDate} + " Activities MSL Summary Top 3 Off-Label Inquiries Topics by TA"]]></titleExpression>
+					</chartTitle>
+						<chartLegend textColor="#000000" backgroundColor="#FFFFFF" >
+					</chartLegend>
+					</chart>
+					<categoryDataset>
+						<dataset >
+						</dataset>
+						<categorySeries>
+							<seriesExpression><![CDATA[$F{INQUIRY_TOPIC}]]></seriesExpression>
+							<categoryExpression><![CDATA[$F{INTERACTION_TA}]]></categoryExpression>
+							<valueExpression><![CDATA[$F{CT}]]></valueExpression>
+							<labelExpression><![CDATA[$F{CT}+""]]></labelExpression>
+				<itemHyperlink >
+				</itemHyperlink>
+						</categorySeries>
+					</categoryDataset>
+					<bar3DPlot isShowLabels="true" >
+						<plot labelRotation="75.0" />
+						<categoryAxisFormat>
+							<axisFormat >
+							</axisFormat>
+						</categoryAxisFormat>
+						<valueAxisFormat>
+							<axisFormat >
+							</axisFormat>
+						</valueAxisFormat>
+					</bar3DPlot>
+				</stackedBar3DChart>
+				<stackedBar3DChart>
+					<chart  hyperlinkTarget="Self" >
+					<reportElement
+						x="10"
+						y="0"
+						width="248"
+						height="456"
+						key="element-3">
+							<printWhenExpression><![CDATA[new Boolean ( !$P{reportTherapeuticArea}.equals( "All" ) )]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						<chartTitle color="#000000" >
+								<titleExpression><![CDATA[" BMS Medical Science " + $P{startDate} + " - " + $P{endDate} + " Activities MSL Summary Top 3 Off-Label Inquiries Topics by TA"]]></titleExpression>
+					</chartTitle>
+						<chartLegend textColor="#000000" backgroundColor="#FFFFFF" >
+					</chartLegend>
+					</chart>
+					<categoryDataset>
+						<dataset >
+						</dataset>
+						<categorySeries>
+							<seriesExpression><![CDATA[$F{INQUIRY_TOPIC}]]></seriesExpression>
+							<categoryExpression><![CDATA[$F{INTERACTION_TA}]]></categoryExpression>
+							<valueExpression><![CDATA[$F{CT}]]></valueExpression>
+							<labelExpression><![CDATA[$F{CT}+""]]></labelExpression>
+				<itemHyperlink >
+				</itemHyperlink>
+						</categorySeries>
+					</categoryDataset>
+					<bar3DPlot isShowLabels="true" >
+						<plot />
+						<categoryAxisFormat>
+							<axisFormat >
+							</axisFormat>
+						</categoryAxisFormat>
+						<valueAxisFormat>
+							<axisFormat >
+							</axisFormat>
+						</valueAxisFormat>
+					</bar3DPlot>
+				</stackedBar3DChart>
+			</band>
+		</summary>
+</jasperReport>

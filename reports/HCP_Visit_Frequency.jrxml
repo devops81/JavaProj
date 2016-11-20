@@ -1,0 +1,1094 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="HCPOL_Visit_Frequency"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Landscape"
+		 pageWidth="1100"
+		 pageHeight="700"
+		 columnWidth="1100"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="Te_Re" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["'Detail'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="endDate" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[(new SimpleDateFormat("MM/dd/yyyy").format(new Date(System.currentTimeMillis())))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="startDate" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["01/01/"+(new SimpleDateFormat("yyyy").format(new Date(System.currentTimeMillis())))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="usersList" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["-1"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="taName" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["%"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="radName" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["All Regions"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="territoryName" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["All Territories"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["All"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="reportRegion" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["All"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="reportTerritory" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["All"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select
+		sum(Te.totalMPOLInteractions) as TOTALMPOLINTERACTIONS,
+		sum(Te.totalHCPInteractions) as TOTALINTERACTIONS,
+		max(Te.lastInteractionDate) as lastInteractionDate,
+		min(Te.firstInteractionDate) as firstInteractionDate,
+		sum(Te.UniqueMPOLS) as totalUniqueMPOLS,
+		sum(Te.UniqueHcps) as totalUniqueHcps,
+		Te.Regions as Regions,
+		Te.RegionUsers as RegionUsers,
+		Te.RAD as RAD,
+		Te.RADUser as RADUser,
+		Te.TA as TA, 
+		avg(Te.visitFreq) as VisitFreq
+	from
+	(select 
+		InteractionFrequency.MPOL_HCPs as UniqueMPOLS,
+		InteractionFrequency.HCP_HCPs as UniqueHcps,
+		InteractionFrequency.MPOL_InteractionsCount as totalMPOLInteractions, 
+		InteractionFrequency.HCP_InteractionsCount as totalHCPInteractions,
+		(InteractionFrequency.LastInteractionDate) as lastInteractionDate,
+		(InteractionFrequency.FirstInteractionDate) as firstInteractionDate,
+		InteractionFrequency.MPOL_TotalMCPS,
+		InteractionFrequency.HCP_TotalMCPS,
+		case WHEN $P!{Te_Re}='Detail' then Territory else Region end Regions,
+		case WHEN $P!{Te_Re}='Detail' then TerritoryUserN else RegionUserN end RegionUsers,
+		InteractionFrequency.RegionUserN as RADUser,
+		InteractionFrequency.Region as RAD,
+		InteractionFrequency.TheraupticArea as TA,
+		InteractionFrequency.VisitFreq as visitFreq,
+		InteractionFrequency.MPOL_MSL as MSL
+	from 
+		(select MPOL_data.MSL as MPOL_MSL, MPOL_data.TotalMCPS as MPOL_TotalMCPS, 
+			HCP_data.TotalMCPS as HCP_TotalMCPS, 
+			MPOL_data.HCPs as MPOL_HCPs, HCP_data.HCPs as HCP_HCPs,
+			MPOL_data.InteractionsCount as MPOL_InteractionsCount, 
+			HCP_data.InteractionsCount as HCP_InteractionsCount, 
+			greatest(MPOL_data.LastInteractionDate, HCP_data.LastInteractionDate) as LastInteractionDate, 
+			least(MPOL_data.FirstInteractionDate, HCP_data.FirstInteractionDate) as FirstInteractionDate,
+			MPOL_data.VisitFreq, MPOL_data.TerritoryUserN,
+			MPOL_data.Territory, MPOL_data.Region, MPOL_data.TheraupticArea, MPOL_data.RegionUserN
+from
+(select userGroupData.MSL as MSL, userGroupData.TotalMCPS as TotalMCPS,
+		userGroupData.InteractionsCount as InteractionsCount,
+		userGroupData.LastInteractionDate as LastInteractionDate,
+		userGroupData.FirstInteractionDate as FirstInteractionDate,
+		userGroupData.VisitFreq as VisitFreq,
+		userGroupData.TerritoryUserN as TerritoryUserN,
+		userRelationshipData.Territory as Territory,
+		userRelationshipData.Region as Region,
+		userRelationshipData.TheraupticArea as TheraupticArea,
+		userRelationshipData.RegionUserN as RegionUserN,
+		userGroupData.HCPs
+		from
+			(select  ut.id as MSL,
+			ut.lastname||', '||ut.firstname as TerritoryUserN,
+			count(distinct(edm.id)) as TotalMCPS,
+				sum(case when interactionFrequency.interactionCount>0 then 1 else 0 end) as HCPs,
+			sum(interactionFrequency.interactionCount) as InteractionsCount,
+			max(interactionFrequency.lastInteractionDate) as LastInteractionDate,
+			min(interactionFrequency.firstInteractionDate) as FirstInteractionDate,
+			getmslvisitfrequency(ut.id,TO_TIMESTAMP($P{startDate},'MM/DD/YYYY'),TO_TIMESTAMP($P{endDate},'MM/DD/YYYY'),'TL,HCP') as VisitFreq
+			from user_table ut
+			left outer join 
+			(select distinct staffid, kolid from contacts) cnts
+			on (cnts.staffid = ut.staffid)
+			left outer join 
+				(select ed.* from expert_details_mview ed where ed.msl_ol_type in ('TL','HCP')) edm
+				on (edm.id = cnts.kolid)
+			left outer join
+				(select att.userid as attendeeUserId, 
+					inter.userid as interactionCreator,
+					count(distinct(inter.interaction_id)) as interactionCount, 
+					max(inter.interactiondate) as lastInteractionDate, 
+					min(inter.interactionDate) as firstInteractionDate
+					from attendees att
+					left outer join 
+					(select i.* from interaction i, interaction_data idata
+					where
+					idata.interaction_id = i.interaction_id
+					and i.interactiondate >= TO_TIMESTAMP($P{startDate},'MM/DD/YYYY')
+					and i.interactiondate <= TO_TIMESTAMP($P{endDate},'MM/DD/YYYY')
+					and i.deleteflag = 'N'
+					and i.interaction_type_id = 
+					(select id from option_lookup where upper(optValue) = '1:1 FACE TO FACE (2 OR LESS)' and 
+					option_id = (select id from option_names where upper(name) = 'INTERACTION TYPE'))
+					and idata.lovid in 
+					(select optl.id from option_lookup optl where optl.option_id = 
+					(select id from option_names optn where upper(optn.name) = 'PRODUCT'))
+					)inter
+					on (inter.interaction_id = att.interaction_id)
+					group by att.userid, inter.userid) interactionFrequency
+				on (interactionFrequency.attendeeuserId = edm.id and interactionFrequency.interactionCreator = ut.id)
+				group by ut.id, ut.lastname||', '||ut.firstname
+				having 
+				ut.id in ($P!{usersList})
+				) userGroupData
+			left outer join
+				(select urv.userid , urv.territory as Territory, 
+				urv.region as Region, urv.ta as TheraupticArea,
+				urv.regionuser as RegionUserN
+				from user_relationship_view_new urv
+				where urv.userid in ($P!{usersList})
+				) userRelationshipData
+			on (userRelationshipData.userid = userGroupData.MSL)
+) MPOL_data
+join 
+(select userGroupData.MSL as MSL, userGroupData.TotalMCPS as TotalMCPS,
+		userGroupData.InteractionsCount as InteractionsCount,
+		userGroupData.LastInteractionDate as LastInteractionDate,
+		userGroupData.FirstInteractionDate as FirstInteractionDate,
+		userGroupData.TerritoryUserN as TerritoryUserN,
+		userGroupData.HCPs
+		from
+			(select  ut.id as MSL,
+			ut.lastname||', '||ut.firstname as TerritoryUserN,
+			count(distinct(edm.id)) as TotalMCPS,
+				sum(case when interactionFrequency.interactionCount>0 then 1 else 0 end) as HCPs,
+			sum(interactionFrequency.interactionCount) as InteractionsCount,
+			max(interactionFrequency.lastInteractionDate) as LastInteractionDate,
+			min(interactionFrequency.firstInteractionDate) as FirstInteractionDate
+			from user_table ut
+			left outer join 
+			(select distinct staffid, kolid from contacts) cnts
+			on (cnts.staffid = ut.staffid)
+			left outer join 
+				(select ed.* from expert_details_mview ed where ed.msl_ol_type in ('TL','HCP')) edm
+				on (edm.id = cnts.kolid)
+			left outer join
+				(select att.userid as attendeeUserId, 
+					inter.userid as interactionCreator,
+					count(distinct(inter.interaction_id)) as interactionCount, 
+					max(inter.interactiondate) as lastInteractionDate, 
+					min(inter.interactionDate) as firstInteractionDate
+					from attendees att
+					left outer join 
+					(select i.* from interaction i, interaction_data idata
+					where
+					idata.interaction_id = i.interaction_id
+					and i.interactiondate >= TO_TIMESTAMP($P{startDate},'MM/DD/YYYY') 
+					and i.interactiondate <= TO_TIMESTAMP($P{endDate},'MM/DD/YYYY')
+					and i.deleteflag = 'N'
+					and i.interaction_type_id = 
+					(select id from option_lookup where upper(optValue) = '1:1 FACE TO FACE (2 OR LESS)' and 
+					option_id = (select id from option_names where upper(name) = 'INTERACTION TYPE'))
+					and idata.lovid in 
+					(select optl.id from option_lookup optl where optl.option_id = 
+					(select id from option_names optn where upper(optn.name) = 'PRODUCT'))
+					)inter
+					on (inter.interaction_id = att.interaction_id)
+					group by att.userid, inter.userid) interactionFrequency
+				on (interactionFrequency.attendeeuserId = edm.id and interactionFrequency.interactionCreator = ut.id)
+				group by ut.id, ut.lastname||', '||ut.firstname
+				having 
+				ut.id in ($P!{usersList})
+				) userGroupData
+)HCP_data
+on (HCP_data.MSL = MPOL_data.MSL))InteractionFrequency
+	)Te
+	group by  Te.Regions,RegionUsers,Te.RADUser,Te.RAD, Te.TA
+	order by Te.TA, RAD, RADUser, Te.RegionUsers]]></queryString>
+
+	<field name="TOTALMPOLINTERACTIONS" class="java.math.BigDecimal"/>
+	<field name="TOTALINTERACTIONS" class="java.math.BigDecimal"/>
+	<field name="LASTINTERACTIONDATE" class="java.sql.Timestamp"/>
+	<field name="FIRSTINTERACTIONDATE" class="java.sql.Timestamp"/>
+	<field name="TOTALUNIQUEMPOLS" class="java.math.BigDecimal"/>
+	<field name="TOTALUNIQUEHCPS" class="java.math.BigDecimal"/>
+	<field name="REGIONS" class="java.lang.String"/>
+	<field name="REGIONUSERS" class="java.lang.String"/>
+	<field name="RAD" class="java.lang.String"/>
+	<field name="RADUSER" class="java.lang.String"/>
+	<field name="TA" class="java.lang.String"/>
+	<field name="VISITFREQ" class="java.math.BigDecimal"/>
+
+	<variable name="SC1" class="java.lang.Integer" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[($F{TOTALINTERACTIONS}== null)?new Integer(0):new Integer($F{TOTALINTERACTIONS}.intValue())
+]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<variable name="SC2" class="java.lang.Integer" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[($F{TOTALUNIQUEHCPS}== null)?new Integer(0):new Integer($F{TOTALUNIQUEHCPS}.intValue())]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<variable name="SC3" class="java.math.BigDecimal" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[($V{SC2}.doubleValue() > 0)?(new BigDecimal(($V{SC1}.doubleValue()/$V{SC2}.doubleValue()))): new BigDecimal(0)]]></variableExpression>
+		<initialValueExpression><![CDATA[new BigDecimal(0)]]></initialValueExpression>
+	</variable>
+	<variable name="SC6" class="java.util.Date" resetType="Report" calculation="Lowest">
+		<variableExpression><![CDATA[(new java.util.Date($F{FIRSTINTERACTIONDATE}.getTime() + ($F{FIRSTINTERACTIONDATE}.getNanos() / 1000000)))]]></variableExpression>
+	</variable>
+	<variable name="SC7" class="java.util.Date" resetType="Report" calculation="Highest">
+		<variableExpression><![CDATA[(new java.util.Date($F{LASTINTERACTIONDATE}.getTime() + ($F{LASTINTERACTIONDATE}.getNanos() / 1000000)))]]></variableExpression>
+	</variable>
+	<variable name="SC8" class="java.math.BigDecimal" resetType="Report" calculation="Average">
+		<variableExpression><![CDATA[$F{VISITFREQ}]]></variableExpression>
+	</variable>
+	<variable name="SC4" class="java.lang.Integer" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[($F{TOTALMPOLINTERACTIONS}== null)?new Integer(0):new Integer($F{TOTALMPOLINTERACTIONS}.intValue())]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<variable name="SC5" class="java.lang.Integer" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[($F{TOTALUNIQUEMPOLS}== null)?new Integer(0):new Integer($F{TOTALUNIQUEMPOLS}.intValue())]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<variable name="SC9" class="java.math.BigDecimal" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[($V{SC5}.doubleValue() > 0)?(new BigDecimal(($V{SC4}.doubleValue()/$V{SC5}.doubleValue()))): new BigDecimal(0)]]></variableExpression>
+		<initialValueExpression><![CDATA[new BigDecimal(0)]]></initialValueExpression>
+	</variable>
+	<variable name="SC1_1" class="java.lang.Integer" resetType="Group" resetGroup="RegionGroup" calculation="Sum">
+		<variableExpression><![CDATA[($F{TOTALINTERACTIONS}== null)?new Integer(0):new Integer($F{TOTALINTERACTIONS}.intValue())]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<variable name="SC2_1" class="java.lang.Integer" resetType="Group" resetGroup="RegionGroup" calculation="Sum">
+		<variableExpression><![CDATA[($F{TOTALUNIQUEHCPS}== null)?new Integer(0):new Integer($F{TOTALUNIQUEHCPS}.intValue())]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<variable name="SC3_1" class="java.math.BigDecimal" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[($V{SC2_1}.doubleValue() > 0)?(new BigDecimal(($V{SC1_1}.doubleValue()/$V{SC2_1}.doubleValue()))): new BigDecimal(0)]]></variableExpression>
+		<initialValueExpression><![CDATA[new BigDecimal(0)]]></initialValueExpression>
+	</variable>
+	<variable name="SC4_1" class="java.lang.Integer" resetType="Group" resetGroup="RegionGroup" calculation="Sum">
+		<variableExpression><![CDATA[($F{TOTALMPOLINTERACTIONS}== null)?new Integer(0):new Integer($F{TOTALMPOLINTERACTIONS}.intValue())]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<variable name="SC5_1" class="java.lang.Integer" resetType="Group" resetGroup="RegionGroup" calculation="Sum">
+		<variableExpression><![CDATA[($F{TOTALUNIQUEMPOLS}== null)?new Integer(0):new Integer($F{TOTALUNIQUEMPOLS}.intValue())]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<variable name="SC6_1" class="java.util.Date" resetType="Group" resetGroup="RegionGroup" calculation="Lowest">
+		<variableExpression><![CDATA[(new java.util.Date($F{FIRSTINTERACTIONDATE}.getTime() + ($F{FIRSTINTERACTIONDATE}.getNanos() / 1000000)))]]></variableExpression>
+	</variable>
+	<variable name="SC7_1" class="java.util.Date" resetType="Group" resetGroup="RegionGroup" calculation="Highest">
+		<variableExpression><![CDATA[(new java.util.Date($F{LASTINTERACTIONDATE}.getTime() + ($F{LASTINTERACTIONDATE}.getNanos() / 1000000)))]]></variableExpression>
+	</variable>
+	<variable name="SC8_1" class="java.math.BigDecimal" resetType="Group" resetGroup="RegionGroup" calculation="Average">
+		<variableExpression><![CDATA[$F{VISITFREQ}]]></variableExpression>
+	</variable>
+	<variable name="SC9_1" class="java.math.BigDecimal" resetType="Group" resetGroup="RegionGroup" calculation="Nothing">
+		<variableExpression><![CDATA[($V{SC5_1}.doubleValue() > 0)?(new BigDecimal(($V{SC4_1}.doubleValue()/$V{SC5_1}.doubleValue()))): new BigDecimal(0)]]></variableExpression>
+		<initialValueExpression><![CDATA[new BigDecimal(0)]]></initialValueExpression>
+	</variable>
+
+		<group  name="RegionGroup" >
+			<groupExpression><![CDATA[$F{RAD}]]></groupExpression>
+			<groupHeader>
+			<band height="31"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1"
+						y="0"
+						width="141"
+						height="31"
+						key="textField-8"
+						isRemoveLineWhenBlank="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" isBold="true" isItalic="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{Te_Re}.equalsIgnoreCase( "'Detail'" )?$F{RAD}:""]]></textFieldExpression>
+				</textField>
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="26"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="142"
+						y="0"
+						width="100"
+						height="26"
+						key="textField-9"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($P{Te_Re}.equalsIgnoreCase( "'Detail'" ))]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$P{Te_Re}.equalsIgnoreCase( "'Detail'" )?$V{SC1_1}:null]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="242"
+						y="0"
+						width="100"
+						height="26"
+						key="textField-10"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($P{Te_Re}.equalsIgnoreCase( "'Detail'" ))]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$P{Te_Re}.equalsIgnoreCase( "'Detail'" )?$V{SC2_1}:null]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="342"
+						y="0"
+						width="100"
+						height="26"
+						key="textField-11"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($P{Te_Re}.equalsIgnoreCase( "'Detail'" ))]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$P{Te_Re}.equalsIgnoreCase( "'Detail'" )?$V{SC3_1}:null]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="442"
+						y="0"
+						width="100"
+						height="26"
+						key="textField-12"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($P{Te_Re}.equalsIgnoreCase( "'Detail'" ))]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$P{Te_Re}.equalsIgnoreCase( "'Detail'" )?$V{SC4_1}:null]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="542"
+						y="0"
+						width="100"
+						height="26"
+						key="textField-13"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($P{Te_Re}.equalsIgnoreCase( "'Detail'" ))]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$P{Te_Re}.equalsIgnoreCase( "'Detail'" )?$V{SC5_1}:null]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="642"
+						y="0"
+						width="100"
+						height="26"
+						key="textField-14"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($P{Te_Re}.equalsIgnoreCase( "'Detail'" ))]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$P{Te_Re}.equalsIgnoreCase( "'Detail'" )?$V{SC9_1}:null]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="dd-MMM-yy" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="742"
+						y="0"
+						width="100"
+						height="26"
+						key="textField-15">
+							<printWhenExpression><![CDATA[new Boolean($P{Te_Re}.equalsIgnoreCase( "'Detail'" ))]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.util.Date"><![CDATA[$P{Te_Re}.equalsIgnoreCase( "'Detail'" )?$V{SC6_1}:null]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="dd-MMM-yy" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="842"
+						y="0"
+						width="100"
+						height="26"
+						key="textField-16">
+							<printWhenExpression><![CDATA[new Boolean($P{Te_Re}.equalsIgnoreCase( "'Detail'" ))]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.util.Date"><![CDATA[$P{Te_Re}.equalsIgnoreCase( "'Detail'" )?$V{SC7_1}:null]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="942"
+						y="0"
+						width="100"
+						height="26"
+						key="textField-17"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($P{Te_Re}.equalsIgnoreCase( "'Detail'" ))]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$P{Te_Re}.equalsIgnoreCase( "'Detail'" )?$V{SC8_1}:null]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="142"
+						height="26"
+						key="textField-18"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($P{Te_Re}.equalsIgnoreCase( "'Detail'" ))]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{Te_Re}.equalsIgnoreCase( "'Detail'" )?"Sub Total":""]]></textFieldExpression>
+				</textField>
+			</band>
+			</groupFooter>
+		</group>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="170"  isSplitAllowed="true" >
+				<printWhenExpression><![CDATA[new Boolean ( $V{PAGE_NUMBER}.intValue() ==  1 )]]></printWhenExpression>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="112"
+						width="142"
+						height="58"
+						backcolor="#CCCCCC"
+						key="staticText-1"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Region/Territory]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="142"
+						y="112"
+						width="100"
+						height="58"
+						backcolor="#CCCCCC"
+						key="staticText-4"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<text><![CDATA[Interactions]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="242"
+						y="112"
+						width="100"
+						height="58"
+						backcolor="#CCCCCC"
+						key="staticText-5"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<text><![CDATA[Unique HCP/TLS]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="342"
+						y="112"
+						width="100"
+						height="58"
+						backcolor="#CCCCCC"
+						key="staticText-6"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<text><![CDATA[Interactions per HCP/TL]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="742"
+						y="112"
+						width="100"
+						height="58"
+						backcolor="#CCCCCC"
+						key="staticText-9"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<text><![CDATA[First Interaction date]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="842"
+						y="112"
+						width="100"
+						height="58"
+						backcolor="#CCCCCC"
+						key="staticText-10"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<text><![CDATA[Last Interaction date]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="942"
+						y="112"
+						width="100"
+						height="58"
+						backcolor="#CCCCCC"
+						key="staticText-11"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<text><![CDATA[Visit Frequency]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="239"
+						y="27"
+						width="263"
+						height="18"
+						key="staticText-24"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<text><![CDATA[TL/HCP Visit Frequency Report]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="190"
+						y="50"
+						width="353"
+						height="21"
+						key="textField-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["All Products Interactions Reported "+$P{startDate}+" -"+$P{endDate}]]></textFieldExpression>
+				</textField>
+				<line direction="TopDown">
+					<reportElement
+						x="147"
+						y="107"
+						width="291"
+						height="1"
+						key="line-1"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<staticText>
+					<reportElement
+						x="152"
+						y="91"
+						width="275"
+						height="13"
+						key="staticText-25"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<text><![CDATA[All 1 On 1 Interactions]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="442"
+						y="112"
+						width="100"
+						height="58"
+						backcolor="#CCCCCC"
+						key="staticText-26"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<text><![CDATA[Interactions]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="542"
+						y="112"
+						width="100"
+						height="58"
+						backcolor="#CCCCCC"
+						key="staticText-27"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<text><![CDATA[Unique TLs]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="642"
+						y="112"
+						width="100"
+						height="58"
+						backcolor="#CCCCCC"
+						key="staticText-28"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true" isPdfEmbedded ="true"/>
+					</textElement>
+				<text><![CDATA[Interactions per TL]]></text>
+				</staticText>
+				<line direction="TopDown">
+					<reportElement
+						x="447"
+						y="107"
+						width="291"
+						height="1"
+						key="line-2"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<staticText>
+					<reportElement
+						x="452"
+						y="91"
+						width="275"
+						height="13"
+						key="staticText-29"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<text><![CDATA[On-MP 1 on 1 Interactions]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="274"
+						y="9"
+						width="176"
+						height="14"
+						key="textField-19"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[($P{reportTherapeuticArea}.equalsIgnoreCase( "%" )?"All TAs": $P{reportTherapeuticArea})+ " Medical Science   "]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="825"
+						y="9"
+						width="104"
+						height="12"
+						key="staticText-31"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<text><![CDATA[Report Criteria: ]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="825"
+						y="21"
+						width="113"
+						height="14"
+						key="textField-20"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["TA : "+(!$P{reportTherapeuticArea}.equalsIgnoreCase( "%" )?$P{reportTherapeuticArea}:"All TAs")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="825"
+						y="35"
+						width="149"
+						height="13"
+						key="textField-21"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Region : "+$P{radName}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="825"
+						y="48"
+						width="161"
+						height="14"
+						key="textField-22"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Territory : "+$P{territoryName}]]></textFieldExpression>
+				</textField>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="32"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="142"
+						y="0"
+						width="100"
+						height="32"
+						key="textField"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[($F{TOTALINTERACTIONS}== null)?new Integer(0):new Integer($F{TOTALINTERACTIONS}.intValue())]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="242"
+						y="0"
+						width="100"
+						height="32"
+						key="textField"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[($F{TOTALUNIQUEHCPS}== null)?new Integer(0):new Integer($F{TOTALUNIQUEHCPS}.intValue())]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="342"
+						y="0"
+						width="100"
+						height="32"
+						key="textField"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[new BigDecimal($F{TOTALUNIQUEHCPS}.doubleValue()>0?($F{TOTALINTERACTIONS}.doubleValue()/$F{TOTALUNIQUEHCPS}.doubleValue()):0)]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="dd-MMM-yy" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="742"
+						y="0"
+						width="100"
+						height="32"
+						key="textField"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.sql.Timestamp"><![CDATA[$F{FIRSTINTERACTIONDATE}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="dd-MMM-yyyy" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="842"
+						y="0"
+						width="100"
+						height="32"
+						key="textField"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.sql.Timestamp"><![CDATA[$F{LASTINTERACTIONDATE}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="942"
+						y="0"
+						width="100"
+						height="32"
+						key="textField"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{VISITFREQ}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="142"
+						height="32"
+						key="textField"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{REGIONUSERS}+"("+$F{REGIONS}+")"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="442"
+						y="0"
+						width="100"
+						height="32"
+						key="textField-2"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[($F{TOTALMPOLINTERACTIONS}== null)?new Integer(0):new Integer($F{TOTALMPOLINTERACTIONS}.intValue())]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="542"
+						y="0"
+						width="100"
+						height="32"
+						key="textField-3"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[($F{TOTALUNIQUEMPOLS}== null)?new Integer(0):new Integer($F{TOTALUNIQUEMPOLS}.intValue())]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="642"
+						y="0"
+						width="100"
+						height="32"
+						key="textField-4"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[new BigDecimal($F{TOTALUNIQUEMPOLS}.doubleValue()>0?$F{TOTALMPOLINTERACTIONS}.doubleValue()/$F{TOTALUNIQUEMPOLS}.doubleValue():0)]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="172"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="142"
+						y="0"
+						width="100"
+						height="26"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$V{SC1}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="242"
+						y="0"
+						width="100"
+						height="26"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$V{SC2}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="342"
+						y="0"
+						width="100"
+						height="26"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{SC3}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="dd-MMM-yy" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="742"
+						y="0"
+						width="100"
+						height="26"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.util.Date"><![CDATA[$V{SC6}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="dd-MMM-yy" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="842"
+						y="0"
+						width="100"
+						height="26"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.util.Date"><![CDATA[$V{SC7}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="942"
+						y="0"
+						width="100"
+						height="26"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{SC8}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="0"
+						y="0"
+						width="142"
+						height="26"
+						key="staticText-14"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Total Interactions]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="1"
+						y="149"
+						width="242"
+						height="21"
+						key="staticText-15"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Bottom">
+						<font size="8"/>
+					</textElement>
+				<text><![CDATA[* Report does not include inactive territories]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="442"
+						y="0"
+						width="100"
+						height="26"
+						key="textField-5"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$V{SC4}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="542"
+						y="0"
+						width="100"
+						height="26"
+						key="textField-6"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$V{SC5}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="###0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="642"
+						y="0"
+						width="100"
+						height="26"
+						key="textField-7"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{SC9}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="1"
+						y="38"
+						width="549"
+						height="111"
+						key="staticText-30"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font fontName="Verdana"/>
+					</textElement>
+				<text><![CDATA[*Footnotes
+
+Unique HCP/TL’s – Does not include interactions labeled “MSL Interaction”
+
+Interactions per HCP/TL – Calculation does not include interactions labeled “MSL Interaction”
+
+Visit Freq – Average period in weeks between visits to the same MP HCP/TL]]></text>
+				</staticText>
+			</band>
+		</summary>
+</jasperReport>

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="SC_Educational_Dialogue_Objectives"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="1200"
+		 pageHeight="1300"
+		 columnWidth="1140"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="startDate" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["01/01/"+(new SimpleDateFormat("yyyy").format(new Date(System.currentTimeMillis())))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="endDate" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA[(new SimpleDateFormat("MM/dd/yyyy").format(new Date(System.currentTimeMillis())))]]></parameterDescription>
+		<defaultValueExpression ><![CDATA[(new SimpleDateFormat("MM/dd/yyyy").format(new Date(System.currentTimeMillis())))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="productList" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="product" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["sidv_mplan.LOV1_VALUE"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["sidv_mplan.LOV1_VALUE"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="finalProductList" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[( ("," + $P{productList} + "," ).indexOf( ",'95466610'," ) != -1 ? $P{productList} + ",'90260407'" : $P{productList} )]]></defaultValueExpression>
+	</parameter>
+	<parameter name="finalProduct" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[( $P{product}.equals( "'Orencia'" ) ? "'Orencia', 'Abatacept'" : $P{product} )]]></defaultValueExpression>
+	</parameter>
+	<parameter name="userReportLevel" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="finalUserReportLevel" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[$P{userReportLevel}.replaceAll( "'", "" )]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select
+product_Value,
+CommTopic_Value,
+MedObj_Value,
+Total_Count,
+count(interactionData_ID) as Triplet_Count,
+ROUND(((count(interactionData_ID)*100)/Total_Count), 2) as Triplet_Percent,
+(select value from global_constants where name = 'SCORECARD_NOT_PERMITTED_MSG' ) as SCORECARD_NOT_PERMITTED_MSG
+from(
+select 
+sidv_mplan.id as interactionData_ID,
+sidv_mplan.lov1_value as product_Value,
+sidv_mplan.lov2_value as CommTopic_Value,
+sidv_mplan.lov3_value as MedObj_Value,
+count(sidv_mplan.id) over ()  as Total_Count
+from sc_interaction_view siv
+inner join sc_interaction_data_view sidv_mplan
+on (sidv_mplan.interaction_id = siv.interaction_id and sidv_mplan.type='MedicalPlanActivityMultiSelectIds')
+where siv.interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and siv.interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and siv.interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+and sidv_mplan.lov1_value in ( $P!{finalProduct} )
+and sidv_mplan.lov1_id in ( $P!{finalProductList} )
+) final_query
+group by product_Value, CommTopic_Value, MedObj_Value, Total_Count]]></queryString>
+
+	<field name="PRODUCT_VALUE" class="java.lang.String"/>
+	<field name="COMMTOPIC_VALUE" class="java.lang.String"/>
+	<field name="MEDOBJ_VALUE" class="java.lang.String"/>
+	<field name="TOTAL_COUNT" class="java.math.BigDecimal"/>
+	<field name="TRIPLET_COUNT" class="java.math.BigDecimal"/>
+	<field name="TRIPLET_PERCENT" class="java.math.BigDecimal"/>
+	<field name="SCORECARD_NOT_PERMITTED_MSG" class="java.lang.String"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="38"  isSplitAllowed="true" >
+				<printWhenExpression><![CDATA[new Boolean( Integer.parseInt($P{finalUserReportLevel}) != 3 && Integer.parseInt($P{finalUserReportLevel}) != 4 )]]></printWhenExpression>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="2"
+						width="1138"
+						height="35"
+						key="textField-2">
+							<printWhenExpression><![CDATA[new Boolean( Integer.parseInt($P{finalUserReportLevel}) != 3 && Integer.parseInt($P{finalUserReportLevel}) != 4 )]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" size="14" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{SCORECARD_NOT_PERMITTED_MSG}]]></textFieldExpression>
+				</textField>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="864"  isSplitAllowed="true" >
+				<printWhenExpression><![CDATA[new Boolean( Integer.parseInt($P{finalUserReportLevel}) == 3 || Integer.parseInt($P{finalUserReportLevel}) == 4 )
+]]></printWhenExpression>
+				<pieChart>
+					<chart isShowLegend="false"  hyperlinkTarget="Self" >
+					<reportElement
+						x="-1"
+						y="0"
+						width="1139"
+						height="864"
+						key="element-1"
+						positionType="Float"
+						isPrintWhenDetailOverflows="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						<chartTitle color="#000066" >
+					<font fontName="Verdana" pdfFontName="Helvetica" size="14" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" isPdfEmbedded="false" pdfEncoding="Cp1252"/>
+								<titleExpression><![CDATA[($P{reportTherapeuticArea}) + " BMS Medical Science " + $P{startDate} + " - " + $P{endDate} + " Activities MSL Summary " + ( $P{product}.equals("sidv_mplan.LOV1_VALUE") ? "All" :  $P{product}) + " Medical Plan Activities"]]></titleExpression>
+					</chartTitle>
+						<chartSubtitle color="#000066" >
+					<font fontName="Verdana" pdfFontName="Helvetica" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" isPdfEmbedded="false" pdfEncoding="Cp1252"/>
+								<subtitleExpression><![CDATA["N = " +$F{TOTAL_COUNT}]]></subtitleExpression>
+					</chartSubtitle>
+					</chart>
+					<pieDataset>
+						<dataset >
+						</dataset>
+						<keyExpression><![CDATA[$F{COMMTOPIC_VALUE}]]></keyExpression>
+						<valueExpression><![CDATA[$F{TRIPLET_PERCENT}]]></valueExpression>
+						<labelExpression><![CDATA["Product : " + $F{PRODUCT_VALUE} + System.getProperty("line.separator") + 
+"Communication Topic : " + $F{COMMTOPIC_VALUE} + System.getProperty("line.separator") + 
+"Medical Objective : " + $F{MEDOBJ_VALUE} + System.getProperty("line.separator") +
+"n = " + $F{TRIPLET_COUNT} + ", " + $F{TRIPLET_PERCENT}+"%"]]></labelExpression>
+				<sectionHyperlink >
+				</sectionHyperlink>
+					</pieDataset>
+					<piePlot>
+						<plot />
+					</piePlot>
+				</pieChart>
+			</band>
+		</summary>
+</jasperReport>

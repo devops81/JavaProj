@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping>
+    <class name="com.openq.pubmed.AsynchPubMedCrawlerJobItem" table="asynch_pubmed_crawler_job_item">  
+        <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+        <property name="jobId" column="jobId" type="long"/>
+        <property name="olId" column="olId" type="long"/>
+        <property name="status" column="status"/>
+        <property name="fetchTime" column="fetchTime" type="long" />
+     </class>
+</hibernate-mapping>    

@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="SC_Unsolicited_Off-Label_Topic_Matrix"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="595"
+		 pageHeight="842"
+		 columnWidth="535"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<style 
+		name="TA_Colour"
+		isDefault="false"
+		fontName="Verdana"
+		isBold="true"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[new Boolean ($V{TA}.equals( "CVMET" ) )]]></conditionExpression>
+			<style 
+				name="TA_Colour"
+				isDefault="false"
+				mode="Opaque"
+				forecolor="#333364"
+				backcolor="#FFFF00"
+			/>
+		</conditionalStyle>
+			<conditionalStyle>
+				<conditionExpression><![CDATA[new Boolean ($V{TA}.equals( "Neuro" ) )]]></conditionExpression>
+				<style 
+					name="TA_Colour"
+					isDefault="false"
+					mode="Opaque"
+					forecolor="#333364"
+					backcolor="#3399FF"
+				/>
+			</conditionalStyle>
+				<conditionalStyle>
+					<conditionExpression><![CDATA[new Boolean ($V{TA}.equals( "Immunoscience" ) )]]></conditionExpression>
+					<style 
+						name="TA_Colour"
+						isDefault="false"
+						mode="Opaque"
+						forecolor="#3333FF"
+						backcolor="#CC66FF"
+					/>
+				</conditionalStyle>
+					<conditionalStyle>
+						<conditionExpression><![CDATA[new Boolean ($V{TA}.equals( "Virology" ) )]]></conditionExpression>
+						<style 
+							name="TA_Colour"
+							isDefault="false"
+							mode="Opaque"
+							forecolor="#3333FF"
+							backcolor="#CCCCCC"
+						/>
+					</conditionalStyle>
+						<conditionalStyle>
+							<conditionExpression><![CDATA[new Boolean ($V{TA}.equals( "Health Outcomes" ) )]]></conditionExpression>
+							<style 
+								name="TA_Colour"
+								isDefault="false"
+								mode="Opaque"
+								forecolor="#3333FF"
+								backcolor="#99FF99"
+							/>
+						</conditionalStyle>
+							<conditionalStyle>
+								<conditionExpression><![CDATA[new Boolean ($V{TA}.equals( "Oncology" ) )]]></conditionExpression>
+								<style 
+									name="TA_Colour"
+									isDefault="false"
+									mode="Opaque"
+									forecolor="#3333FF"
+									backcolor="#FF6600"
+								/>
+							</conditionalStyle>
+	</style>
+	<style 
+		name="leftmostcolumn"
+		isDefault="false"
+		forecolor="#000066"
+	/>
+
+	<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["All"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="startDate" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["01/01/"+(new SimpleDateFormat("yyyy").format(new Date(System.currentTimeMillis())))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="endDate" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA[(new SimpleDateFormat("MM/dd/yyyy").format(new Date(System.currentTimeMillis())))]]></parameterDescription>
+		<defaultValueExpression ><![CDATA[(new SimpleDateFormat("MM/dd/yyyy").format(new Date(System.currentTimeMillis())))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="unOffLabelProduct" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["siv.inquiry_product"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["siv.inquiry_product"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="unOffLabelProductList" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["'86850537','86850538','83398429','83398430','83398431','83398432','88287150','86850539','86860726','86850540','86850541','88287148','90260407','90260409','90260411','90260416','90260408','90260410','90260412','90260413','90260414','90260415'"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="userId" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["'84702011'" "'90407761'"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="finalProductList" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[( ("," + $P{unOffLabelProductList} + "," ).indexOf( ",'109238657'," ) != -1 ? $P{unOffLabelProductList} + ",'109238643'" : $P{unOffLabelProductList} )]]></defaultValueExpression>
+	</parameter>
+	<parameter name="finalProduct" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[( $P{unOffLabelProduct}.equals( "'Orencia'" ) ? "'Orencia', 'Abatacept'" : $P{unOffLabelProduct} )]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select
+query_total_inquiries_by_topic.interaction_ta,
+(case when query_total_inquiries_by_topic.inquiry_topic = 'Clinical Pharmacology/Mechanism of Action' then 'Clinical Pharmacology/MOA' 
+      when query_total_inquiries_by_topic.inquiry_topic = 'Outcomes (disease & pharmacoeconomics)' then 'Outcomes (disease & PE)' 
+      when query_total_inquiries_by_topic.inquiry_topic = 'Treatment Guidelines/Consensus Statements' then 'Treatment Guidelines/CST' 
+      else query_total_inquiries_by_topic.inquiry_topic end ) as inquiry_topic, 
+query_total_inquiries_by_topic.rank, 
+round((query_total_inquiries_by_topic.total_inquiries_by_topic * 100 )/
+query_total_inquiries_by_ta.total_inquiries_by_ta)||'%' percentage,
+(select value from global_constants where name = 'SCORECARD_NOT_PERMITTED_MSG' ) as SCORECARD_NOT_PERMITTED_MSG,
+(select GET_USER_REPORT_LEVEL( $P!{userId} ) from dual ) as user_report_level
+from
+(
+select interaction_ta, inquiry_topic, count(inquiry_topic) total_inquiries_by_topic,
+rank() over (partition by interaction_ta order by count(inquiry_topic) desc) rank
+from sc_inquiry_view siv
+where siv.interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and siv.interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and siv.interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+and siv.inquiry_product in ( $P!{finalProduct} )
+and siv.inquiry_product_id in ( $P!{finalProductList} )
+group by interaction_ta, inquiry_topic 
+) query_total_inquiries_by_topic  , 
+
+(
+select interaction_ta, count(inquiry_topic) total_inquiries_by_ta
+from sc_inquiry_view siv
+where siv.interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and siv.interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+and siv.inquiry_product in ( $P!{finalProduct} )
+and siv.inquiry_product_id in ( $P!{finalProductList} )
+group by interaction_ta
+) query_total_inquiries_by_ta
+
+where query_total_inquiries_by_topic.interaction_ta = query_total_inquiries_by_ta.interaction_ta]]></queryString>
+
+	<field name="INTERACTION_TA" class="java.lang.String"/>
+	<field name="INQUIRY_TOPIC" class="java.lang.String"/>
+	<field name="RANK" class="java.math.BigDecimal"/>
+	<field name="PERCENTAGE" class="java.lang.String"/>
+	<field name="SCORECARD_NOT_PERMITTED_MSG" class="java.lang.String"/>
+	<field name="USER_REPORT_LEVEL" class="java.math.BigDecimal"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="26"  isSplitAllowed="true" >
+				<printWhenExpression><![CDATA[new Boolean( $F{USER_REPORT_LEVEL}.intValue() != 3 && $F{USER_REPORT_LEVEL}.intValue() != 4 )]]></printWhenExpression>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="535"
+						height="26"
+						key="textField-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" size="14" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{SCORECARD_NOT_PERMITTED_MSG}]]></textFieldExpression>
+				</textField>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="195"  isSplitAllowed="true" >
+				<printWhenExpression><![CDATA[new Boolean( $F{USER_REPORT_LEVEL}.intValue() == 3 || $F{USER_REPORT_LEVEL}.intValue() == 4 )]]></printWhenExpression>
+				<staticText>
+					<reportElement
+						style="leftmostcolumn"
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="535"
+						height="25"
+						key="staticText-1"
+						positionType="Float">
+							<printWhenExpression><![CDATA[new Boolean( $P{reportTherapeuticArea}.equals( "All" ) )]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" size="14"/>
+					</textElement>
+				<text><![CDATA[Topics Unsolicited Off-Label Questions]]></text>
+				</staticText>
+				<crosstab >
+					<reportElement
+						x="64"
+						y="40"
+						width="434"
+						height="129"
+						key="crosstab-1"
+						positionType="Float"/>
+					<crosstabHeaderCell>						<cellContents mode="Transparent">
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+				<staticText>
+					<reportElement
+						style="leftmostcolumn"
+						x="0"
+						y="0"
+						width="99"
+						height="24"
+						key="staticText-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Topic]]></text>
+				</staticText>
+						</cellContents>
+					</crosstabHeaderCell>					<rowGroup name="TOPIC" width="100">
+						<bucket>
+							<bucketExpression class="java.lang.String"><![CDATA[$F{INQUIRY_TOPIC}]]></bucketExpression>
+						</bucket>
+						<crosstabRowHeader>
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="1Point" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="leftmostcolumn"
+						x="0"
+						y="0"
+						width="100"
+						height="30"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Top">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{TOPIC}]]></textFieldExpression>
+				</textField>
+						</cellContents>
+						</crosstabRowHeader>
+					</rowGroup>
+					<columnGroup name="TA" height="25" headerPosition="Center">
+						<bucket>
+							<bucketExpression class="java.lang.String"><![CDATA[$F{INTERACTION_TA}]]></bucketExpression>
+						</bucket>
+						<crosstabColumnHeader>
+						<cellContents mode="Transparent">
+					<box topBorder="1Point" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="TA_Colour"
+						x="0"
+						y="0"
+						width="50"
+						height="25"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[($V{TA}.equals("CVMET"))?"CVMET":($V{TA}.equals("Neuro"))?"NS":($V{TA}.equals("Oncology"))?"Onc":($V{TA}.equals("Immunoscience"))?"Imm":($V{TA}.equals("Virology"))?"Vr":($V{TA}.equals("Health Outcomes"))?"HEOR":"NA"]]></textFieldExpression>
+				</textField>
+						</cellContents>
+						</crosstabColumnHeader>
+					</columnGroup>
+
+					<measure name="COUNT_Nothing" class="java.lang.String">
+						<measureExpression><![CDATA[$F{PERCENTAGE}]]></measureExpression>
+					</measure>
+					<measure name="rank" class="java.math.BigDecimal">
+						<measureExpression><![CDATA[$F{RANK}]]></measureExpression>
+					</measure>
+					<crosstabCell width="50" height="30">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="leftmostcolumn"
+						x="0"
+						y="0"
+						width="50"
+						height="30"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle" isStyledText="true">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[(
+($V{COUNT_Nothing}!=null)? 
+($V{rank}.intValue() <=3 ? "<style forecolor='red'>"+ $V{COUNT_Nothing}+ "</style>" : $V{COUNT_Nothing}+""  ) : 
+new BigDecimal(0)+""
+)]]></textFieldExpression>
+				</textField>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="30" columnTotalGroup="TA">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="50" height="0" rowTotalGroup="TOPIC">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="0" rowTotalGroup="TOPIC" columnTotalGroup="TA">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<whenNoDataCell>						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+						</cellContents>
+					</whenNoDataCell>					</crosstab>
+				<staticText>
+					<reportElement
+						style="leftmostcolumn"
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="535"
+						height="25"
+						key="staticText-2"
+						positionType="Float">
+							<printWhenExpression><![CDATA[new Boolean( !$P{reportTherapeuticArea}.equals( "All" ) )]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" size="14"/>
+					</textElement>
+				<text><![CDATA[Topics Unsolicited Off-Label Questions]]></text>
+				</staticText>
+			</band>
+		</summary>
+</jasperReport>

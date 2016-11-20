@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<License>
+  <Data>
+    <LicensedTo>openQ</LicensedTo>
+    <Developers>Limited to 1 developer.</Developers>
+    <OEM>This is a non-redistributable license.</OEM>
+    <Products>
+      <Product>Aspose.Slides for Java</Product>
+    </Products>
+    <EditionType>Enterprise</EditionType>
+    <SerialNumber>0a81e8e1-7818-41d0-8425-33cf8e6d5025</SerialNumber>
+    <SubscriptionExpiry>20090407</SubscriptionExpiry>
+    <LicenseVersion>2.1</LicenseVersion>
+  </Data>
+  <Signature>oNsT3YpQ8GAoRQteq/5T3wyYWtIxVetS4khx5B/lwWlQUnZYRuvdNkAfBnj+2Pf0Hy5fRclfpzrLt2eNGMGEz3Jo5yJfnjUwsJ727QUHlK8foAqWRnfMwzp0BeP1jIWkPuCkb79T04mIcyZDhaigv7yn3q2UvJ5CALZrZnEQXHs=</Signature>
+</License>

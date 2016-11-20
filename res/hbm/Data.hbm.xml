@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping> 
+
+       <class name="com.openq.eav.data.Entity" table="entities">
+        <id name="id" column="entity_id">
+            <generator class="native"/>
+        </id>
+      
+        <many-to-one name="type" class="com.openq.eav.metadata.EntityType" not-null="true"/>
+        
+        <property name="deleteFlag" type="string"/>
+        
+        <set name ="entityAttribute"  inverse="true" lazy="true">
+        <key column="id"/>
+        <one-to-many class="com.openq.eav.data.EntityAttribute"/>
+        </set>
+        
+        <set name ="valueString"  inverse="true" lazy="true">
+        <key column="id"/>
+        <one-to-many class ="com.openq.eav.data.StringAttribute"/>
+        </set>
+        
+        <set name ="valueNumber"  inverse="true" lazy="true">
+        <key column="id"/>
+        <one-to-many class ="com.openq.eav.data.NumberAttribute"/>
+        </set>
+        
+        <set name ="valueDate"  inverse="true" lazy="true">
+        <key column="id"/>
+        <one-to-many class ="com.openq.eav.data.DateAttribute"/>
+        </set>
+        
+        <set name ="valueBoolean"  inverse="true" lazy="true">
+        <key column="id"/>
+        <one-to-many class ="com.openq.eav.data.BooleanAttribute"/>
+        </set>
+        
+    </class>
+     
+    <class name="com.openq.eav.data.EntityAttribute" table="entities_attribute">
+        <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+        <many-to-one name="attribute" column="attribute_id" class="com.openq.eav.metadata.AttributeType" not-null="true"/>
+        <many-to-one name="parent" column="parent_id" class="com.openq.eav.data.Entity" not-null="true"/>
+        <many-to-one name="myEntity" column="myentity_id" class="com.openq.eav.data.Entity" not-null="true"/>
+        <property name="value"/>
+    </class>
+    
+    <class name="com.openq.eav.data.StringAttribute" table="string_attribute" >
+        <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+        <many-to-one name="attribute" column="attribute_id" class="com.openq.eav.metadata.AttributeType" not-null="true"/>
+        <many-to-one name="parent" column="parent_id" class="com.openq.eav.data.Entity" not-null="true"/>
+        <property name="rootEntityId" column="root_entity_id" type="long"/>
+        <property name="rootEntityType" column="root_entity_type" type="long"/>
+        <property name="tabAttributeId" column="tab_attribute_id" type="long"/>
+        <property name="rowId" column="row_id" type="long"/>
+        <property name="table" column="isTable" type="boolean"/>
+        <property name="value"/>
+    </class>
+    
+     <class name="com.openq.eav.data.DateAttribute" table="date_attribute" >
+        <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+        <many-to-one name="attribute" column="attribute_id" class="com.openq.eav.metadata.AttributeType" not-null="true"/>
+        <many-to-one name="parent" column="parent_id" class="com.openq.eav.data.Entity" not-null="true"/>
+        <property name="rootEntityId" column="root_entity_id" type="long"/>
+        <property name="rootEntityType" column="root_entity_type" type="long"/>
+        <property name="tabAttributeId" column="tab_attribute_id" type="long"/>
+        <property name="rowId" column="row_id" type="long"/>
+        <property name="table" column="isTable" type="boolean"/>
+        <property name="value" type="date"/>
+    </class>
+    
+     <class name="com.openq.eav.data.NumberAttribute" table="number_attribute" >
+        <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+        <many-to-one name="attribute" column="attribute_id" class="com.openq.eav.metadata.AttributeType" not-null="true"/>
+        <many-to-one name="parent" column="parent_id" class="com.openq.eav.data.Entity" not-null="true"/>
+        <property name="rootEntityId" column="root_entity_id" type="long"/>
+        <property name="rootEntityType" column="root_entity_type" type="long"/>
+        <property name="tabAttributeId" column="tab_attribute_id" type="long"/>
+        <property name="rowId" column="row_id" type="long"/>
+        <property name="table" column="isTable" type="boolean"/>
+        <property name="value" type="long"/>
+    </class>
+    
+     <class name="com.openq.eav.data.BooleanAttribute" table="boolean_attribute" >
+        <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+        <many-to-one name="attribute" column="attribute_id" class="com.openq.eav.metadata.AttributeType" not-null="true"/>
+        <many-to-one name="parent" column="parent_id" class="com.openq.eav.data.Entity" not-null="true"/>
+        <property name="rootEntityId" column="root_entity_id" type="long"/>
+        <property name="rootEntityType" column="root_entity_type" type="long"/>
+        <property name="tabAttributeId" column="tab_attribute_id" type="long"/>
+        <property name="rowId" column="row_id" type="long"/>
+        <property name="table" column="isTable" type="boolean"/>
+        <property name="value"  type="boolean"/>
+    </class>
+
+     <class name="com.openq.eav.data.BinaryAttribute" table="binary_attribute" >
+        <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+        <many-to-one name="attribute" column="attribute_id" class="com.openq.eav.metadata.AttributeType" not-null="true"/>
+        <many-to-one name="parent" column="parent_id" class="com.openq.eav.data.Entity" not-null="true"/>
+        <property name="fileName"  type="string"/>
+        <property name="data"  type="blob"/>
+    </class>
+</hibernate-mapping>

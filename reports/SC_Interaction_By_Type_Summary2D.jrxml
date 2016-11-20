@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="SC_Interaction_By_Type_Summary2D"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Landscape"
+		 pageWidth="2000"
+		 pageHeight="842"
+		 columnWidth="1940"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["All"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="startDate" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["01/01/"+(new SimpleDateFormat("yyyy").format(new Date(System.currentTimeMillis())))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="endDate" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA[(new SimpleDateFormat("MM/dd/yyyy").format(new Date(System.currentTimeMillis())))]]></parameterDescription>
+		<defaultValueExpression ><![CDATA[(new SimpleDateFormat("MM/dd/yyyy").format(new Date(System.currentTimeMillis())))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="userId" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["'84702011'" "'90407761'"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select  
+(case 	when interaction_ta = 'CVMET' then 'CVMET' 
+	when interaction_ta = 'Health Outcomes' then 'HOER' 
+	when interaction_ta = 'Immunoscience' then 'IMM' 
+	when interaction_ta = 'Neuro' then 'NS' 
+	when interaction_ta = 'Oncology' then 'ONC' 
+	when interaction_ta = 'Virology' then 'Vr' end ) as interaction_ta,
+FIELD_NAME, Field_Value,
+(select value from global_constants where name = 'SCORECARD_NOT_PERMITTED_MSG' ) as SCORECARD_NOT_PERMITTED_MSG,
+(select GET_USER_REPORT_LEVEL( $P!{userId} ) from dual ) as user_report_level
+from (
+SELECT interaction_ta, '1Total Impacted' as FIELD_NAME, sum(total_attendee_count) as Field_Value
+  FROM SC_ATTENDEE_COUNT_VIEW
+ where interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+ and interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+ and interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+ GROUP BY interaction_ta
+UNION ALL
+  SELECT interaction_ta, '2On Plan' as FIELD_NAME, count(*) as Field_Value
+  FROM SC_INTERACTION_MPOL_VIEW att
+where interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+  and ol_status in ('TL', 'HCP')
+  GROUP BY interaction_ta
+UNION ALL
+  SELECT interaction_ta, '3Field Response' as FIELD_NAME, count(*) as Field_Value
+  FROM SC_INTERACTION_Reactive_View
+where interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+  GROUP BY interaction_ta
+UNION ALL
+  SELECT interaction_ta, '4E-mail/Telephone' as FIELD_NAME, count(*) as Field_Value
+  FROM SC_INTERACTION_EMAILPHONE_VIEW
+where interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+  GROUP BY interaction_ta
+UNION ALL
+  SELECT interaction_ta, '5Group' as FIELD_NAME, count(*) as Field_Value
+  FROM SC_interaction_group_view
+where interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+  GROUP BY interaction_ta )
+order by interaction_ta, FIELD_NAME]]></queryString>
+
+	<field name="INTERACTION_TA" class="java.lang.String"/>
+	<field name="FIELD_NAME" class="java.lang.String"/>
+	<field name="FIELD_VALUE" class="java.math.BigDecimal"/>
+	<field name="SCORECARD_NOT_PERMITTED_MSG" class="java.lang.String"/>
+	<field name="USER_REPORT_LEVEL" class="java.math.BigDecimal"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="40"  isSplitAllowed="true" >
+				<printWhenExpression><![CDATA[new Boolean( $F{USER_REPORT_LEVEL}.intValue() != 3 && $F{USER_REPORT_LEVEL}.intValue() != 4 )]]></printWhenExpression>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="5"
+						y="1"
+						width="1425"
+						height="35"
+						key="textField-1"
+						positionType="Float">
+							<printWhenExpression><![CDATA[new Boolean( $F{USER_REPORT_LEVEL}.intValue() != 3 && $F{USER_REPORT_LEVEL}.intValue() != 4 )]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left">
+						<font pdfFontName="Helvetica-Bold" size="14" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{SCORECARD_NOT_PERMITTED_MSG}]]></textFieldExpression>
+				</textField>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="365"  isSplitAllowed="true" >
+				<printWhenExpression><![CDATA[new Boolean( $F{USER_REPORT_LEVEL}.intValue() == 3 || $F{USER_REPORT_LEVEL}.intValue() == 4 )
+]]></printWhenExpression>
+				<barChart>
+					<chart  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="1937"
+						height="362"
+						key="element-1"
+						positionType="Float">
+							<printWhenExpression><![CDATA[new Boolean ( $P{reportTherapeuticArea}.equals( "All" ) )]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						<chartTitle color="#000000" >
+								<titleExpression><![CDATA[($P{reportTherapeuticArea}) + " " + $P{startDate} + " - " + $P{endDate} + " Activities Summary "]]></titleExpression>
+					</chartTitle>
+						<chartLegend textColor="#000000" backgroundColor="#FFFFFF" >
+					</chartLegend>
+					</chart>
+					<categoryDataset>
+						<dataset >
+						</dataset>
+						<categorySeries>
+							<seriesExpression><![CDATA[$F{FIELD_NAME}.substring( 1 )]]></seriesExpression>
+							<categoryExpression><![CDATA[$F{INTERACTION_TA}]]></categoryExpression>
+							<valueExpression><![CDATA[$F{FIELD_VALUE}]]></valueExpression>
+							<labelExpression><![CDATA[$F{FIELD_VALUE}+""]]></labelExpression>
+				<itemHyperlink >
+				</itemHyperlink>
+						</categorySeries>
+					</categoryDataset>
+					<barPlot isShowLabels="true" >
+						<plot >
+							<seriesColor seriesOrder="0" color="#0000CC"/>
+							<seriesColor seriesOrder="1" color="#FF0000"/>
+							<seriesColor seriesOrder="2" color="#FFFF00"/>
+							<seriesColor seriesOrder="3" color="#009900"/>
+							<seriesColor seriesOrder="4" color="#CCCCFF"/>
+</plot>
+						<categoryAxisFormat>
+							<axisFormat >
+							</axisFormat>
+						</categoryAxisFormat>
+					<valueAxisLabelExpression><![CDATA["# TL Interactions/Impacted"]]></valueAxisLabelExpression>
+						<valueAxisFormat>
+							<axisFormat >
+							</axisFormat>
+						</valueAxisFormat>
+					</barPlot>
+				</barChart>
+				<barChart>
+					<chart  hyperlinkTarget="Self" >
+					<reportElement
+						x="97"
+						y="10"
+						width="679"
+						height="355"
+						key="element-2"
+						positionType="Float">
+							<printWhenExpression><![CDATA[new Boolean ( !$P{reportTherapeuticArea}.equals( "All" ) )]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						<chartTitle color="#000000" >
+								<titleExpression><![CDATA[($P{reportTherapeuticArea}) + " " + $P{startDate} + " - " + $P{endDate} + " Activities Summary "]]></titleExpression>
+					</chartTitle>
+						<chartLegend textColor="#000000" backgroundColor="#FFFFFF" >
+					</chartLegend>
+					</chart>
+					<categoryDataset>
+						<dataset >
+						</dataset>
+						<categorySeries>
+							<seriesExpression><![CDATA[$F{FIELD_NAME}.substring( 1 )]]></seriesExpression>
+							<categoryExpression><![CDATA[$F{INTERACTION_TA}]]></categoryExpression>
+							<valueExpression><![CDATA[$F{FIELD_VALUE}]]></valueExpression>
+							<labelExpression><![CDATA[$F{FIELD_VALUE}+""]]></labelExpression>
+				<itemHyperlink >
+				</itemHyperlink>
+						</categorySeries>
+					</categoryDataset>
+					<barPlot isShowLabels="true" >
+						<plot >
+							<seriesColor seriesOrder="0" color="#0000CC"/>
+							<seriesColor seriesOrder="1" color="#FF0000"/>
+							<seriesColor seriesOrder="2" color="#FFFF00"/>
+							<seriesColor seriesOrder="3" color="#009900"/>
+							<seriesColor seriesOrder="4" color="#CCCCFF"/>
+</plot>
+						<categoryAxisFormat>
+							<axisFormat >
+							</axisFormat>
+						</categoryAxisFormat>
+					<valueAxisLabelExpression><![CDATA["# TL Interactions/Impacted"]]></valueAxisLabelExpression>
+						<valueAxisFormat>
+							<axisFormat >
+							</axisFormat>
+						</valueAxisFormat>
+					</barPlot>
+				</barChart>
+			</band>
+		</summary>
+</jasperReport>

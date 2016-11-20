@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" destroy-method="close">
+        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
+        <property name="url" value="jdbc:oracle:thin:@localhost:1521:dev1"/>
+        <property name="username" value="demo"/>
+        <property name="password" value="demo"/>
+    </bean>
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate.LocalSessionFactoryBean" depends-on="dataSource">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mappingResources">
+            <list>
+                <value>hbm/Attendee.hbm.xml</value>
+                <value>hbm/Contacts.hbm.xml</value>
+                <value>hbm/Data.hbm.xml</value>
+                <value>hbm/Expertlist.hbm.xml</value>
+                <value>hbm/Group.hbm.xml</value>
+                <value>hbm/Interaction.hbm.xml</value>
+                <value>hbm/Metadata.hbm.xml</value>
+                <value>hbm/Option.hbm.xml</value>
+                <value>hbm/User.hbm.xml</value>
+                <value>hbm/UserAddress.hbm.xml</value>
+                <value>hbm/UserGroupMap.hbm.xml</value>
+                <value>hbm/AuditInfo.hbm.xml</value>
+                <value>hbm/OrgOLMap.hbm.xml</value>
+                <value>hbm/EventEntity.hbm.xml</value>
+				<value>hbm/Privilege.hbm.xml</value> <!-- Entry for the privilege bean -->
+                <value>hbm/AsynchGeocodeItem.hbm.xml</value>
+                <value>hbm/AsynchGeocodeJob.hbm.xml</value>
+                <value>hbm/EventAttendee.hbm.xml</value>
+				<value>hbm/SpecialtyView.hbm.xml</value>
+                <value>hbm/LocationView.hbm.xml</value>
+                <value>hbm/PrimaryLocationView.hbm.xml</value>
+                <value>hbm/HomeUserView.hbm.xml</value>
+                <value>hbm/HomeUserPhoneView.hbm.xml</value>
+                <value>hbm/HomeUserAddressView.hbm.xml</value>
+                <value>hbm/InteractionData.hbm.xml</value>
+                <value>hbm/OlTotalPubs.hbm.xml</value>
+               <value>hbm/OvidDb.hbm.xml</value>
+              <!--  <value>hbm/Publications.hbm.xml</value>-->
+               <value>hbm/request.hbm.xml</value>
+               <value>hbm/CmaPubOl.hbm.xml</value>
+               <value>hbm/OlPublicationSummaryDTO.hbm.xml</value>
+              
+            </list>
+        </property>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">net.sf.hibernate.dialect.Oracle9Dialect</prop>
+                <!--prop key="hibernate.dialect">net.sf.hibernate.dialect.MySQLDialect</prop-->
+
+                <!-- Echo all executed SQL to stdout -->
+                <!--prop key="hibernate.show_sql">true</prop-->
+                <prop key="hibernate.cglib.use_reflection_optimizer">false</prop>
+
+			    <prop key="hibernate.c3p0.minPoolSize">20</prop>
+		        <prop key="hibernate.c3p0.maxPoolSize">50</prop>
+                <prop key="hibernate.c3p0.timeout">100</prop>
+
+                <!-- Drop and re-create the database schema on startup -->
+                <!--prop key="hibernate.hbm2ddl.auto">create-drop</prop-->
+
+                <!--prop key="hibernate.cache.provider_class">net.sf.hibernate.cache.EhCacheProvider</prop-->
+            </props>
+        </property>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.orm.hibernate.HibernateTransactionManager"
+          depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="metadataServiceTarget" class="com.openq.eav.metadata.MetadataService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+	<bean id="dataServiceTarget" class="com.openq.eav.data.DataService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="metadataService" ref="metadataService"/>
+        <property name="auditService" ref="auditService"/>
+    </bean>
+
+	<bean id="auditServiceTarget" class="com.openq.eav.audit.AuditService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="auditService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="auditServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="metadataService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="metadataServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="create*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+   
+
+    <bean id="optionServiceTarget" class="com.openq.eav.option.OptionService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="optionService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="optionServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+    
+
+    <bean id="dataService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="dataServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="create*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="genericDataLoaderTarget" class="tools.openq.dataloader.genericDataLoader.GenericDataLoader" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="metadataService" ref="metadataService"/>
+        <property name="dataService" ref="dataService"/>
+        <property name="genericDataLoaderService" ref="genericDataLoaderService" />
+        <property name="userService" ref="userService"/>
+        <property name="optionService" ref="optionService"/>
+    </bean>
+
+    <bean id="genericDataLoader" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="genericDataLoaderTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="create*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+    
+    <bean id="genericDataLoaderServiceTarget" class="tools.openq.dataloader.genericDataLoader.GenericDataLoaderService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="metadataService" ref="metadataService"/>
+    </bean>
+
+    <bean id="genericDataLoaderService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="genericDataLoaderServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="create*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+    
+	
+	
+
+</beans>

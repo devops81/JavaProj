@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="SC_OL_Understanding_Of_Dialogue_Objective"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="1000"
+		 pageHeight="1200"
+		 columnWidth="940"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="startDate" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["01/01/"+(new SimpleDateFormat("yyyy").format(new Date(System.currentTimeMillis())))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="endDate" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA[(new SimpleDateFormat("MM/dd/yyyy").format(new Date(System.currentTimeMillis())))]]></parameterDescription>
+		<defaultValueExpression ><![CDATA[(new SimpleDateFormat("MM/dd/yyyy").format(new Date(System.currentTimeMillis())))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="userId" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["'84702011'" "'90407761'"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="userGroupId" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["-1"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="allowedProducts" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["select productLOV.id from option_lookup productLOV where productLOV.parent = (select parent.id from option_lookup parent where parent.optvalue = sdov.interaction_ta and parent.option_id = 44)"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["select productLOV.id from option_lookup productLOV where productLOV.parent = (select parent.id from option_lookup parent where parent.optvalue = sdov.interaction_ta and parent.option_id = 44)"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="restrictedLOVs" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["select  feature_id from feature_usergroup_map where permission_on_feature = 2 and feature_usergroup_map.usergroup_id like '%,'||$P!{userGroupId}||',%'"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["select  feature_id from feature_usergroup_map where permission_on_feature = 2 and feature_usergroup_map.usergroup_id like '%,'||$P!{userGroupId}||',%'"]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select 
+objective_understanding, ROUND(sum(percent),2) as percent, sum(count) as count, total,
+(select value from global_constants where name = 'SCORECARD_NOT_PERMITTED_MSG' ) as SCORECARD_NOT_PERMITTED_MSG,
+(select GET_USER_REPORT_LEVEL( $P!{userId} ) from dual ) as user_report_level from
+(
+select (case when percent <=2 then 'Others' else objective_understanding end ) as objective_understanding,
+percent, total, count from (
+
+(select objective_understanding, (count*100)/total percent, total, count from(
+
+
+SELECT OBJECTIVE_UNDERSTANDING    AS objective_understanding, COUNT(*) AS COUNT, 
+(SELECT COUNT(*)  FROM sc_dlg_objective_view sdov where sdov.interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and sdov.interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and sdov.interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+and sdov.OBJECTIVE_PRODUCT_ID in ( $P!{allowedProducts} )
+and sdov.OBJECTIVE_PRODUCT_ID not in ( $P!{restrictedLOVs} )
+) as total
+FROM sc_dlg_objective_view sdov
+where sdov.interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and sdov.interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and sdov.interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+and sdov.OBJECTIVE_PRODUCT_ID in ( $P!{allowedProducts} )
+and sdov.OBJECTIVE_PRODUCT_ID not in ( $P!{restrictedLOVs} )
+GROUP BY sdov.OBJECTIVE_UNDERSTANDING))))
+group by objective_understanding, total]]></queryString>
+
+	<field name="OBJECTIVE_UNDERSTANDING" class="java.lang.String"/>
+	<field name="PERCENT" class="java.math.BigDecimal"/>
+	<field name="COUNT" class="java.math.BigDecimal"/>
+	<field name="TOTAL" class="java.math.BigDecimal"/>
+	<field name="SCORECARD_NOT_PERMITTED_MSG" class="java.lang.String"/>
+	<field name="USER_REPORT_LEVEL" class="java.math.BigDecimal"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="40"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="6"
+						y="3"
+						width="926"
+						height="35"
+						key="textField-2">
+							<printWhenExpression><![CDATA[new Boolean( $F{USER_REPORT_LEVEL}.intValue() != 3 && $F{USER_REPORT_LEVEL}.intValue() != 4 )]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" size="14" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{SCORECARD_NOT_PERMITTED_MSG}]]></textFieldExpression>
+				</textField>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="568"  isSplitAllowed="true" >
+				<printWhenExpression><![CDATA[new Boolean( $F{USER_REPORT_LEVEL}.intValue() == 3 || $F{USER_REPORT_LEVEL}.intValue() == 4 )
+]]></printWhenExpression>
+				<pieChart>
+					<chart isShowLegend="false"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="11"
+						width="939"
+						height="556"
+						key="element-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						<chartTitle color="#000066" >
+					<font fontName="Verdana" pdfFontName="Helvetica" size="14" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" isPdfEmbedded="false" pdfEncoding="Cp1252"/>
+								<titleExpression><![CDATA[($P{reportTherapeuticArea}) + " BMS Medical Science " + $P{startDate} + " - " + $P{endDate} + " Activities MSL Summary TL Understanding of Dialogue Objectives"]]></titleExpression>
+					</chartTitle>
+						<chartSubtitle color="#000066" >
+					<font fontName="Verdana" pdfFontName="Helvetica" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" isPdfEmbedded="false" pdfEncoding="Cp1252"/>
+								<subtitleExpression><![CDATA["N = " + $F{TOTAL}]]></subtitleExpression>
+					</chartSubtitle>
+					</chart>
+					<pieDataset>
+						<dataset >
+						</dataset>
+						<keyExpression><![CDATA[$F{OBJECTIVE_UNDERSTANDING}]]></keyExpression>
+						<valueExpression><![CDATA[$F{PERCENT}]]></valueExpression>
+						<labelExpression><![CDATA[$F{OBJECTIVE_UNDERSTANDING}+ ", n = "+$F{COUNT}+", " + $F{PERCENT}+"%"]]></labelExpression>
+				<sectionHyperlink >
+				</sectionHyperlink>
+					</pieDataset>
+					<piePlot>
+						<plot />
+					</piePlot>
+				</pieChart>
+			</band>
+		</summary>
+</jasperReport>

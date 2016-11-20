@@ -1,0 +1,21 @@
+# Template file for Ant build properties
+# ===============================================
+# client custom folder
+
+customer=BMS
+war.file=bms
+
+build.version.major=2
+build.version.minor=1
+build.version.micro=0
+build.version=${build.version.major}.${build.version.minor}.${build.version.micro}
+
+SVNAnt.lib=${basedir}/tools/SVNAnt/lib
+builf.info.files=header.jsp, adminHeader.jsp, login.jsp, sessionexpired.jsp
+log.file=log4j.properties
+
+jndi.local=bms
+jndi.prod=OpenQPool
+
+welcome.file.local=/login.jsp
+welcome.file.prod=/siteMinderLogin.htm

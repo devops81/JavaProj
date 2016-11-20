@@ -1,0 +1,78 @@
+<xml xmlns:v="urn:schemas-microsoft-com:vml"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:p="urn:schemas-microsoft-com:office:powerpoint"
+ xmlns:oa="urn:schemas-microsoft-com:office:activation">
+ <p:slidetransition advancetime="0" effect="wipe" direction="right" flag="1"/>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="128"/>
+  <o:regrouptable v:ext="edit">
+   <o:entry new="1" old="0"/>
+  </o:regrouptable>
+ </o:shapelayout><p:colorscheme
+  colors="#ffffff,#000000,#1c1c1c,#333399,#00e4a8,#ffcf01,#ff0000,#3333cc"/>
+ <v:background id="_x0000_s131073" o:bwmode="white" fillcolor="white [0]"/>
+ <p:shaperange id="_x0000_s131234">
+  <v:rect id="_x0000_s131234" style='position:absolute;left:0;top:266.375pt;
+   width:10in;height:252.875pt;mso-wrap-style:none;v-text-anchor:middle'
+   fillcolor="#00064d" stroked="f" strokecolor="#b5e7f9">
+   <v:shadow color="#1c1c1c [2]"/>
+   <p:animation number="1" delay="0" type="noBuild" effect="fly"
+    direction="left" flag="17408"/>
+  </v:rect><v:rect id="_x0000_s131233" style='position:absolute;left:0;top:254.875pt;
+   width:10in;height:11.5pt;mso-wrap-style:none;v-text-anchor:middle'
+   fillcolor="#3397c8" stroked="f" strokecolor="#b5e7f9">
+   <v:shadow color="#1c1c1c [2]"/>
+  </v:rect><v:rect id="_x0000_s131235" style='position:absolute;left:0;top:519.25pt;
+   width:10in;height:20.75pt;mso-wrap-style:none;v-text-anchor:middle'
+   fillcolor="#c30" stroked="f" strokecolor="#b5e7f9">
+   <v:shadow color="#1c1c1c [2]"/>
+  </v:rect><v:shapetype id="_x0000_t202" coordsize="21600,21600" o:spt="202"
+   path="m,l,21600r21600,l21600,xe">
+   <v:stroke joinstyle="miter"/>
+   <v:path gradientshapeok="t" o:connecttype="rect"/>
+  </v:shapetype><v:shape id="_x0000_s131241" type="#_x0000_t202" style='position:absolute;
+   left:262.875pt;top:517.875pt;width:198.375pt;height:21.625pt' filled="f"
+   fillcolor="#99f" stroked="f" strokecolor="#b5e7f9">
+   <v:shadow color="#1c1c1c [2]"/>
+   <v:textbox style='mso-fit-shape-to-text:t'/>
+  </v:shape><v:line id="_x0000_s131243" style='position:absolute;
+   mso-wrap-style:none;v-text-anchor:middle' from="0,266.5pt" to="10in,266.5pt"
+   strokecolor="#036">
+   <v:stroke dashstyle="dash"/>
+   <v:shadow color="#1c1c1c [2]"/>
+  </v:line><v:line id="_x0000_s131244" style='position:absolute;
+   mso-wrap-style:none;v-text-anchor:middle' from="0,447.625pt" to="10in,447.625pt"
+   strokecolor="#036">
+   <v:stroke dashstyle="dash"/>
+   <v:shadow color="#1c1c1c [2]"/>
+  </v:line></p:shaperange>
+ <p:shaperange id="_x0000_s131253">
+  <v:shapetype id="_x0000_t75" coordsize="21600,21600" o:spt="75"
+   o:preferrelative="t" path="m@4@5l@4@11@9@11@9@5xe" filled="f" stroked="f">
+   <v:stroke joinstyle="miter"/>
+   <v:formulas>
+    <v:f eqn="if lineDrawn pixelLineWidth 0"/>
+    <v:f eqn="sum @0 1 0"/>
+    <v:f eqn="sum 0 0 @1"/>
+    <v:f eqn="prod @2 1 2"/>
+    <v:f eqn="prod @3 21600 pixelWidth"/>
+    <v:f eqn="prod @3 21600 pixelHeight"/>
+    <v:f eqn="sum @0 0 1"/>
+    <v:f eqn="prod @6 1 2"/>
+    <v:f eqn="prod @7 21600 pixelWidth"/>
+    <v:f eqn="sum @8 21600 0"/>
+    <v:f eqn="prod @7 21600 pixelHeight"/>
+    <v:f eqn="sum @10 21600 0"/>
+   </v:formulas>
+   <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect"/>
+   <o:lock v:ext="edit" aspectratio="t"/>
+  </v:shapetype><v:shape id="_x0000_s131253" type="#_x0000_t75" style='position:absolute;
+   left:0;top:448.625pt;width:10in;height:70.375pt'>
+   <v:imagedata src="master25_image002.jpg" o:title="MainPageBand"/>
+  </v:shape></p:shaperange>
+ <p:shaperange id="_x0000_s131258">
+  <v:shape id="_x0000_s131258" type="#_x0000_t75" style='position:absolute;
+   left:230.625pt;top:142.625pt;width:227.5pt;height:100.125pt' o:userdrawn="t">
+   <v:imagedata src="master25_image003.png" o:title="transparentmodifiedOpenQlogo"/>
+  </v:shape></p:shaperange>
+</xml>

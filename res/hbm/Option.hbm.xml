@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="com.openq.eav.option.OptionNames" table="option_names">
+        <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+    
+        <property name="name"/>
+        <property name="parentId" column="parent" type="long"/>
+     </class>
+
+    <class name="com.openq.eav.option.OptionLookup" table="option_lookup">
+        <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+        <many-to-one name="optionId" column="option_id" class="com.openq.eav.option.OptionNames" not-null="true"/>
+        <property name="optValue"/>
+        <property name="deleteFlag"/>
+        <property name="parentId" column="parent" type="long"/>
+		<property name="defaultSelected" column="DEFAULT_SELECTED" type="boolean"/>
+		<property name="displayOrder" column="DISPLAY_ORDER" type="long"/>
+     </class>
+     
+     
+     
+</hibernate-mapping>    

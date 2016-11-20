@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="com.openq.user.HomeUserView" table="Home_User_View">
+        <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+        <property name="firstName"  type="string"/>
+        <property name="middleName"  type="string"/>
+        <property name="lastName"  type="string"/>
+        <property name="deleteFlag"  type="string"/>
+        <property name="kolId" type="long" />
+        <property name="title" type="string" />
+        <property name="specialty1" type="string" />
+        <property name="specialty2" type="string" />
+        <property name="specialty3" type="string" />
+        <property name="specialty4" type="string" />
+        <property name="specialty5" type="string" />
+        <property name="specialty6" type="string" />
+		<property name="staffId" type="string" />
+		<property name="tier" type="string" />
+		<property name="mslOlType" column="msl_ol_type" type="string"/>
+     </class>
+
+</hibernate-mapping>

@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="SC_Unsolicited_Off-Label_Inquiries_By_OL_Type"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Landscape"
+		 pageWidth="1000"
+		 pageHeight="842"
+		 columnWidth="940"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="startDate" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["01/01/"+(new SimpleDateFormat("yyyy").format(new Date(System.currentTimeMillis())))]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["01/01/"+(new SimpleDateFormat("yyyy").format(new Date(System.currentTimeMillis())))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="endDate" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA[(new SimpleDateFormat("MM/dd/yyyy").format(new Date(System.currentTimeMillis())))]]></parameterDescription>
+		<defaultValueExpression ><![CDATA[(new SimpleDateFormat("MM/dd/yyyy").format(new Date(System.currentTimeMillis())))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="userId" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["'84702011'" "'90407761'"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="userGroupId" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["-1"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="allowedProducts" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["select productLOV.id from option_lookup productLOV where productLOV.parent = (select parent.id from option_lookup parent where parent.optvalue = siv.interaction_ta and parent.option_id = 44)"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["select productLOV.id from option_lookup productLOV where productLOV.parent = (select parent.id from option_lookup parent where parent.optvalue = siv.interaction_ta and parent.option_id = 44)"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="restrictedLOVs" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["select  feature_id from feature_usergroup_map where permission_on_feature = 2 and feature_usergroup_map.usergroup_id like '%,'||$P!{userGroupId}||',%'"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["select  feature_id from feature_usergroup_map where permission_on_feature = 2 and feature_usergroup_map.usergroup_id like '%,'||$P!{userGroupId}||',%'"]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select (case when siv.inquiry_topic = 'Clinical Pharmacology/Mechanism of Action' then 'Clinical Pharmacology/MOA' 
+             when siv.inquiry_topic = 'Outcomes (disease & pharmacoeconomics)' then 'Outcomes (disease & PE)' 
+             when siv.inquiry_topic = 'Treatment Guidelines/Consensus Statements' then 'Treatment Guidelines/CST' 
+             else siv.inquiry_topic end ) as inquiry_topic, 
+siv.first_attendee_ol_status, 
+count(siv.interaction_id) total_inquiries,
+(select value from global_constants where name = 'SCORECARD_NOT_PERMITTED_MSG' ) as SCORECARD_NOT_PERMITTED_MSG,
+(select GET_USER_REPORT_LEVEL( $P!{userId} ) from dual ) as user_report_level
+ from sc_inquiry_view siv
+where siv.interaction_ta like ( case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and siv.interaction_date >= to_date($P{startDate}, 'MM/DD/YYYY')
+and siv.interaction_date <= to_date($P{endDate}, 'MM/DD/YYYY')
+and siv.inquiry_product_id in ( $P!{allowedProducts} )
+and siv.inquiry_product_id not in ( $P!{restrictedLOVs} )
+and siv.first_attendee_ol_status in ( 'MPA', 'MPTL' )
+group by siv.inquiry_topic, siv.first_attendee_ol_status
+having count(siv.inquiry_topic) > 0
+order by siv.first_attendee_ol_status desc, lower(siv.inquiry_topic)]]></queryString>
+
+	<field name="INQUIRY_TOPIC" class="java.lang.String"/>
+	<field name="FIRST_ATTENDEE_OL_STATUS" class="java.lang.String"/>
+	<field name="TOTAL_INQUIRIES" class="java.lang.Integer"/>
+	<field name="SCORECARD_NOT_PERMITTED_MSG" class="java.lang.String"/>
+	<field name="USER_REPORT_LEVEL" class="java.math.BigDecimal"/>
+
+	<variable name="mpolCount" class="java.lang.Integer" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{FIRST_ATTENDEE_OL_STATUS}.equals( "MPTL" ) ? $F{TOTAL_INQUIRIES} : new Integer(0)]]></variableExpression>
+	</variable>
+	<variable name="mpaCount" class="java.lang.Integer" resetType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{FIRST_ATTENDEE_OL_STATUS}.equals( "MPA" ) ? $F{TOTAL_INQUIRIES} : new Integer(0)]]></variableExpression>
+	</variable>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="40"  isSplitAllowed="true" >
+				<printWhenExpression><![CDATA[new Boolean( $F{USER_REPORT_LEVEL}.intValue() != 3 && $F{USER_REPORT_LEVEL}.intValue() != 4 )
+]]></printWhenExpression>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="6"
+						y="1"
+						width="932"
+						height="39"
+						key="textField-1">
+							<printWhenExpression><![CDATA[new Boolean( $F{USER_REPORT_LEVEL}.intValue() != 3 && $F{USER_REPORT_LEVEL}.intValue() != 4 )]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" size="14" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{SCORECARD_NOT_PERMITTED_MSG}]]></textFieldExpression>
+				</textField>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="633"  isSplitAllowed="true" >
+				<printWhenExpression><![CDATA[new Boolean( $F{USER_REPORT_LEVEL}.intValue() == 3 || $F{USER_REPORT_LEVEL}.intValue() == 4 )
+]]></printWhenExpression>
+				<stackedBar3DChart>
+					<chart  hyperlinkTarget="Self" >
+					<reportElement
+						x="6"
+						y="4"
+						width="924"
+						height="619"
+						key="element-1"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						<chartTitle color="#000000" >
+								<titleExpression><![CDATA[($P{reportTherapeuticArea} ) + " BMS Medical Science " + $P{startDate} + " - " + $P{endDate} + " Activities MSL Summary MPTLs and MPAs Unsolicited Off-Label Inquiries Topics"]]></titleExpression>
+					</chartTitle>
+						<chartSubtitle color="#000000" >
+								<subtitleExpression><![CDATA[" MPTL = " + $V{mpolCount} + "\nMPA = " + $V{mpaCount}]]></subtitleExpression>
+					</chartSubtitle>
+						<chartLegend textColor="#000000" backgroundColor="#FFFFFF" >
+					</chartLegend>
+					</chart>
+					<categoryDataset>
+						<dataset >
+						</dataset>
+						<categorySeries>
+							<seriesExpression><![CDATA[$F{FIRST_ATTENDEE_OL_STATUS}]]></seriesExpression>
+							<categoryExpression><![CDATA[$F{INQUIRY_TOPIC}]]></categoryExpression>
+							<valueExpression><![CDATA[$F{TOTAL_INQUIRIES}]]></valueExpression>
+							<labelExpression><![CDATA[$F{TOTAL_INQUIRIES}+""]]></labelExpression>
+				<itemHyperlink >
+				</itemHyperlink>
+						</categorySeries>
+					</categoryDataset>
+					<bar3DPlot isShowLabels="true" >
+						<plot labelRotation="75.0" >
+							<seriesColor seriesOrder="0" color="#6ECBFB"/>
+							<seriesColor seriesOrder="1" color="#DFE6C2"/>
+</plot>
+						<categoryAxisFormat>
+							<axisFormat >
+							</axisFormat>
+						</categoryAxisFormat>
+					<valueAxisLabelExpression><![CDATA["Total Inquiries"]]></valueAxisLabelExpression>
+						<valueAxisFormat>
+							<axisFormat tickLabelColor="#000000" >
+							</axisFormat>
+						</valueAxisFormat>
+					</bar3DPlot>
+				</stackedBar3DChart>
+			</band>
+		</summary>
+</jasperReport>

@@ -1,0 +1,13 @@
+<project name="proptest" default="all" basedir=".">
+<splash imageurl="http://jakarta.apache.org/images/jakarta-logo.gif"
+           useproxy="true"
+           showduration="5000"/>
+
+
+<property name="install.home" value="C:/test"/>
+<property name="install.home" value="C:/test1"/>
+<target name="all" >
+<echo>value of install.home is: ${install.home}</echo>
+	
+</target>
+</project>

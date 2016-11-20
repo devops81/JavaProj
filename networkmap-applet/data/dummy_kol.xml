@@ -1,0 +1,101 @@
+<graph>
+<node full-image="/olpictures/photos/Photo_Harold_Burstein.jpg" icon-image="doctor.png" display-mode="Label" color="#299EDE" font-size="8" label="Burstein, Harold" id="Burstein, Harold">
+<meta name="Physician Type" value="Opinion Leader"/>
+<meta name="Specialty" value="Internal Medicine, Oncology, Epidemiology, Breast Cancer"/>
+<meta name="City" value="Boston"/>
+</node>
+<node full-image="/olpictures/photos/Photo_Dennis_Slamon.jpg" icon-image="doctor.png" display-mode="big" color="#299EDE" font-size="8" label="Slamon, Dennis" id="Slamon, Dennis">
+<meta name="Physician Type" value="Opinion Leader"/>
+<meta name="Specialty" value="Internal Medicine, Oncology, Hematology, Breast Cancer, Ovarian Cancer, Colorectal Cancer"/>
+<meta name="City" value="Los Angeles"/>
+</node>
+<node full-image="/olpictures/photos/Photo_Kathy_Albain.jpg" icon-image="doctor.png" display-mode="Label" color="#299EDE" font-size="8" label="Albain, Kathy" id="Albain, Kathy">
+<meta name="Physician Type" value="Opinion Leader"/>
+<meta name="Specialty" value="Medical Oncology, Breast Cancer, Mesothelioma"/>
+<meta name="City" value="Maywood"/>
+</node>
+<node full-image="/olpictures/photos/Photo_Claudine_Isaacs.jpg" icon-image="doctor.png" display-mode="Label" color="#299EDE" font-size="8" label="Isaacs, Claudine" id="Isaacs, Claudine">
+<meta name="Physician Type" value="Opinion Leader"/>
+<meta name="Specialty" value="Internal Medicine, Hematology, Breast Cancer, Ovarian Cancer"/>
+<meta name="City" value="Washington"/>
+</node>
+<node full-image="/olpictures/photos/Photo_Gary_Schwartz.jpg" icon-image="doctor.png" display-mode="Label" color="#299EDE" font-size="8" label="Schwartz, Gary" id="Schwartz, Gary">
+<meta name="Physician Type" value="Opinion Leader"/>
+<meta name="Specialty" value="Medical Oncology, Melanoma, Sarcomas"/>
+<meta name="City" value="New York"/>
+</node>
+<node full-image="/olpictures/photos/Photo_Craig_Nicholas.jpg" icon-image="doctor.png" display-mode="Label" color="#299EDE" font-size="8" label="Nichols, Craig" id="Nichols, Craig">
+<meta name="Physician Type" value="Opinion Leader"/>
+<meta name="Specialty" value="Internal Medicine, Oncology, Hematology"/>
+<meta name="City" value="Portland"/>
+</node>
+<node full-image="/olpictures/photos/Photo_Daniel_Budman.jpg" icon-image="doctor.png" display-mode="Label" color="#299EDE" font-size="8" label="Budman, Daniel" id="Budman, Daniel">
+<meta name="Physician Type" value="Opinion Leader"/>
+<meta name="Specialty" value="Medical Oncology, Hematology, Breast Cancer"/>
+<meta name="City" value="Manhasset"/>
+</node>
+<node full-image="/olpictures/photos/Photo_William_Gradishar.jpg" icon-image="doctor.png" display-mode="Label" color="#299EDE" font-size="8" label="Gradishar, William" id="Gradishar, William">
+<meta name="Physician Type" value="Opinion Leader"/>
+<meta name="Specialty" value="Oncology, Hematology, Breast Cancer"/>
+<meta name="City" value="Chicago"/>
+</node>
+<node full-image="/olpictures/photos/Photo_Gary_Lyman.jpg" icon-image="doctor.png" display-mode="Label" color="#299EDE" font-size="8" label="Lyman, Gary" id="Lyman, Gary">
+<meta name="Physician Type" value="Opinion Leader"/>
+<meta name="Specialty" value="Hematology, Medical Oncology, Breast Cancer"/>
+<meta name="City" value="New York"/>
+</node>
+<node full-image="/olpictures/photos/Photo_Mark_Pegram.jpg" icon-image="doctor.png" display-mode="Label" color="#299EDE" font-size="8" label="Pegram, Mark" id="Pegram, Mark">
+<meta name="Physician Type" value="Opinion Leader"/>
+<meta name="Specialty" value="Hematology, Oncology, Internal Medicine"/>
+<meta name="City" value="Los Angeles"/>
+</node>
+<node full-image="/olpictures/photos/Photo_Adam_Brufsky.jpg" icon-image="doctor.png" display-mode="Label" color="#299EDE" font-size="8" label="Brufsky, Adam" id="Brufsky, Adam">
+<meta name="Physician Type" value="Opinion Leader"/>
+<meta name="Specialty" value="Internal Medicine, Medical Oncology, Breast Cancer"/>
+<meta name="City" value="Pittsburgh"/>
+</node>
+<node full-image="/olpictures/photos/Photo_Eric_Winer.jpg" icon-image="doctor.png" display-mode="Label" color="#299EDE" font-size="8" label="Winer, Eric" id="Winer, Eric">
+<meta name="Physician Type" value="Opinion Leader"/>
+<meta name="Specialty" value="Medical Oncology, Breast Cancer"/>
+<meta name="City" value="Boston"/>
+</node>
+<edge start="Burstein, Harold" end="Winer, Eric" width="4" length="2240" color="#000080">
+	<meta name="Connection Type" value="Survey" /> 
+</edge>
+<edge start="Gradishar, William" end="Winer, Eric" width="4" length="2240" color="#A00000">
+	<meta name="Connection Type" value="Publication" /> 
+</edge>
+<edge start="Slamon, Dennis" end="Isaacs, Claudine" width="4" length="2240" color="#000080">
+	<meta name="Connection Type" value="Survey" /> 
+</edge>
+<edge start="Schwartz, Gary" end="Gradishar, William" width="4" length="2620" color="#A00000">
+	<meta name="Connection Type" value="Publication" /> 
+</edge>
+<edge start="Nichols, Craig" end="Gradishar, William" width="4" arrow="both" length="2620" color="#000080">
+	<meta name="Connection Type" value="Survey" /> 
+</edge>
+<edge start="Albain, Kathy" end="Winer, Eric" width="4" arrow="NONE" length="1840" color="#A00000">
+	<meta name="Connection Type" value="Publication" /> 
+</edge>
+<edge start="Budman, Daniel" end="Isaacs, Claudine" arrow = "from" width="4" length="1840" color="#000080">
+	<meta name="Connection Type" value="Survey" /> 
+</edge>
+<edge start="Isaacs, Claudine" end="Lyman, Gary" width="4" length="2380" color="#A00000">
+	<meta name="Connection Type" value="Publication" /> 
+</edge>
+<edge start="Lyman, Gary" end="Winer, Eric" width="4" length="2380" color="#000080">
+	<meta name="Connection Type" value="Survey" /> 
+</edge>
+<edge start="Pegram, Mark" end="Gradishar, William" width="4" length="2380" color="#A00000">
+	<meta name="Connection Type" value="Publication" /> 
+</edge>
+<edge start="Seidman, Andrew" end="Winer, Eric" width="4" length="2380" color="#A00000">
+	<meta name="Connection Type" value="Publication" /> 
+</edge>
+<edge start="Brufsky, Adam" end="Nichols, Craig" width="4" length="2380" color="#000080">
+	<meta name="Connection Type" value="Survey" /> 
+</edge>
+<edge start="Slamon, Dennis" end="Isaacs, Claudine" width="4" length="2620" color="#000080">
+	<meta name="Connection Type" value="Survey" /> 
+</edge>
+</graph>

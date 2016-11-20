@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="com.openq.geocode.AsynchGeocodeItem" table="asynch_geocode_items">
+        <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+        
+        <property name="jobId" column="job_id" type="long"/>
+        <property name="expertId" column="expert_id" type="long"/>
+        <property name="address1" column="address1"/>
+        <property name="address2" column="address2"/>
+        <property name="city" column="city"/>
+        <property name="state" column="state"/>
+        <property name="country" column="country"/>
+        <property name="zip" column="zip"/>
+        <property name="status" column="status"/>
+        <property name="updateTime" column="update_time" type="timestamp" />
+     </class>
+
+   
+</hibernate-mapping>    

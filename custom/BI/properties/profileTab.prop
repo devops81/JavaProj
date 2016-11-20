@@ -1,0 +1,12 @@
+#Available Types
+<<<<<<< .mine
+INTERACTION=Front End Admin,expert,user
+PLAN= Front End Admin,expert
+TRIAL=user,expert
+CONTACTS=user,Front End Admin,expert
+=======
+INTERACTION=user,Front End Admin,expert,admin
+PLAN=user,Front End Admin,expert,admin
+TRIAL=user,Front End Admin,expert,admin
+CONTACTS=user,Front End Admin,expert,admin
+>>>>>>> .r5905

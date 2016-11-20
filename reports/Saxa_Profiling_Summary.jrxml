@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="HCP_OL_SUMMARY_20081124"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="550"
+		 pageHeight="800"
+		 columnWidth="470"
+		 columnSpacing="0"
+		 leftMargin="40"
+		 rightMargin="40"
+		 topMargin="50"
+		 bottomMargin="50"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false"
+		 whenResourceMissingType="Key">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+	<import value="java.lang.String.*" />
+
+	<style 
+		name="Arial_Normal"
+		isDefault="true"
+		fontName="Arial"
+		fontSize="12"
+		pdfFontName="Helvetica"
+		pdfEncoding="Cp1252"
+		isPdfEmbedded="false"
+	/>
+	<style 
+		name="Arial_Bold"
+		isDefault="false"
+		fontName="Arial"
+		fontSize="12"
+		isBold="true"
+		pdfFontName="Helvetica-Bold"
+		pdfEncoding="Cp1252"
+		isPdfEmbedded="false"
+	/>
+	<style 
+		name="Arial_Italic"
+		isDefault="false"
+		fontName="Arial"
+		fontSize="12"
+		isItalic="true"
+		pdfFontName="Helvetica-Oblique"
+		pdfEncoding="Cp1252"
+		isPdfEmbedded="false"
+	/>
+
+	<parameter name="usersList" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA[The default value will be "MSL.ID". 
+For testing I am using userid = 16.
+The userid for user/user]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["-1"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["All"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="reportRegion" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["All"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="reportTerritory" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["All"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select distinct a.id,a.lastname as Lastname, a.firstname as Firstname,
+(select count(*) from filled_survey where userid=fs.userid) as KOLS,
+(select count(*) from filled_survey where userid in ($P!{usersList}))
+as FinalTotal,(select count(*) from filled_survey where userid in 
+(select user_id from user_relationship where territory=opt.id and begin_date <= sysdate and end_date >= sysdate)) 
+as Total,fs.createdate as lastSubmission,opt.optvalue as Region 
+from filled_survey fs, user_relationship usr,user_table a,option_lookup opt 
+where fs.userid=a.id and usr.user_id=a.id and usr.territory=opt.id and usr.begin_date <= sysdate and usr.end_date >= sysdate	 
+and fs.userid in ($P!{usersList}) and fs.createdate =(select Max(createdate) from filled_survey where userid=a.id)]]></queryString>
+
+	<field name="ID" class="java.math.BigDecimal"/>
+	<field name="LASTNAME" class="java.lang.String"/>
+	<field name="FIRSTNAME" class="java.lang.String"/>
+	<field name="KOLS" class="java.lang.Integer"/>
+	<field name="FINALTOTAL" class="java.lang.Integer"/>
+	<field name="TOTAL" class="java.lang.Integer"/>
+	<field name="LASTSUBMISSION" class="java.sql.Timestamp"/>
+	<field name="REGION" class="java.lang.String"/>
+
+	<variable name="TOTAL" class="java.lang.Integer" resetType="None" calculation="Nothing">
+	</variable>
+
+		<group  name="RegionGroup" >
+			<groupExpression><![CDATA[$F{REGION}]]></groupExpression>
+			<groupHeader>
+			<band height="29"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="Arial_Normal"
+						mode="Opaque"
+						x="0"
+						y="10"
+						width="470"
+						height="15"
+						forecolor="#FFFFFF"
+						backcolor="#333333"
+						key="textField-13"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left">
+						<font isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{REGION}]]></textFieldExpression>
+				</textField>
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="24"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="Arial_Bold"
+						mode="Opaque"
+						x="0"
+						y="5"
+						width="125"
+						height="15"
+						forecolor="#333333"
+						backcolor="#CCCCFF"
+						key="textField"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{REGION}+" TOTAL "]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="Arial_Bold"
+						mode="Opaque"
+						x="125"
+						y="5"
+						width="110"
+						height="15"
+						forecolor="#333333"
+						backcolor="#CCCCFF"
+						key="textField-14"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$F{TOTAL}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="Arial_Bold"
+						mode="Opaque"
+						x="235"
+						y="5"
+						width="120"
+						height="15"
+						forecolor="#333333"
+						backcolor="#CCCCFF"
+						key="textField-15"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[""]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="Arial_Bold"
+						mode="Opaque"
+						x="355"
+						y="5"
+						width="115"
+						height="15"
+						forecolor="#333333"
+						backcolor="#CCCCFF"
+						key="textField-16"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[""]]></textFieldExpression>
+				</textField>
+			</band>
+			</groupFooter>
+		</group>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="45"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="Arial_Normal"
+						x="0"
+						y="0"
+						width="470"
+						height="30"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font size="22"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["# Submissions by MSL "]]></textFieldExpression>
+				</textField>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="16"  isSplitAllowed="true" >
+				<printWhenExpression><![CDATA[new Boolean ( $V{PAGE_NUMBER}.intValue() ==  1 )]]></printWhenExpression>
+				<staticText>
+					<reportElement
+						style="Arial_Bold"
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="125"
+						height="15"
+						forecolor="#000000"
+						backcolor="#FFFFFF"
+						key="staticText"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font isUnderline="true"/>
+					</textElement>
+				<text><![CDATA[MSL]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						style="Arial_Bold"
+						mode="Opaque"
+						x="363"
+						y="0"
+						width="107"
+						height="15"
+						forecolor="#000000"
+						backcolor="#FFFFFF"
+						key="staticText"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font isUnderline="true"/>
+					</textElement>
+				<text><![CDATA[% of Total]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						style="Arial_Bold"
+						mode="Opaque"
+						x="125"
+						y="0"
+						width="110"
+						height="15"
+						forecolor="#000000"
+						backcolor="#FFFFFF"
+						key="staticText-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font isUnderline="true"/>
+					</textElement>
+				<text><![CDATA[# of TLs]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						style="Arial_Bold"
+						mode="Opaque"
+						x="235"
+						y="-1"
+						width="128"
+						height="15"
+						forecolor="#000000"
+						backcolor="#FFFFFF"
+						key="staticText-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font isUnderline="true"/>
+					</textElement>
+				<text><![CDATA[Last Submisson]]></text>
+				</staticText>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="23"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="Arial_Normal"
+						x="0"
+						y="2"
+						width="125"
+						height="15"
+						key="textField"
+						positionType="Float"
+						isRemoveLineWhenBlank="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{LASTNAME}+","+$F{FIRSTNAME}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="Arial_Normal"
+						x="363"
+						y="2"
+						width="107"
+						height="15"
+						key="textField"
+						positionType="Float"
+						isRemoveLineWhenBlank="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[new String(($F{KOLS}!=null&&$F{KOLS}.intValue()>0)&&($F{FINALTOTAL}!=null&&$F{FINALTOTAL}.intValue()>0)?new DecimalFormat("#00.0").format(($F{KOLS}.intValue()*100.0)/$F{FINALTOTAL}.intValue())+"":"0.00") + " %"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="Arial_Normal"
+						x="125"
+						y="2"
+						width="110"
+						height="15"
+						key="textField-2"
+						positionType="Float"
+						isRemoveLineWhenBlank="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$F{KOLS}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="dd-MMM-yy" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="Arial_Normal"
+						x="235"
+						y="2"
+						width="128"
+						height="15"
+						key="textField-3"
+						positionType="Float"
+						isRemoveLineWhenBlank="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.sql.Timestamp"><![CDATA[$F{LASTSUBMISSION}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="39"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="Arial_Normal"
+						mode="Opaque"
+						x="125"
+						y="1"
+						width="110"
+						height="23"
+						forecolor="#000000"
+						backcolor="#999999"
+						key="textField-9"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$F{FINALTOTAL}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="Arial_Normal"
+						mode="Opaque"
+						x="235"
+						y="1"
+						width="120"
+						height="23"
+						forecolor="#000000"
+						backcolor="#999999"
+						key="textField-10"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[""]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="Arial_Normal"
+						mode="Opaque"
+						x="355"
+						y="1"
+						width="115"
+						height="23"
+						forecolor="#000000"
+						backcolor="#999999"
+						key="textField-11"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["100 %"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="Arial_Normal"
+						mode="Opaque"
+						x="0"
+						y="1"
+						width="125"
+						height="23"
+						forecolor="#000000"
+						backcolor="#999999"
+						key="textField-12"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Total Submissions"]]></textFieldExpression>
+				</textField>
+			</band>
+		</summary>
+</jasperReport>

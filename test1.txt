@@ -1,0 +1,30 @@
+Apache Ant version 1.6.5 compiled on June 2 2005
+Buildfile: build.xml
+Adding reference: ant.PropertyHelper
+Detected Java version: 1.5 in: C:\Program Files\Java\jre6
+Detected OS: Windows XP
+Adding reference: ant.ComponentHelper
+Setting ro project property: ant.version -> Apache Ant version 1.6.5 compiled on June 2 2005
+Setting ro project property: ant.file -> D:\Kuliza work\BMS\build.xml
+Adding reference: ant.projectHelper
+Adding reference: ant.parsing.context
+Adding reference: ant.targets
+parsing buildfile D:\Kuliza work\BMS\build.xml with URI = file:///D:/Kuliza%20work/BMS/build.xml
+Setting ro project property: ant.project.name -> proptest
+Adding reference: proptest
+Setting ro project property: ant.file.proptest -> D:\Kuliza work\BMS\build.xml
+Project base dir set to: D:\Kuliza work\BMS
+ +Target: 
+ +Target: all
+Setting project property: install.home -> C:/test
+Override ignored for property install.home
+Attempting to create object of type org.apache.tools.ant.helper.DefaultExecutor
+Adding reference: ant.executor
+Build sequence for target(s) `all' is [all]
+Complete build sequence is [all, ]
+
+all:
+     [echo] value of install.home is: C:/test
+
+BUILD SUCCESSFUL
+Total time: 0 seconds

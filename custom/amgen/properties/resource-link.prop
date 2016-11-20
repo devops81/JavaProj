@@ -1,0 +1,16 @@
+/* ---------- this is for resource page  ---------------- */
+header-1="Amgen Speakers:"
+header-desc-1="A resource to facilitate the logistics of Amgen speaking events."
+header-link-1='https://www.amgenspeakers.com/'
+
+header-2="Reports for Openq Data:"
+header-desc-2="Link to Opinion Leader and POA Reports"
+header-link-2='http://compassdev.amgen.com/cognos/cgi-bin/upfcgi.exe'
+
+header-3="Slide Management System:"
+header-desc-3="The Slide Management System is your single, organized data source for accessing Slides and other Digital Assets. Here you can be assured of finding the most up-to-date presentations for easy electronic review or download as needed."
+header-link-3='http://slides.amgen.com'
+
+header-4="Unified Donations Website:"
+header-desc-4="This website will serve as the sole website for submission of IME and donation requests. UDW will allow Amgen to create a more standardized and consistent review process, maintain the required data and documentation, and provide a high level of customer service to requesting entities by the Medical Education Department."
+header-link-4='http://www.AmgenMED.com'

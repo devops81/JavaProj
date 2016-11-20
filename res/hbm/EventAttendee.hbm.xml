@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="com.openq.event.EventAttendee" table="eventattendee" >
+        <id name="id" column="attendee_id">
+            <generator class="native"/>
+        </id>
+
+        <property name="userId" column="user_id" type="long"/>
+        <many-to-one name="expertId" column="expert_id" class="com.openq.user.User"/>
+        <property name="attended"/>
+        <property name="acceptanceStatus"/>
+        <many-to-one name="eventId" column="event_id" class="com.openq.event.EventEntity" not-null="true"/>
+     </class>
+</hibernate-mapping>

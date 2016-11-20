@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping> 
+<class name="com.openq.survey.Survey" table="survey_details">
+     <id name="surveyId" column="id">
+            <generator class="native"/>
+        </id>
+      <property name="name" /> 
+      <set name ="questionsAnswers"  inverse="true" >
+        <key column="survey_id"/>
+        <one-to-many class="com.openq.survey.QuestionAnswer"/>
+        </set>
+  </class>
+  
+<class name="com.openq.survey.QuestionType" table="survey_question_type">
+      <id name="id" column="id">
+         <generator class="native"/>
+        </id>
+      <property name="type"/>
+ </class>
+ 
+ <class name="com.openq.survey.QuestionDetails" table="survey_question_details"> 
+     <id name="id" column="id">
+         <generator class="native"/>
+        </id>
+      <many-to-one name="type" class="com.openq.survey.QuestionType" not-null="true"/>
+      <property name="text"/>
+ </class>
+ 
+ <class name="com.openq.survey.QuestionAnswer" table="survey_question_answers">
+    <id name="id" column="id">
+    <generator class="native"/>
+    </id>
+    <many-to-one name="surveyId" column="survey_id" class="com.openq.survey.Survey" not-null="true"/>
+    <!--set name ="subQuestionIdsSet"  inverse="true" >
+        <key column="id"/>
+        <one-to-many class="com.openq.survey.QuestionDetails"/>
+        </set-->
+    <many-to-one name="questionId" column="question_id" class="com.openq.survey.QuestionDetails" unique="true"/>
+    <property name="answerValues" column="answer_values"/>
+    <property name="displayOrder" column="display_order"/>
+    <property name="subQuestionIds" column="subquestions"/>
+  </class>
+  
+  <class name="com.openq.survey.SurveyUserFilled" table="survey_filled">
+   <id name="id" column="id">
+   <generator class="native"/>
+   </id>
+   <many-to-one name="surveyId" column="survey_id" class="com.openq.survey.Survey" not-null="true"/>
+   <property name="userId" column="user_id"/>
+   <property name="kolId" column="kol_id"/>
+   <property name="interactionId" column="interaction_id"/>
+   <property name="answerValue" column="answervalue"/>
+   <property name="questionId" column="question_id"/>
+   <property name="filledDate" column="filled_date" type="date"/>
+   </class> 
+ </hibernate-mapping>             

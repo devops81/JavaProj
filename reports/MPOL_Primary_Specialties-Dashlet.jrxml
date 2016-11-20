@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="MPOL_Primary_Specialties-Dashlet"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Landscape"
+		 pageWidth="300"
+		 pageHeight="250"
+		 columnWidth="300"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<subDataset name="SpecialityDataSet" >
+
+		<parameter name="usersList" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["u.id"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="now" isForPrompting="false" class="java.util.Date">
+			<defaultValueExpression ><![CDATA[new Date()]]></defaultValueExpression>
+		</parameter>
+		<queryString><![CDATA[select  * from
+(select sum(count) as total from
+(select  COUNT(DISTINCT SP1.ID) as count,sp1.PRIMARY_SPECIALITY as speciality
+from  EXPERT_DETAILS_MVIEW sp1
+where sp1.PRIMARY_SPECIALITY is not null
+and  sp1.id
+in
+(select distinct u1.id from user_table u,user_table u1,contacts c
+where c.staffid = u.staffid 
+and u1.id = c.kolid
+and ($P{now}-c.beginDate)>=0
+and ($P{now}-c.endDate)<=0
+and u.id in ($P!{usersList}))
+and sp1.msl_ol_type = 'TL'
+group by sp1.PRIMARY_SPECIALITY order by COUNT(DISTINCT SP1.ID) desc)) t1,
+
+
+((select count, speciality from
+(select COUNT(DISTINCT SP1.ID) as count,sp1.PRIMARY_SPECIALITY as speciality, rank() over (order by COUNT(DISTINCT SP1.ID) desc) mk
+from  EXPERT_DETAILS_MVIEW sp1
+where sp1.PRIMARY_SPECIALITY is not null
+and  sp1.id
+in
+(select distinct u1.id from user_table u,user_table u1,contacts c
+where c.staffid = u.staffid 
+and u1.id = c.kolid
+and ($P{now}-c.beginDate)>=0
+and ($P{now}-c.endDate)<=0
+and u.id in ($P!{usersList}))
+and sp1.msl_ol_type = 'TL'
+
+group by sp1.PRIMARY_SPECIALITY order by COUNT(DISTINCT SP1.ID) desc)
+where mk<5)
+
+union
+
+(select sum(count),'Others' from
+(select COUNT(DISTINCT SP1.ID) as count,sp1.PRIMARY_SPECIALITY as speciality
+from  EXPERT_DETAILS_MVIEW sp1
+where sp1.PRIMARY_SPECIALITY is not null
+and  sp1.id 
+in
+(select distinct u1.id from user_table u,user_table u1,contacts c
+where c.staffid = u.staffid 
+and u1.id = c.kolid
+and ($P{now}-c.beginDate)>=0
+and ($P{now}-c.endDate)<=0
+and u.id in ($P!{usersList}))
+and sp1.msl_ol_type = 'TL'
+
+and sp1.PRIMARY_SPECIALITY 
+not in
+(select speciality from
+(select COUNT(DISTINCT SP1.ID) as count,sp1.PRIMARY_SPECIALITY as speciality, rank() over (order by COUNT(DISTINCT SP1.ID) desc) mk
+from  EXPERT_DETAILS_MVIEW sp1
+where sp1.PRIMARY_SPECIALITY is not null
+and  sp1.id
+in
+(select distinct u1.id from user_table u,user_table u1,contacts c
+where c.staffid = u.staffid 
+and ($P{now}-c.beginDate)>=0
+and ($P{now}-c.endDate)<=0
+and u1.id = c.kolid
+and u.id in ($P!{usersList}))
+and sp1.msl_ol_type = 'TL'
+
+group by sp1.PRIMARY_SPECIALITY order by COUNT(DISTINCT SP1.ID) desc)
+where mk<5)
+
+group by sp1.PRIMARY_SPECIALITY order by COUNT(DISTINCT SP1.ID) desc)))
+where count is not null]]></queryString>
+
+		<field name="TOTAL" class="java.lang.Integer"/>
+		<field name="COUNT" class="java.lang.Integer"/>
+		<field name="SPECIALITY" class="java.lang.String"/>
+
+	</subDataset>
+
+	<parameter name="usersList" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["u.id"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="now" isForPrompting="false" class="java.util.Date">
+		<defaultValueExpression ><![CDATA[new Date()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="taName" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[SELECT 1 AS ID  FROM DUAL]]></queryString>
+
+	<field name="ID" class="java.math.BigDecimal"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="26"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="108"
+						height="26"
+						backcolor="#F2F0DC"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{taName}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="108"
+						y="0"
+						width="192"
+						height="26"
+						backcolor="#F2F0DC"
+						key="staticText-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<text><![CDATA[ TL Primary Specialities]]></text>
+				</staticText>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="211"  isSplitAllowed="true" >
+				<pieChart>
+					<chart  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="300"
+						height="211"
+						key="element-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						<chartLegend textColor="#000000" backgroundColor="#FFFFFF" >
+					</chartLegend>
+					</chart>
+					<pieDataset>
+						<dataset resetType="None" >
+							<datasetRun subDataset="SpecialityDataSet">
+								<datasetParameter  name="usersList">
+									<datasetParameterExpression><![CDATA[$P{usersList}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="now">
+									<datasetParameterExpression><![CDATA[$P{now}]]></datasetParameterExpression>
+								</datasetParameter>
+							</datasetRun>
+						</dataset>
+						<keyExpression><![CDATA[$F{SPECIALITY}]]></keyExpression>
+						<valueExpression><![CDATA[$F{COUNT}]]></valueExpression>
+						<labelExpression><![CDATA[new DecimalFormat("#00.0").format(($F{COUNT}.intValue()*100.0)/$F{TOTAL}.intValue())+"%"]]></labelExpression>
+				<sectionHyperlink >
+				</sectionHyperlink>
+					</pieDataset>
+					<piePlot>
+						<plot />
+					</piePlot>
+				</pieChart>
+			</band>
+		</summary>
+</jasperReport>

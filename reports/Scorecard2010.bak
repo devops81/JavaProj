@@ -1,0 +1,2485 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="Interaction Scorecards"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="700"
+		 pageHeight="1000"
+		 columnWidth="640"
+		 columnSpacing="0"
+		 leftMargin="30"
+		 rightMargin="30"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<style 
+		name="DefaultStyle"
+		isDefault="true"
+		fontName="Verdana"
+	/>
+	<style 
+		name="TableHeader-BlueBack"
+		isDefault="false"
+		style="DefaultStyle"
+		mode="Opaque"
+		forecolor="#FFFFFF"
+		backcolor="#000080"
+		fontName="Verdana"
+		fontSize="11"
+		isBold="true"
+	/>
+	<style 
+		name="TableRow-GrayBack"
+		isDefault="false"
+		style="DefaultStyle"
+		mode="Opaque"
+		backcolor="#C0C0C0"
+		fontName="Verdana"
+	/>
+
+	<subDataset name="InteractionsByIntent" >
+
+		<parameter name="product" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["sidv.LOV1_VALUE"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="productList" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+		</parameter>
+		<queryString><![CDATA[select count(distinct(inter.interaction_id)) as interCount,
+inter.quarter,
+inter.interaction_intent,
+sum(count(distinct(inter.interaction_id))) over (partition by inter.quarter) as quarterInteractionCount
+from 
+(select interactionIntent.* from (
+select siv.interaction_id, 
+TO_CHAR(siv.interaction_date,'Mon') as interactionMonth,
+TO_CHAR(siv.interaction_date,'YYYY') as interactionYear,
+case 
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'4th Quarter'
+end as quarter,
+siv.interaction_ta,
+siv.interaction_intent
+from sc_interaction_view siv
+inner join sc_interaction_data_view sidv
+on (sidv.interaction_id = siv.interaction_id and sidv.type = 'productMultiselectIds')
+where siv.interaction_ta like 
+(case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and sidv.LOV1_ID in ( $P!{productList} )
+and sidv.LOV1_VALUE in ( $P!{product} )
+) interactionIntent
+where quarter in 
+(select quarter from 
+(select distinct(quarter) from (
+select
+case 
+ when TO_CHAR(i.interactiondate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(i.interactiondate,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(i.interactiondate,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(i.interactiondate,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(i.interactiondate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(i.interactiondate,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(i.interactiondate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(i.interactiondate,'YYYY')||' '||'4th Quarter'
+end as quarter
+from interaction i
+) order by quarter desc
+)where 
+quarter <= 
+(select
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(sysdate,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(sysdate,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(sysdate,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(sysdate,'YYYY')||' '||'4th Quarter'
+end as currentquarter
+from dual)
+and rownum <= 3)
+) inter
+group by inter.quarter, inter.interaction_intent]]></queryString>
+
+		<field name="INTERCOUNT" class="java.math.BigDecimal"/>
+		<field name="QUARTER" class="java.lang.String"/>
+		<field name="INTERACTION_INTENT" class="java.lang.String"/>
+		<field name="QUARTERINTERACTIONCOUNT" class="java.math.BigDecimal"/>
+
+	</subDataset>
+
+	<subDataset name="ActivitySummary" >
+
+		<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="product" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["scidv.LOV1_VALUE"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="productList" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+		</parameter>
+		<queryString><![CDATA[(select '11Total Interactions' as FIELD_NAME, totalInteractions.quarter as Quarter,
+trim(to_char(totalInteractions.interactionCount, '9,999,999,999,999,999,999')) as FIELD_VALUE
+from (
+select inter.quarter, 
+count(distinct(inter.interaction_id)) as interactionCount
+from (
+select sciv.interaction_id, sciv.interaction_ta,
+sciv.interaction_type,
+TO_CHAR(sciv.interaction_date,'Mon') as interactionMonth,
+TO_CHAR(sciv.interaction_date,'YYYY') as interactionYear,
+case 
+ when TO_CHAR(sciv.interaction_date,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(sciv.interaction_date,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(sciv.interaction_date,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(sciv.interaction_date,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(sciv.interaction_date,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(sciv.interaction_date,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(sciv.interaction_date,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(sciv.interaction_date,'YYYY')||' '||'4th Quarter'
+end as quarter,
+scidv.LOV1_ID as prod_lovID, 
+scidv.LOV1_VALUE as prod_value
+from SC_INTERACTION_VIEW sciv 
+left outer join sc_interaction_data_view scidv
+on (scidv.interaction_id = sciv.interaction_id and scidv.type = 'productMultiselectIds')
+where sciv.interaction_ta like 
+(case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and scidv.LOV1_ID in ( $P!{productList} )
+and scidv.LOV1_VALUE in ( $P!{product} )
+) inter
+group by inter.Quarter
+having inter.Quarter in 
+(select 
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(sysdate,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(sysdate,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(sysdate,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(sysdate,'YYYY')||' '||'4th Quarter'
+end as currentQuarter
+from dual)) totalInteractions) 
+union all
+(select '12Total Impacted' as FIELD_NAME, totalImpacted.quarter as Quarter,
+trim(to_char(totalImpacted.totalAttendeeCount,'9,999,999,999,999,999,999')) as FIELD_VALUE
+from (
+select sum(inter.total_attendee_count) as totalAttendeeCount, inter.quarter as quarter
+from
+(select sciv.interaction_id, sciv.interaction_ta,
+sciv.interaction_type,
+sciv.total_attendee_count,
+TO_CHAR(sciv.interaction_date,'Mon') as interactionMonth,
+TO_CHAR(sciv.interaction_date,'YYYY') as interactionYear,
+case 
+ when TO_CHAR(sciv.interaction_date,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(sciv.interaction_date,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(sciv.interaction_date,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(sciv.interaction_date,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(sciv.interaction_date,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(sciv.interaction_date,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(sciv.interaction_date,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(sciv.interaction_date,'YYYY')||' '||'4th Quarter'
+end as quarter,
+scidv.LOV1_ID as prod_lovID, 
+scidv.LOV1_VALUE as prod_value
+from sc_attendee_count_view sciv 
+left outer join sc_interaction_data_view scidv
+on (scidv.interaction_id = sciv.interaction_id and scidv.type = 'productMultiselectIds')
+where sciv.interaction_ta like 
+(case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and scidv.LOV1_ID in ( $P!{productList} )
+and scidv.LOV1_VALUE in ( $P!{product} )
+) inter
+group by inter.quarter
+having inter.Quarter in 
+(select 
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(sysdate,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(sysdate,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(sysdate,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(sysdate,'YYYY')||' '||'4th Quarter'
+end as currentQuarter
+from dual))totalImpacted) 
+union all
+(select '13Total Interactions/MSL/Day' as FIELD_NAME, totalInteractions.quarter as Quarter,
+trim(to_char(nvl(round((totalInteractions.interactionCount / mslcount.valid_msl_count)/
+( (188 * daysCount.daysBetweenDateRange)/ 365), 1 ), 0), '9,999,999,999,999,999,999.9')) as FIELD_VALUE
+from (
+select inter.quarter, 
+count(distinct(inter.interaction_id)) as interactionCount
+from (
+select sciv.interaction_id, sciv.interaction_ta,
+sciv.interaction_type,
+TO_CHAR(sciv.interaction_date,'Mon') as interactionMonth,
+TO_CHAR(sciv.interaction_date,'YYYY') as interactionYear,
+case 
+ when TO_CHAR(sciv.interaction_date,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(sciv.interaction_date,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(sciv.interaction_date,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(sciv.interaction_date,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(sciv.interaction_date,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(sciv.interaction_date,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(sciv.interaction_date,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(sciv.interaction_date,'YYYY')||' '||'4th Quarter'
+end as quarter,
+scidv.LOV1_ID as prod_lovID, 
+scidv.LOV1_VALUE as prod_value
+from SC_INTERACTION_VIEW sciv 
+left outer join sc_interaction_data_view scidv
+on (scidv.interaction_id = sciv.interaction_id and scidv.type = 'productMultiselectIds')
+where sciv.interaction_ta like 
+(case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and scidv.LOV1_ID in ( $P!{productList} )
+and scidv.LOV1_VALUE in ( $P!{product} )
+) inter
+group by inter.Quarter
+having inter.Quarter in 
+(select 
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(sysdate,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(sysdate,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(sysdate,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(sysdate,'YYYY')||' '||'4th Quarter'
+end as currentQuarter
+from dual)) totalInteractions
+left outer join 
+(select count(distinct(valid_msls.msl_user_id)) as valid_msl_count,
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(sysdate,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(sysdate,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(sysdate,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(sysdate,'YYYY')||' '||'4th Quarter'
+end as currentQuarter
+from (
+select * from sc_msl_view smv
+where smv.MSL_TA like '%'
+and smv.end_date >= 
+(select 
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  to_date('01-Jan-2010')
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  to_date('01-Apr-2010')
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  to_date('01-Jul-2010')
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+ to_date('01-Oct-2010')
+end as quarterStartDate
+from dual)
+and smv.begin_date <=
+(select 
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  to_date('31-Mar-2010')
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  to_date('30-Jun-2010')
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  to_date('30-Sep-2010')
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  to_date('31-Dec-2010')
+end as quarterEndDate
+from dual
+)) valid_msls
+) MSLCount
+on (MSLCount.currentQuarter = totalInteractions.quarter)
+left outer join
+(select quarter.quarterenddate - quarter.quarterStartDate as daysBetweenDateRange, 
+currentQuarter
+from (
+select 
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  to_date('01-Jan-2010', 'DD-Mon-YYYY')
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  to_date('01-Apr-2010', 'DD-Mon-YYYY')
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  to_date('01-Jul-2010', 'DD-Mon-YYYY')
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+ to_date('01-Oct-2010', 'DD-Mon-YYYY')
+end as quarterStartDate,
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  to_date('31-Mar-2010', 'DD-Mon-YYYY')
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  to_date('30-Jun-2010', 'DD-Mon-YYYY')
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  to_date('30-Sep-2010', 'DD-Mon-YYYY')
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  to_date('31-Dec-2010', 'DD-Mon-YYYY')
+end as quarterEndDate,
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(sysdate,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(sysdate,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(sysdate,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(sysdate,'YYYY')||' '||'4th Quarter'
+end as currentQuarter
+from dual) quarter) daysCount
+on (daysCount.currentQuarter = totalInteractions.quarter)) 
+union all
+(select '14TLs Impacted/MSL/Day' as FIELD_NAME, totalImpacted.quarter as Quarter,
+trim(to_char(nvl(round((totalImpacted.totalAttendeeCount / mslcount.valid_msl_count)/
+( (188 * daysCount.daysBetweenDateRange)/ 365), 1 ), 0), '9,999,999,999,999,999,999.9')) as FIELD_VALUE
+from (
+select sum(inter.total_attendee_count) as totalAttendeeCount, inter.quarter as quarter
+from
+(select sciv.interaction_id, sciv.interaction_ta,
+sciv.interaction_type,
+sciv.total_attendee_count,
+TO_CHAR(sciv.interaction_date,'Mon') as interactionMonth,
+TO_CHAR(sciv.interaction_date,'YYYY') as interactionYear,
+case 
+ when TO_CHAR(sciv.interaction_date,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(sciv.interaction_date,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(sciv.interaction_date,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(sciv.interaction_date,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(sciv.interaction_date,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(sciv.interaction_date,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(sciv.interaction_date,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(sciv.interaction_date,'YYYY')||' '||'4th Quarter'
+end as quarter,
+scidv.LOV1_ID as prod_lovID, 
+scidv.LOV1_VALUE as prod_value
+from sc_attendee_count_view sciv 
+left outer join sc_interaction_data_view scidv
+on (scidv.interaction_id = sciv.interaction_id and scidv.type = 'productMultiselectIds')
+where sciv.interaction_ta like 
+(case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and scidv.LOV1_ID in ( $P!{productList} )
+and scidv.LOV1_VALUE in ( $P!{product} )
+) inter
+group by inter.quarter
+having inter.Quarter in 
+(select 
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(sysdate,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(sysdate,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(sysdate,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(sysdate,'YYYY')||' '||'4th Quarter'
+end as currentQuarter
+from dual))totalImpacted
+left outer join
+(select count(distinct(valid_msls.msl_user_id)) as valid_msl_count,
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(sysdate,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(sysdate,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(sysdate,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(sysdate,'YYYY')||' '||'4th Quarter'
+end as currentQuarter
+from (
+select * from sc_msl_view smv
+where smv.MSL_TA like '%'
+and smv.end_date >= 
+(select 
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  to_date('01-Jan-2010')
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  to_date('01-Apr-2010')
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  to_date('01-Jul-2010')
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+ to_date('01-Oct-2010')
+end as quarterStartDate
+from dual)
+and smv.begin_date <=
+(select 
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  to_date('31-Mar-2010')
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  to_date('30-Jun-2010')
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  to_date('30-Sep-2010')
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  to_date('31-Dec-2010')
+end as quarterEndDate
+from dual
+)) valid_msls
+) MSLCount
+on (MSLCount.currentQuarter = totalImpacted.quarter)
+left outer join
+(select quarter.quarterenddate - quarter.quarterStartDate as daysBetweenDateRange, 
+currentQuarter
+from (
+select 
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  to_date('01-Jan-2010', 'DD-Mon-YYYY')
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  to_date('01-Apr-2010', 'DD-Mon-YYYY')
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  to_date('01-Jul-2010', 'DD-Mon-YYYY')
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+ to_date('01-Oct-2010', 'DD-Mon-YYYY')
+end as quarterStartDate,
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  to_date('31-Mar-2010', 'DD-Mon-YYYY')
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  to_date('30-Jun-2010', 'DD-Mon-YYYY')
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  to_date('30-Sep-2010', 'DD-Mon-YYYY')
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  to_date('31-Dec-2010', 'DD-Mon-YYYY')
+end as quarterEndDate,
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(sysdate,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(sysdate,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(sysdate,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(sysdate,'YYYY')||' '||'4th Quarter'
+end as currentQuarter
+from dual) quarter) daysCount
+on (daysCount.currentQuarter = totalImpacted.quarter))]]></queryString>
+
+		<field name="FIELD_NAME" class="java.lang.String"/>
+		<field name="QUARTER" class="java.lang.String"/>
+		<field name="FIELD_VALUE" class="java.lang.String"/>
+
+	</subDataset>
+
+	<subDataset name="InteractionByType" >
+
+		<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="product" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["sidv.LOV1_VALUE"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="productList" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+		</parameter>
+		<queryString><![CDATA[select count(distinct(inter.interaction_id)) as interCount,
+inter.quarter,
+inter.interaction_type,
+sum(count(distinct(inter.interaction_id))) over (partition by inter.quarter) as QuarterInteractionCount
+from
+(select interactionType.* from (
+select siv.interaction_id, 
+TO_CHAR(siv.interaction_date,'Mon') as interactionMonth,
+TO_CHAR(siv.interaction_date,'YYYY') as interactionYear,
+case 
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'4th Quarter'
+end as quarter,
+siv.interaction_ta,
+siv.interaction_type
+from sc_interaction_view siv
+inner join sc_interaction_data_view sidv
+on (sidv.interaction_id = siv.interaction_id and sidv.type = 'productMultiselectIds')
+where siv.interaction_ta like 
+(case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and sidv.LOV1_ID in ( $P!{productList} )
+and sidv.LOV1_VALUE in ( $P!{product} )
+) interactionType
+where quarter in 
+(select quarter from 
+(select distinct(quarter) from (
+select
+case 
+ when TO_CHAR(i.interactiondate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(i.interactiondate,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(i.interactiondate,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(i.interactiondate,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(i.interactiondate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(i.interactiondate,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(i.interactiondate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(i.interactiondate,'YYYY')||' '||'4th Quarter'
+end as quarter
+from interaction i
+) order by quarter desc
+)where 
+quarter <= 
+(select
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(sysdate,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(sysdate,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(sysdate,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(sysdate,'YYYY')||' '||'4th Quarter'
+end as currentquarter
+from dual)
+and rownum <= 3)
+) inter 
+group by inter.quarter, inter.interaction_type]]></queryString>
+
+		<field name="INTERCOUNT" class="java.math.BigDecimal"/>
+		<field name="QUARTER" class="java.lang.String"/>
+		<field name="INTERACTION_TYPE" class="java.lang.String"/>
+		<field name="QUARTERINTERACTIONCOUNT" class="java.math.BigDecimal"/>
+
+	</subDataset>
+
+	<subDataset name="IntentInteractionsByTopic" >
+
+		<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="product" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["sidv_product.LOV1_VALUE"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="productList" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+		</parameter>
+		<queryString><![CDATA[select count(distinct(inter.interaction_id)) as interactionCount, 
+inter.quarter, inter.intentofvisit,
+inter.topic_value,
+sum(count(distinct(inter.interaction_id))) over (partition by inter.quarter, inter.intentofvisit) as quarterIntentInteractionCount
+from 
+(select siv.interaction_id, 
+case 
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'4th Quarter'
+end as quarter,
+sidv_intent.data as intentOfVisit,
+sidv_itopic.lov2_value as topic_value
+from sc_interaction_view siv 
+inner join sc_interaction_data_view sidv_product
+on (sidv_product.interaction_id = siv.interaction_id and sidv_product.type = 'productMultiselectIds')
+inner join sc_interaction_data_view sidv_intent
+on (sidv_intent.interaction_id = siv.interaction_id and sidv_intent.type = 'intentOfVisit')
+inner join sc_interaction_data_view sidv_itopic
+on (sidv_itopic.interaction_id = siv.interaction_id and sidv_itopic.type = 'interactionTypeLOVTripletIds' and sidv_itopic.data='1')
+where siv.interaction_ta like 
+(case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and sidv_product.LOV1_ID in ( $P!{productList} )
+and sidv_product.LOV1_VALUE in ( $P!{product} )
+) inter
+group by inter.quarter, inter.intentofvisit, inter.topic_value
+having inter.quarter in 
+(select 
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(sysdate,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(sysdate,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(sysdate,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(sysdate,'YYYY')||' '||'4th Quarter'
+end as currentQuarter
+from dual)]]></queryString>
+
+		<field name="INTERACTIONCOUNT" class="java.math.BigDecimal"/>
+		<field name="QUARTER" class="java.lang.String"/>
+		<field name="INTENTOFVISIT" class="java.lang.String"/>
+		<field name="TOPIC_VALUE" class="java.lang.String"/>
+		<field name="QUARTERINTENTINTERACTIONCOUNT" class="java.math.BigDecimal"/>
+
+	</subDataset>
+
+	<subDataset name="InteractionsByTopic" >
+
+		<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="product" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["sidv_product.LOV1_VALUE"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="productList" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+		</parameter>
+		<queryString><![CDATA[select interactionsByTopic.quarter,
+interactionsByTopic.lov_topicValue,
+count(distinct(interactionsByTopic.interaction_id)) as interactionCount,
+sum(count(distinct(interactionsByTopic.interaction_id))) over (partition by interactionsByTopic.quarter) as quarterInteractionCount
+from
+(select inter.* 
+from
+(select siv.interaction_id, 
+case 
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'4th Quarter'
+end as quarter,
+sidv_topic.LOV2_VALUE as lov_topicValue
+from sc_interaction_view siv
+inner join sc_interaction_data_view sidv_topic
+on (sidv_topic.interaction_id = siv.interaction_id and sidv_topic.type = 'interactionTypeLOVTripletIds' and sidv_topic.data='1')
+inner join sc_interaction_data_view sidv_product
+on (sidv_product.interaction_id = siv.interaction_id and sidv_product.type = 'productMultiselectIds')
+where siv.interaction_ta like 
+(case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and sidv_product.LOV1_ID in ( $P!{productList} )
+and sidv_product.LOV1_VALUE in ( $P!{product} )
+) inter
+where inter.quarter in 
+(select quarter from 
+(select distinct(quarter) from (
+select
+case 
+ when TO_CHAR(i.interactiondate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(i.interactiondate,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(i.interactiondate,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(i.interactiondate,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(i.interactiondate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(i.interactiondate,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(i.interactiondate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(i.interactiondate,'YYYY')||' '||'4th Quarter'
+end as quarter
+from interaction i
+) order by quarter desc
+)where 
+quarter <= 
+(select
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(sysdate,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(sysdate,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(sysdate,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(sysdate,'YYYY')||' '||'4th Quarter'
+end as currentquarter
+from dual)
+and rownum <= 3))
+interactionsByTopic
+group by interactionsByTopic.quarter, interactionsByTopic.lov_topicValue]]></queryString>
+
+		<field name="QUARTER" class="java.lang.String"/>
+		<field name="LOV_TOPICVALUE" class="java.lang.String"/>
+		<field name="INTERACTIONCOUNT" class="java.math.BigDecimal"/>
+		<field name="QUARTERINTERACTIONCOUNT" class="java.math.BigDecimal"/>
+
+	</subDataset>
+
+	<subDataset name="InteractionsByOfflabelTopic" >
+
+		<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="product" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["sidv_prod.LOV1_VALUE"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="productList" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="unOffLabelProduct" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["sidv.LOV1_VALUE"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="unOffLabelProductList" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+		</parameter>
+		<queryString><![CDATA[select offlabeltopic.offlabeltopicLovValue, offlabeltopic.quarter, 
+count(distinct(offlabeltopic.interaction_id)) as interactionCount,
+sum(count(distinct(offlabeltopic.interaction_id))) over (partition by offlabeltopic.quarter) quarterInteractionCount
+from
+(select temp.interaction_id, 
+temp.quarter,
+temp.offlabeltopicLovValue from (
+select siv.interaction_id, siv.interaction_date,
+case 
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'4th Quarter'
+end as quarter,
+sidv.lov2_value as offlabeltopicLovValue, 
+row_number() over ( partition by sidv.interaction_id order by sidv.id) offlabelTopicID
+from sc_interaction_view siv
+inner join sc_interaction_data_view sidv
+on (sidv.interaction_id = siv.interaction_id and sidv.type = 'unsolictedOffLabelTripletIds')
+inner join sc_interaction_data_view sidv_prod
+on (sidv_prod.interaction_id = siv.interaction_id and sidv_prod.type = 'productMultiselectIds')
+
+where siv.interaction_ta like 
+(case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and sidv_prod.LOV1_ID in ( $P!{productList} )
+and sidv_prod.LOV1_VALUE in ( $P!{product} )
+and sidv.LOV1_ID in ( $P!{unOffLabelProductList} )
+and sidv.LOV1_VALUE in ( $P!{unOffLabelProduct} )
+) temp
+where temp.offlabelTopicID = 1
+and temp.quarter in
+(select quarter from 
+(select distinct(quarter) from (
+select
+case 
+ when TO_CHAR(i.interactiondate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(i.interactiondate,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(i.interactiondate,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(i.interactiondate,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(i.interactiondate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(i.interactiondate,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(i.interactiondate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(i.interactiondate,'YYYY')||' '||'4th Quarter'
+end as quarter
+from interaction i
+) order by quarter desc
+)where 
+quarter <= 
+(select
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(sysdate,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(sysdate,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(sysdate,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(sysdate,'YYYY')||' '||'4th Quarter'
+end as currentquarter
+from dual)
+and rownum <= 3)) offlabeltopic
+group by offlabeltopic.Quarter, offlabeltopic.offlabeltopicLovValue]]></queryString>
+
+		<field name="OFFLABELTOPICLOVVALUE" class="java.lang.String"/>
+		<field name="QUARTER" class="java.lang.String"/>
+		<field name="INTERACTIONCOUNT" class="java.math.BigDecimal"/>
+		<field name="QUARTERINTERACTIONCOUNT" class="java.math.BigDecimal"/>
+
+	</subDataset>
+
+	<subDataset name="InteractionsBySphereOfInfluence" >
+
+		<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="product" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["sidv_prod.LOV1_VALUE"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="productList" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+		</parameter>
+		<queryString><![CDATA[select inter.sphereOfInfluence, inter.quarter,
+count(distinct(inter.interaction_id)) as interactionCount,
+sum(count(distinct(inter.interaction_id))) over (partition by inter.quarter) as totalInteractionCount
+from
+(select firstAttendeeInteractions.interaction_id,
+firstAttendeeInteractions.interaction_date, 
+firstAttendeeInteractions.quarter,
+firstAttendeeInteractions.attendee_userId,
+ut.kolid, str.value as SphereOfInfluence
+from
+(select firstAttendee.interaction_id, firstAttendee.interaction_date,
+firstAttendee.attendee_userId, firstAttendee.quarter
+from  (
+select siv.interaction_id, siv.interaction_date,
+case 
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'4th Quarter'
+end as quarter,
+siav.attendee_name, siav.attendee_userid, siav.attendee_id,
+row_number() over (partition by siv.interaction_id order by siav.attendee_id) as attendee_rownum
+from sc_interaction_view siv
+inner join sc_interaction_data_view sidv_prod
+on (sidv_prod.interaction_id = siv.interaction_id and sidv_prod.type = 'productMultiselectIds')
+inner join sc_interaction_attendee_view siav
+on (siav.interaction_id = siv.interaction_id and siav.attendeetype = 1)
+where siv.interaction_ta like 
+(case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and sidv_prod.LOV1_ID in ( $P!{productList} )
+and sidv_prod.LOV1_VALUE in ( $P!{product} )
+) firstAttendee where firstAttendee.attendee_rownum = 1
+and firstAttendee.quarter in 
+(select 
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(sysdate,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(sysdate,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(sysdate,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(sysdate,'YYYY')||' '||'4th Quarter'
+end as currentQuarter
+from dual)) firstAttendeeInteractions
+inner join user_table ut
+on (ut.id = firstAttendeeInteractions.attendee_userId)
+inner join string_attribute str
+on (str.root_entity_id = ut.kolid and str.attribute_id = 
+(select attr.attribute_id from attributetable attr where attr.name like 'Sphere of Influence'))
+) inter
+group by inter.sphereOfInfluence, inter.quarter]]></queryString>
+
+		<field name="SPHEREOFINFLUENCE" class="java.lang.String"/>
+		<field name="QUARTER" class="java.lang.String"/>
+		<field name="INTERACTIONCOUNT" class="java.math.BigDecimal"/>
+		<field name="TOTALINTERACTIONCOUNT" class="java.math.BigDecimal"/>
+
+	</subDataset>
+
+	<subDataset name="MedicalPlanActivities" >
+
+		<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="product" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["sidv_mplan.LOV1_VALUE"]]></defaultValueExpression>
+		</parameter>
+		<parameter name="productList" isForPrompting="false" class="java.lang.String">
+			<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+		</parameter>
+		<queryString><![CDATA[select mpactivity.quarter,
+mpactivity.productValue, mpactivity.MedObjValue,
+mpactivity.CommTopicValue, 
+((mpactivity.prodCommTopicMedObjCount*100)/mpactivity.prodMedObjCount) as percentage
+from
+(select final.quarter, final.productValue, final.MedObjValue,
+final.CommTopicValue, 
+final.prodCommTopicMedObjCount,
+sum(final.prodCommTopicMedObjCount) over (partition by final.productValue, 
+final.MedObjValue) as prodMedObjCount
+from
+(select count(*) as prodCommTopicMedObjCount
+, mpa.productValue, mpa.MedObjValue, mpa.CommTopicValue, mpa.quarter
+from 
+(select mPlan.productValue, mPlan.CommTopicValue,
+mPlan.MedObjValue, mPlan.quarter
+from
+(select siv.interaction_id, 
+case 
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(siv.interaction_date,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(siv.interaction_date,'YYYY')||' '||'4th Quarter'
+end as quarter,
+sidv_mplan.id as interactionDataID,
+sidv_mplan.lov1_id as productID, sidv_mplan.lov1_value as productValue,
+sidv_mplan.lov2_id as CommTopicID, sidv_mplan.lov2_value as CommTopicValue,
+sidv_mplan.lov3_id as MedObjID, sidv_mplan.lov3_value as MedObjValue,
+row_number() over (partition by siv.interaction_id order by sidv_mplan.id) as Mplan_rownum
+from sc_interaction_view siv
+inner join sc_interaction_data_view sidv_mplan
+on (sidv_mplan.interaction_id = siv.interaction_id and sidv_mplan.type='MedicalPlanActivityMultiSelectIds')
+where siv.interaction_ta like 
+(case when $P{reportTherapeuticArea} != 'All' then $P{reportTherapeuticArea} else '%' end)
+and sidv_mplan.LOV1_ID in ( $P!{productList} )
+and sidv_mplan.LOV1_VALUE in ( $P!{product} )
+) MPLAN
+where 
+mPlan.quarter in 
+('2010 1st Quarter')
+order by mPlan.productValue, mPlan.MedObjValue, mPlan.CommTopicValue) mpa
+group by mpa.productValue, mpa.MedObjValue, mpa.CommTopicValue, mpa.quarter
+order by mpa.productValue, mpa.MedObjValue, mpa.CommTopicValue ) final
+order by final.productValue, final.MedObjValue, final.CommTopicValue) mpactivity]]></queryString>
+
+		<field name="QUARTER" class="java.lang.String"/>
+		<field name="PRODUCTVALUE" class="java.lang.String"/>
+		<field name="COMMTOPICVALUE" class="java.lang.String"/>
+		<field name="MEDOBJVALUE" class="java.lang.String"/>
+		<field name="PERCENTAGE" class="java.math.BigDecimal"/>
+
+	</subDataset>
+
+	<parameter name="reportTherapeuticArea" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["All"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["All"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="productList" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["'-1'"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["'86850537','86850538','83398429','83398430','83398431','83398432','88287150','86850539','86860726','86850540','86850541','88287148','90260409','90260411','90260416','90260408','90260410','90260412','90260413','90260414','90260415','95466610'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="product" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["'Abilify'"]]></parameterDescription>
+	</parameter>
+	<parameter name="unOffLabelProduct" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["siv.inquiry_product"]]></parameterDescription>
+	</parameter>
+	<parameter name="unOffLabelProductList" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["'-1'"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["'86850537','86850538','83398429','83398430','83398431','83398432','88287150','86850539','86860726','86850540','86850541','88287148','90260409','90260411','90260416','90260408','90260410','90260412','90260413','90260414','90260415','95466610'"]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select 
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  to_date('01-Jan-2010', 'DD-Mon-YYYY')
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  to_date('01-Apr-2010', 'DD-Mon-YYYY')
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  to_date('01-Jul-2010', 'DD-Mon-YYYY')
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+ to_date('01-Oct-2010', 'DD-Mon-YYYY')
+end as quarterStartDate,
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  to_date('31-Mar-2010', 'DD-Mon-YYYY')
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  to_date('30-Jun-2010', 'DD-Mon-YYYY')
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  to_date('30-Sep-2010', 'DD-Mon-YYYY')
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  to_date('31-Dec-2010', 'DD-Mon-YYYY')
+end as quarterEndDate,
+case 
+ when TO_CHAR(sysdate,'Mon') in ('Jan', 'Feb', 'Mar') then
+  TO_CHAR(sysdate,'YYYY')||' '||'1st Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Apr', 'May', 'Jun') then
+  TO_CHAR(sysdate,'YYYY')||' '||'2nd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Jul', 'Aug', 'Sep') then
+  TO_CHAR(sysdate,'YYYY')||' '||'3rd Quarter'
+ when TO_CHAR(sysdate,'Mon') in ('Oct', 'Nov', 'Dec') then
+  TO_CHAR(sysdate,'YYYY')||' '||'4th Quarter'
+end as currentQuarter
+from dual]]></queryString>
+
+	<field name="QUARTERSTARTDATE" class="java.sql.Timestamp"/>
+	<field name="QUARTERENDDATE" class="java.sql.Timestamp"/>
+	<field name="CURRENTQUARTER" class="java.lang.String"/>
+
+	<variable name="daysBetweenDateRange" class="java.lang.Long" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[new Long(($F{QUARTERENDDATE}.getTime()-$F{QUARTERSTARTDATE}.getTime())/(24 * 60 * 60 * 1000 ))]]></variableExpression>
+	</variable>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="70"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="18"
+						width="403"
+						height="22"
+						key="textField-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="18" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Field Medical Scorecard"]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="430"
+						y="0"
+						width="122"
+						height="13"
+						key="staticText-1">
+							<printWhenExpression><![CDATA[new Boolean(!($P{reportTherapeuticArea}.equals("All")))]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font pdfFontName="Helvetica-Bold" isBold="true" isUnderline="false"/>
+					</textElement>
+				<text><![CDATA[Report Criteria :]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="DefaultStyle"
+						x="430"
+						y="13"
+						width="210"
+						height="13"
+						key="textField-11"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Therauptic Area: " +$P{reportTherapeuticArea}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="DefaultStyle"
+						x="430"
+						y="26"
+						width="210"
+						height="13"
+						key="textField-12"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Product: " + ($P{product}== null || $P{product}.equals("null")?"All":$P{product})]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="DefaultStyle"
+						x="430"
+						y="39"
+						width="210"
+						height="24"
+						key="textField-13"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Unsolicited Off-Label Product: " + ($P{unOffLabelProduct}== null || $P{unOffLabelProduct}.equals("null")?"All":$P{unOffLabelProduct})]]></textFieldExpression>
+				</textField>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="848"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="640"
+						height="19"
+						backcolor="#CCCCCC"
+						key="textField-2"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Medical Plan Activities - Current Quarter"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="0"
+						y="84"
+						width="640"
+						height="24"
+						backcolor="#CCCCCC"
+						key="textField-3"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["HCP Interactions"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="0"
+						y="108"
+						width="240"
+						height="25"
+						backcolor="#CCCCFF"
+						key="textField-4"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Activity Summary -Current Quarter"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="240"
+						y="108"
+						width="400"
+						height="25"
+						backcolor="#CCCCFF"
+						key="textField-5"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Interaction By Type"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="0"
+						y="228"
+						width="640"
+						height="19"
+						backcolor="#CCCCFF"
+						key="textField-6"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Interactions By Sphere of Influence"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="0"
+						y="501"
+						width="640"
+						height="20"
+						backcolor="#FF6666"
+						key="textField-7"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Intent of Interactions"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="0"
+						y="578"
+						width="640"
+						height="19"
+						backcolor="#666666"
+						key="textField-8"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Proactive/Reactive Interactions by Topic - Current Quarter"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="0"
+						y="677"
+						width="640"
+						height="19"
+						backcolor="#6666FF"
+						key="textField-9"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Interactions by Topic"]]></textFieldExpression>
+				</textField>
+				<crosstab >
+					<reportElement
+						style="DefaultStyle"
+						x="240"
+						y="133"
+						width="400"
+						height="95"
+						backcolor="#FFFFFF"
+						key="crosstab-1"
+						positionType="Float"/>
+					<crosstabDataset>
+						<dataset >
+							<datasetRun subDataset="InteractionByType">
+								<datasetParameter  name="reportTherapeuticArea">
+									<datasetParameterExpression><![CDATA[$P{reportTherapeuticArea}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="product">
+									<datasetParameterExpression><![CDATA[$P{product}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="productList">
+									<datasetParameterExpression><![CDATA[$P{productList}]]></datasetParameterExpression>
+								</datasetParameter>
+								<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+							</datasetRun>
+						</dataset>
+					</crosstabDataset>
+					<crosstabHeaderCell>						<cellContents backcolor="#FFFFFF" mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabHeaderCell>					<rowGroup name="INTERACTION_TYPE" width="100" totalPosition="End">
+						<bucket>
+							<bucketExpression class="java.lang.String"><![CDATA[$F{INTERACTION_TYPE}]]></bucketExpression>
+						</bucket>
+						<crosstabRowHeader>
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="100"
+						height="30"
+						backcolor="#FFFFFF"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{INTERACTION_TYPE}]]></textFieldExpression>
+				</textField>
+						</cellContents>
+						</crosstabRowHeader>
+					</rowGroup>
+					<columnGroup name="QUARTER" height="25" totalPosition="End" headerPosition="Center">
+						<bucket order="Descending">
+							<bucketExpression class="java.lang.String"><![CDATA[$F{QUARTER}]]></bucketExpression>
+						</bucket>
+						<crosstabColumnHeader>
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="100"
+						height="25"
+						backcolor="#FFFFFF"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{QUARTER}]]></textFieldExpression>
+				</textField>
+						</cellContents>
+						</crosstabColumnHeader>
+					</columnGroup>
+					<columnGroup name="QUARTERINTERACTIONCOUNT" height="0" totalPosition="End" headerPosition="Center">
+						<bucket>
+							<bucketExpression class="java.math.BigDecimal"><![CDATA[$F{QUARTERINTERACTIONCOUNT}]]></bucketExpression>
+						</bucket>
+					</columnGroup>
+
+					<measure name="INTERCOUNT_Nothing" class="java.math.BigDecimal">
+						<measureExpression><![CDATA[$F{INTERCOUNT}]]></measureExpression>
+					</measure>
+					<crosstabCell width="100" height="30">
+						<cellContents backcolor="#FFFFFF" mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="50"
+						height="30"
+						backcolor="#FFFFFF"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{INTERCOUNT_Nothing}!=null?$V{INTERCOUNT_Nothing}:new BigDecimal(0)]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="50"
+						y="0"
+						width="49"
+						height="30"
+						backcolor="#FFFFFF"
+						key="textField-10"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[(new Integer(($V{QUARTERINTERACTIONCOUNT}.intValue() == 0)?0:(($V{INTERCOUNT_Nothing}!=null? ($V{INTERCOUNT_Nothing}.intValue()*100):0)/$V{QUARTERINTERACTIONCOUNT}.intValue()))).toString()+"%"]]></textFieldExpression>
+				</textField>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="30" columnTotalGroup="QUARTERINTERACTIONCOUNT">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="30" columnTotalGroup="QUARTER">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="100" height="0" rowTotalGroup="INTERACTION_TYPE">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="0" rowTotalGroup="INTERACTION_TYPE" columnTotalGroup="QUARTERINTERACTIONCOUNT">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="0" rowTotalGroup="INTERACTION_TYPE" columnTotalGroup="QUARTER">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<whenNoDataCell>						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</whenNoDataCell>					</crosstab>
+				<crosstab >
+					<reportElement
+						style="DefaultStyle"
+						x="0"
+						y="521"
+						width="640"
+						height="57"
+						backcolor="#CCCCFF"
+						key="crosstab-2"
+						positionType="Float"/>
+					<crosstabDataset>
+						<dataset >
+							<datasetRun subDataset="InteractionsByIntent">
+								<datasetParameter  name="product">
+									<datasetParameterExpression><![CDATA[$P{product}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="productList">
+									<datasetParameterExpression><![CDATA[$P{productList}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="reportTherapeuticArea">
+									<datasetParameterExpression><![CDATA[$P{reportTherapeuticArea}]]></datasetParameterExpression>
+								</datasetParameter>
+								<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+							</datasetRun>
+						</dataset>
+					</crosstabDataset>
+					<crosstabHeaderCell>						<cellContents backcolor="#FFCCCC" mode="Opaque">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<staticText>
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="100"
+						height="25"
+						backcolor="#FFCCCC"
+						key="staticText-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<text><![CDATA[]]></text>
+				</staticText>
+						</cellContents>
+					</crosstabHeaderCell>					<rowGroup name="INTERACTION_INTENT" width="100" totalPosition="End">
+						<bucket>
+							<bucketExpression class="java.lang.String"><![CDATA[$F{INTERACTION_INTENT}]]></bucketExpression>
+						</bucket>
+						<crosstabRowHeader>
+						<cellContents backcolor="#FFCCCC" mode="Opaque">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="100"
+						height="32"
+						backcolor="#FFCCCC"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{INTERACTION_INTENT}!=null?$V{INTERACTION_INTENT}:"None Selected"]]></textFieldExpression>
+				</textField>
+						</cellContents>
+						</crosstabRowHeader>
+					</rowGroup>
+					<columnGroup name="QUARTER" height="25" totalPosition="End" headerPosition="Center">
+						<bucket order="Descending">
+							<bucketExpression class="java.lang.String"><![CDATA[$F{QUARTER}]]></bucketExpression>
+						</bucket>
+						<crosstabColumnHeader>
+						<cellContents backcolor="#FFCCCC" mode="Opaque">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="180"
+						height="25"
+						backcolor="#FFCCCC"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{QUARTER}]]></textFieldExpression>
+				</textField>
+						</cellContents>
+						</crosstabColumnHeader>
+					</columnGroup>
+					<columnGroup name="QUARTERINTERACTIONCOUNT" height="0" totalPosition="End" headerPosition="Center">
+						<bucket>
+							<bucketExpression class="java.math.BigDecimal"><![CDATA[$F{QUARTERINTERACTIONCOUNT}]]></bucketExpression>
+						</bucket>
+					</columnGroup>
+
+					<measure name="INTERCOUNT_Nothing" class="java.math.BigDecimal">
+						<measureExpression><![CDATA[$F{INTERCOUNT}]]></measureExpression>
+					</measure>
+					<crosstabCell width="180" height="32">
+						<cellContents backcolor="#FFFFFF" mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="90"
+						height="32"
+						backcolor="#FFCCCC"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{INTERCOUNT_Nothing}!=null?$V{INTERCOUNT_Nothing}:new BigDecimal(0)]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="90"
+						y="0"
+						width="90"
+						height="32"
+						backcolor="#FFCCCC"
+						key="textField-10"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[(new Integer(($V{QUARTERINTERACTIONCOUNT}.intValue() == 0)?0:(($V{INTERCOUNT_Nothing}!=null? ($V{INTERCOUNT_Nothing}.intValue()*100):0)/$V{QUARTERINTERACTIONCOUNT}.intValue()))).toString()+"%"]]></textFieldExpression>
+				</textField>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="32" columnTotalGroup="QUARTERINTERACTIONCOUNT">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="32" columnTotalGroup="QUARTER">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="180" height="0" rowTotalGroup="INTERACTION_INTENT">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="0" rowTotalGroup="INTERACTION_INTENT" columnTotalGroup="QUARTERINTERACTIONCOUNT">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="0" rowTotalGroup="INTERACTION_INTENT" columnTotalGroup="QUARTER">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="1Point" rightBorderColor="#000000" bottomBorder="1Point" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<whenNoDataCell>						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</whenNoDataCell>					</crosstab>
+				<crosstab >
+					<reportElement
+						style="DefaultStyle"
+						x="0"
+						y="597"
+						width="640"
+						height="80"
+						key="crosstab-3"
+						positionType="Float"/>
+					<crosstabDataset>
+						<dataset >
+							<datasetRun subDataset="IntentInteractionsByTopic">
+								<datasetParameter  name="reportTherapeuticArea">
+									<datasetParameterExpression><![CDATA[$P{reportTherapeuticArea}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="product">
+									<datasetParameterExpression><![CDATA[$P{product}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="productList">
+									<datasetParameterExpression><![CDATA[$P{productList}]]></datasetParameterExpression>
+								</datasetParameter>
+								<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+							</datasetRun>
+						</dataset>
+					</crosstabDataset>
+					<crosstabHeaderCell>						<cellContents backcolor="#CCCCCC" mode="Opaque">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<staticText>
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="180"
+						height="25"
+						backcolor="#CCCCCC"
+						key="staticText-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<text><![CDATA[]]></text>
+				</staticText>
+						</cellContents>
+					</crosstabHeaderCell>					<rowGroup name="TOPIC_VALUE" width="180">
+						<bucket>
+							<bucketExpression class="java.lang.String"><![CDATA[$F{TOPIC_VALUE}]]></bucketExpression>
+						</bucket>
+						<crosstabRowHeader>
+						<cellContents backcolor="#CCCCCC" mode="Opaque">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="180"
+						height="30"
+						backcolor="#CCCCCC"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{TOPIC_VALUE}]]></textFieldExpression>
+				</textField>
+						</cellContents>
+						</crosstabRowHeader>
+					</rowGroup>
+					<columnGroup name="INTENTOFVISIT" height="25" headerPosition="Center">
+						<bucket>
+							<bucketExpression class="java.lang.String"><![CDATA[$F{INTENTOFVISIT}]]></bucketExpression>
+						</bucket>
+						<crosstabColumnHeader>
+						<cellContents backcolor="#FFCCCC" mode="Opaque">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="230"
+						height="25"
+						backcolor="#CCCCCC"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{INTENTOFVISIT}]]></textFieldExpression>
+				</textField>
+						</cellContents>
+						</crosstabColumnHeader>
+					</columnGroup>
+					<columnGroup name="QUARTERINTENTINTERACTIONCOUNT" height="0" headerPosition="Center">
+						<bucket>
+							<bucketExpression class="java.math.BigDecimal"><![CDATA[$F{QUARTERINTENTINTERACTIONCOUNT}]]></bucketExpression>
+						</bucket>
+					</columnGroup>
+
+					<measure name="INTERACTIONCOUNT_Nothing" class="java.math.BigDecimal">
+						<measureExpression><![CDATA[$F{INTERACTIONCOUNT}]]></measureExpression>
+					</measure>
+					<crosstabCell width="230" height="30">
+						<cellContents backcolor="#CCCCCC" mode="Opaque">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="115"
+						height="30"
+						backcolor="#CCCCCC"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{INTERACTIONCOUNT_Nothing}!=null?$V{INTERACTIONCOUNT_Nothing}:new BigDecimal(0)]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="115"
+						y="0"
+						width="115"
+						height="30"
+						backcolor="#CCCCCC"
+						key="textField-10"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[(new Integer(($V{QUARTERINTENTINTERACTIONCOUNT}.intValue() == 0)?0:(($V{INTERACTIONCOUNT_Nothing}!=null? ($V{INTERACTIONCOUNT_Nothing}.intValue()*100):0)/$V{QUARTERINTENTINTERACTIONCOUNT}.intValue()))).toString()+"%"]]></textFieldExpression>
+				</textField>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="30" columnTotalGroup="QUARTERINTENTINTERACTIONCOUNT">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="30" columnTotalGroup="INTENTOFVISIT">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="230" height="0" rowTotalGroup="TOPIC_VALUE">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="0" rowTotalGroup="TOPIC_VALUE" columnTotalGroup="QUARTERINTENTINTERACTIONCOUNT">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="0" rowTotalGroup="TOPIC_VALUE" columnTotalGroup="INTENTOFVISIT">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<whenNoDataCell>						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</whenNoDataCell>					</crosstab>
+				<crosstab >
+					<reportElement
+						style="DefaultStyle"
+						x="-1"
+						y="696"
+						width="641"
+						height="59"
+						key="crosstab-4"
+						positionType="Float"/>
+					<crosstabDataset>
+						<dataset >
+							<datasetRun subDataset="InteractionsByTopic">
+								<datasetParameter  name="reportTherapeuticArea">
+									<datasetParameterExpression><![CDATA[$P{reportTherapeuticArea}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="product">
+									<datasetParameterExpression><![CDATA[$P{product}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="productList">
+									<datasetParameterExpression><![CDATA[$P{productList}]]></datasetParameterExpression>
+								</datasetParameter>
+								<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+							</datasetRun>
+						</dataset>
+					</crosstabDataset>
+					<crosstabHeaderCell>						<cellContents backcolor="#CCCCFF" mode="Opaque">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<staticText>
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="160"
+						height="25"
+						backcolor="#CCCCFF"
+						key="staticText-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<text><![CDATA[]]></text>
+				</staticText>
+						</cellContents>
+					</crosstabHeaderCell>					<rowGroup name="LOV_TOPICVALUE" width="160">
+						<bucket>
+							<bucketExpression class="java.lang.String"><![CDATA[$F{LOV_TOPICVALUE}]]></bucketExpression>
+						</bucket>
+						<crosstabRowHeader>
+						<cellContents backcolor="#CCCCFF" mode="Opaque">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="160"
+						height="34"
+						backcolor="#CCCCFF"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{LOV_TOPICVALUE}]]></textFieldExpression>
+				</textField>
+						</cellContents>
+						</crosstabRowHeader>
+					</rowGroup>
+					<columnGroup name="QUARTER" height="25" headerPosition="Center">
+						<bucket order="Descending">
+							<bucketExpression class="java.lang.String"><![CDATA[$F{QUARTER}]]></bucketExpression>
+						</bucket>
+						<crosstabColumnHeader>
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="160"
+						height="25"
+						backcolor="#CCCCFF"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{QUARTER}]]></textFieldExpression>
+				</textField>
+						</cellContents>
+						</crosstabColumnHeader>
+					</columnGroup>
+					<columnGroup name="QUARTERINTERACTIONCOUNT" height="0" headerPosition="Center">
+						<bucket>
+							<bucketExpression class="java.math.BigDecimal"><![CDATA[$F{QUARTERINTERACTIONCOUNT}]]></bucketExpression>
+						</bucket>
+					</columnGroup>
+
+					<measure name="INTERACTIONCOUNT_Nothing" class="java.math.BigDecimal">
+						<measureExpression><![CDATA[$F{INTERACTIONCOUNT}]]></measureExpression>
+					</measure>
+					<crosstabCell width="160" height="34">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="80"
+						height="34"
+						backcolor="#CCCCFF"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{INTERACTIONCOUNT_Nothing}!=null?$V{INTERACTIONCOUNT_Nothing}:new BigDecimal(0)]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="80"
+						y="0"
+						width="80"
+						height="34"
+						backcolor="#CCCCFF"
+						key="textField-11"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[(new Integer(($V{QUARTERINTERACTIONCOUNT}.intValue() == 0)?0:(($V{INTERACTIONCOUNT_Nothing}!=null? ($V{INTERACTIONCOUNT_Nothing}.intValue()*100):0)/$V{QUARTERINTERACTIONCOUNT}.intValue()))).toString()+"%"]]></textFieldExpression>
+				</textField>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="34" columnTotalGroup="QUARTERINTERACTIONCOUNT">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="34" columnTotalGroup="QUARTER">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="160" height="0" rowTotalGroup="LOV_TOPICVALUE">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="0" rowTotalGroup="LOV_TOPICVALUE" columnTotalGroup="QUARTERINTERACTIONCOUNT">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="0" rowTotalGroup="LOV_TOPICVALUE" columnTotalGroup="QUARTER">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<whenNoDataCell>						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</whenNoDataCell>					</crosstab>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="-1"
+						y="755"
+						width="641"
+						height="20"
+						backcolor="#66FF66"
+						key="textField-10"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Unsolicited Questions By Topic"]]></textFieldExpression>
+				</textField>
+				<crosstab >
+					<reportElement
+						style="DefaultStyle"
+						x="0"
+						y="775"
+						width="640"
+						height="73"
+						key="crosstab-5"
+						positionType="Float"/>
+					<crosstabDataset>
+						<dataset >
+							<datasetRun subDataset="InteractionsByOfflabelTopic">
+								<datasetParameter  name="reportTherapeuticArea">
+									<datasetParameterExpression><![CDATA[$P{reportTherapeuticArea}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="productList">
+									<datasetParameterExpression><![CDATA[$P{productList}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="product">
+									<datasetParameterExpression><![CDATA[$P{product}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="unOffLabelProduct">
+									<datasetParameterExpression><![CDATA[$P{unOffLabelProduct}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="unOffLabelProductList">
+									<datasetParameterExpression><![CDATA[$P{unOffLabelProductList}]]></datasetParameterExpression>
+								</datasetParameter>
+								<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+							</datasetRun>
+						</dataset>
+					</crosstabDataset>
+					<crosstabHeaderCell>						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<staticText>
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="160"
+						height="25"
+						backcolor="#CCFFCC"
+						key="staticText-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<text><![CDATA[]]></text>
+				</staticText>
+						</cellContents>
+					</crosstabHeaderCell>					<rowGroup name="OFFLABELTOPICLOVVALUE" width="160">
+						<bucket>
+							<bucketExpression class="java.lang.String"><![CDATA[$F{OFFLABELTOPICLOVVALUE}]]></bucketExpression>
+						</bucket>
+						<crosstabRowHeader>
+						<cellContents backcolor="#CCFFCC" mode="Opaque">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="160"
+						height="30"
+						backcolor="#CCFFCC"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{OFFLABELTOPICLOVVALUE}]]></textFieldExpression>
+				</textField>
+						</cellContents>
+						</crosstabRowHeader>
+					</rowGroup>
+					<columnGroup name="QUARTER" height="25" headerPosition="Center">
+						<bucket order="Descending">
+							<bucketExpression class="java.lang.String"><![CDATA[$F{QUARTER}]]></bucketExpression>
+						</bucket>
+						<crosstabColumnHeader>
+						<cellContents backcolor="#CCFFCC" mode="Opaque">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="160"
+						height="25"
+						backcolor="#CCFFCC"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{QUARTER}]]></textFieldExpression>
+				</textField>
+						</cellContents>
+						</crosstabColumnHeader>
+					</columnGroup>
+					<columnGroup name="QUARTERINTERACTIONCOUNT" height="0" headerPosition="Center">
+						<bucket>
+							<bucketExpression class="java.math.BigDecimal"><![CDATA[$F{QUARTERINTERACTIONCOUNT}]]></bucketExpression>
+						</bucket>
+					</columnGroup>
+
+					<measure name="INTERACTIONCOUNT_Nothing" class="java.math.BigDecimal">
+						<measureExpression><![CDATA[$F{INTERACTIONCOUNT}]]></measureExpression>
+					</measure>
+					<crosstabCell width="160" height="30">
+						<cellContents backcolor="#CCFFCC" mode="Opaque">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="80"
+						height="30"
+						backcolor="#CCFFCC"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$V{INTERACTIONCOUNT_Nothing}!=null?$V{INTERACTIONCOUNT_Nothing}:new BigDecimal(0)]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="80"
+						y="0"
+						width="80"
+						height="30"
+						backcolor="#CCFFCC"
+						key="textField-11"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[(new Integer(($V{QUARTERINTERACTIONCOUNT}.intValue() == 0)?0:(($V{INTERACTIONCOUNT_Nothing}!=null? ($V{INTERACTIONCOUNT_Nothing}.intValue()*100):0)/$V{QUARTERINTERACTIONCOUNT}.intValue()))).toString()+"%"]]></textFieldExpression>
+				</textField>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="30" columnTotalGroup="QUARTERINTERACTIONCOUNT">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="30" columnTotalGroup="QUARTER">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="160" height="0" rowTotalGroup="OFFLABELTOPICLOVVALUE">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="0" rowTotalGroup="OFFLABELTOPICLOVVALUE" columnTotalGroup="QUARTERINTERACTIONCOUNT">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="0" rowTotalGroup="OFFLABELTOPICLOVVALUE" columnTotalGroup="QUARTER">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<whenNoDataCell>						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</whenNoDataCell>					</crosstab>
+				<crosstab >
+					<reportElement
+						style="DefaultStyle"
+						x="0"
+						y="133"
+						width="240"
+						height="95"
+						backcolor="#FFFFFF"
+						key="crosstab-6"
+						positionType="Float"/>
+					<crosstabDataset>
+						<dataset >
+							<datasetRun subDataset="ActivitySummary">
+								<datasetParameter  name="reportTherapeuticArea">
+									<datasetParameterExpression><![CDATA[$P{reportTherapeuticArea}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="product">
+									<datasetParameterExpression><![CDATA[$P{product}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="productList">
+									<datasetParameterExpression><![CDATA[$P{productList}]]></datasetParameterExpression>
+								</datasetParameter>
+								<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+							</datasetRun>
+						</dataset>
+					</crosstabDataset>
+					<crosstabHeaderCell>						<cellContents backcolor="#FFFFFF" mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabHeaderCell>					<rowGroup name="FIELD_NAME" width="130">
+						<bucket>
+							<bucketExpression class="java.lang.String"><![CDATA[$F{FIELD_NAME}]]></bucketExpression>
+						</bucket>
+						<crosstabRowHeader>
+						<cellContents backcolor="#FFFFFF" mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="130"
+						height="30"
+						backcolor="#FFFFFF"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{FIELD_NAME}.substring(2)]]></textFieldExpression>
+				</textField>
+						</cellContents>
+						</crosstabRowHeader>
+					</rowGroup>
+					<columnGroup name="QUARTER" height="25" headerPosition="Center">
+						<bucket>
+							<bucketExpression class="java.lang.String"><![CDATA[$F{QUARTER}]]></bucketExpression>
+						</bucket>
+						<crosstabColumnHeader>
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="70"
+						height="25"
+						backcolor="#FFFFFF"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{QUARTER}]]></textFieldExpression>
+				</textField>
+						</cellContents>
+						</crosstabColumnHeader>
+					</columnGroup>
+
+					<measure name="FIELD_VALUE_Nothing" class="java.lang.String">
+						<measureExpression><![CDATA[$F{FIELD_VALUE}]]></measureExpression>
+					</measure>
+					<crosstabCell width="70" height="30">
+						<cellContents backcolor="#FFFFFF" mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="70"
+						height="30"
+						backcolor="#FFFFFF"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{FIELD_VALUE_Nothing}]]></textFieldExpression>
+				</textField>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="30" columnTotalGroup="QUARTER">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="70" height="0" rowTotalGroup="FIELD_NAME">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="0" rowTotalGroup="FIELD_NAME" columnTotalGroup="QUARTER">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<whenNoDataCell>						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</whenNoDataCell>					</crosstab>
+				<crosstab >
+					<reportElement
+						style="DefaultStyle"
+						x="0"
+						y="19"
+						width="640"
+						height="64"
+						backcolor="#FFFFFF"
+						key="crosstab-7"
+						positionType="Float"/>
+					<crosstabDataset>
+						<dataset >
+							<datasetRun subDataset="MedicalPlanActivities">
+								<datasetParameter  name="reportTherapeuticArea">
+									<datasetParameterExpression><![CDATA[$P{reportTherapeuticArea}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="product">
+									<datasetParameterExpression><![CDATA[$P{product}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="productList">
+									<datasetParameterExpression><![CDATA[$P{productList}]]></datasetParameterExpression>
+								</datasetParameter>
+								<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+							</datasetRun>
+						</dataset>
+					</crosstabDataset>
+					<crosstabHeaderCell>						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<staticText>
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="329"
+						height="25"
+						backcolor="#9999FF"
+						key="staticText-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Medical Plan Strategy (Objective)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="329"
+						y="0"
+						width="251"
+						height="25"
+						backcolor="#9999FF"
+						key="staticText-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Field Medical Objective]]></text>
+				</staticText>
+						</cellContents>
+					</crosstabHeaderCell>					<rowGroup name="PRODUCTVALUE" width="80">
+						<bucket>
+							<bucketExpression class="java.lang.String"><![CDATA[$F{PRODUCTVALUE}]]></bucketExpression>
+						</bucket>
+						<crosstabRowHeader>
+						<cellContents backcolor="#CCCCFF" mode="Opaque">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="80"
+						height="50"
+						backcolor="#CCCCFF"
+						key="textField"
+						stretchType="RelativeToTallestObject"
+						isPrintWhenDetailOverflows="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Top">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{PRODUCTVALUE}]]></textFieldExpression>
+				</textField>
+						</cellContents>
+						</crosstabRowHeader>
+					</rowGroup>
+					<rowGroup name="COMMTOPICVALUE" width="250">
+						<bucket>
+							<bucketExpression class="java.lang.String"><![CDATA[$F{COMMTOPICVALUE}]]></bucketExpression>
+						</bucket>
+						<crosstabRowHeader>
+						<cellContents backcolor="#CCCCFF" mode="Opaque">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="250"
+						height="50"
+						backcolor="#CCCCFF"
+						key="textField-11"
+						stretchType="RelativeToTallestObject"
+						isPrintWhenDetailOverflows="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Top">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{MEDOBJVALUE}]]></textFieldExpression>
+				</textField>
+						</cellContents>
+						</crosstabRowHeader>
+					</rowGroup>
+					<rowGroup name="MEDOBJVALUE" width="250">
+						<bucket>
+							<bucketExpression class="java.lang.String"><![CDATA[$F{MEDOBJVALUE}]]></bucketExpression>
+						</bucket>
+						<crosstabRowHeader>
+						<cellContents backcolor="#CCCCFF" mode="Opaque">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="250"
+						height="50"
+						backcolor="#CCCCFF"
+						key="textField"
+						stretchType="RelativeToTallestObject"
+						isPrintWhenDetailOverflows="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Top">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{COMMTOPICVALUE}]]></textFieldExpression>
+				</textField>
+						</cellContents>
+						</crosstabRowHeader>
+					</rowGroup>
+					<columnGroup name="QUARTER" height="25" headerPosition="Center">
+						<bucket>
+							<bucketExpression class="java.lang.String"><![CDATA[$F{QUARTER}]]></bucketExpression>
+						</bucket>
+						<crosstabColumnHeader>
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="60"
+						height="25"
+						backcolor="#9999FF"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["%"]]></textFieldExpression>
+				</textField>
+						</cellContents>
+						</crosstabColumnHeader>
+					</columnGroup>
+
+					<measure name="PERCENTAGE_Nothing" class="java.math.BigDecimal">
+						<measureExpression><![CDATA[$F{PERCENTAGE}]]></measureExpression>
+					</measure>
+					<crosstabCell width="60" height="50">
+						<cellContents backcolor="#CCCCFF" mode="Opaque">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="60"
+						height="50"
+						backcolor="#CCCCFF"
+						key="textField"
+						stretchType="RelativeToTallestObject"
+						isPrintWhenDetailOverflows="true"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[new BigDecimal($V{PERCENTAGE_Nothing}.doubleValue()).setScale(2,BigDecimal.ROUND_UP) + "%"]]></textFieldExpression>
+				</textField>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="50" columnTotalGroup="QUARTER">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="60" height="0" rowTotalGroup="COMMTOPICVALUE">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="0" rowTotalGroup="COMMTOPICVALUE" columnTotalGroup="QUARTER">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="60" height="0" rowTotalGroup="PRODUCTVALUE">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="0" rowTotalGroup="PRODUCTVALUE" columnTotalGroup="QUARTER">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="60" height="0" rowTotalGroup="MEDOBJVALUE">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<crosstabCell width="0" height="0" rowTotalGroup="MEDOBJVALUE" columnTotalGroup="QUARTER">
+						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</crosstabCell>
+					<whenNoDataCell>						<cellContents mode="Transparent">
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						</cellContents>
+					</whenNoDataCell>					</crosstab>
+				<pieChart>
+					<chart  hyperlinkTarget="Self" >
+					<reportElement
+						style="DefaultStyle"
+						x="0"
+						y="247"
+						width="640"
+						height="250"
+						backcolor="#FFFFFF"
+						key="element-1"
+						positionType="Float"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+						<chartLegend textColor="#000000" backgroundColor="#FFFFFF" >
+					</chartLegend>
+					</chart>
+					<pieDataset>
+						<dataset >
+							<datasetRun subDataset="InteractionsBySphereOfInfluence">
+								<datasetParameter  name="reportTherapeuticArea">
+									<datasetParameterExpression><![CDATA[$P{reportTherapeuticArea}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="product">
+									<datasetParameterExpression><![CDATA[$P{product}]]></datasetParameterExpression>
+								</datasetParameter>
+								<datasetParameter  name="productList">
+									<datasetParameterExpression><![CDATA[$P{productList}]]></datasetParameterExpression>
+								</datasetParameter>
+							</datasetRun>
+						</dataset>
+						<keyExpression><![CDATA[$F{SPHEREOFINFLUENCE}]]></keyExpression>
+						<valueExpression><![CDATA[$F{INTERACTIONCOUNT}]]></valueExpression>
+						<labelExpression><![CDATA[$F{SPHEREOFINFLUENCE}+ ": " + new BigDecimal((100*$F{INTERACTIONCOUNT}.doubleValue())/$F{TOTALINTERACTIONCOUNT}.doubleValue()).setScale(2,BigDecimal.ROUND_UP)+"%"]]></labelExpression>
+				<sectionHyperlink >
+				</sectionHyperlink>
+					</pieDataset>
+					<piePlot>
+						<plot backcolor="#FFFFFF" />
+					</piePlot>
+				</pieChart>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

@@ -1,0 +1,5 @@
+<beans>
+    <bean id="backNavigation"
+         class="com.ervacon.springframework.web.servlet.mvc.webflow.SubFlowBackNavigationExceptionResolver">
+    </bean>
+d</beans>

@@ -1,0 +1,22 @@
+/* ------------  ldap configuration  ---------------------- */
+AUTHENTICATION=LDAP
+
+INITIAL_CONTEXT_FACTORY=com.sun.jndi.ldap.LdapCtxFactory
+PROVIDER_URL=ldap://ldap.amgen.com:389
+BASE_CONTEXT=ou=People,dc=Enterprise,dc=amgen,dc=com
+
+SECURITY_AUTHENTICATION_BASE=none
+SECURITY_PRINCIPAL_BASE=null
+SECURITY_CREDENTIALS_BASE=null
+
+SECURITY_AUTHENTICATION=simple
+attr=uniqueIdentifier
+
+CUSTOMER=Amgen
+DOCTOR=OL
+DOCTOR_SHORT=OL
+HCP=HCP
+
+/* ---------------------  ORX -------------------- */
+ORX_TYPE=AMGEN
+

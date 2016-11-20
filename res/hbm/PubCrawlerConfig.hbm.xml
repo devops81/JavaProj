@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.openq.pubmed.PubCrawlerConfig" table="PUB_CRAWLER_CONFIG">
+        <id name="id" column="id">
+            <generator class="assigned"/>
+        </id>
+        <property name="propKey" column="prop_key" type="string"/>
+        <property name="propValue" column="prop_value" type="string"/>
+     </class>
+</hibernate-mapping>

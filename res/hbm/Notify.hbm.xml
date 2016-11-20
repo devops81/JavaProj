@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+	<class name="com.openq.Notify.Notification" table="NOTIFY_REGISTER">
+		<id name="id" column="ID">
+			<generator class="native"/>
+		</id>
+		<property name="kolId" column="KOLID" type="long"  />
+		<property name="attribute_id" column="ATTRIBUTE_ID"  type="long"/>
+		<property name="userId" column="USERID" type="long" />
+	</class>
+</hibernate-mapping>

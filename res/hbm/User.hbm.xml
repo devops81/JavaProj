@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+     
+     <class name="com.openq.user.User" table="user_table">
+        <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+    
+        <property name="userName"/>
+        <many-to-one name="userType" class="com.openq.eav.option.OptionLookup" column="user_type_id" />
+        <many-to-one name="global" class="com.openq.eav.option.OptionLookup" column="global" />
+        <many-to-one name="gender" class="com.openq.eav.option.OptionLookup" column="gender"/>
+       
+        <many-to-one name="prefix" class="com.openq.eav.option.OptionLookup" column="prefix" />
+        <many-to-one name="suffix" class="com.openq.eav.option.OptionLookup" column="suffix" />
+        <property name="password"/>
+        <property name="firstName"/>
+        <property name="middleName"/>
+        <property name="lastName"/>
+       
+        <property name="ssn"/>
+        <property name="motherMaidenName"/>
+       
+        <property name="securityQuestion"/>
+        <property name="answer"/>
+        <property name="myRegions"/>
+        <property name="bioData"/>
+        <property name="dob"/>
+        <property name="photo"/>
+        <property name="reference"/>
+        <property name="email"/>
+        <property name="title"/>
+        <property name="staffid"/>
+        <property name="speciality"/>
+        <property name="phone"/>
+        <property name="location"/>		
+        <property name="ssoid"/>
+        <property name="ssname"/>
+        <property name="influenceLevel" type="long"/>
+        <property name="kolid" type="long"/>
+        <property name="birthDate" type="date"/>
+        <property name="longitude" type="float"/>
+        <property name="latitude" type="float"/>     
+        <property name="deleteFlag" type="string"/>
+        <property name="updateTime" type="date"/>
+        <property name="lastUpdateTime" type="long"/> 
+        <property name="mslStartDate" type="date" column="MSL_START_DATE"/>  
+        <many-to-one name="UserAddress" class="com.openq.user.UserAddress" column="address_id" cascade="save-update"/>
+        
+        </class>
+     
+</hibernate-mapping> 
+
+

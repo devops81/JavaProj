@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="OSR-Q3-Dashlet"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="305"
+		 pageHeight="500"
+		 columnWidth="305"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false"
+		 isIgnorePagination="true">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="Te_Re" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["'Summary'"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["'Summary'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="startDateOSR" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["07/01/2009"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="endDateOSR" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["09/30/2009"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="usersList" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA[default value is -1. we use 92657111 for testing]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["-1"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="title" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["OSR Dashlet " + $P{startDateOSR} + " - " + $P{endDateOSR}]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select 
+       sum(face_to_face) face_to_face,
+       sum(Telephone) Telephone,
+       sum(Email) Email,
+       sum(GroupPresentation) GroupPresentation,
+       sum(msl_Allowable) total_msl_Allowable,
+       user_name,
+       sum(t.quota) quota,
+       t.Region,
+       t.RegionUser,
+       t.TeRegion,
+       t.theraupticArea
+from
+ (select sum(face_to_face) face_to_face,
+       sum(Telephone) Telephone,
+       sum(Email) Email,
+       sum(GroupPresentation) GroupPresentation,
+       user_name,
+       case when theraupticArea = 'Health Outcomes' 
+		then round((((sum(msl_quota)/count(iid))+1)/365)*150) 
+		else round((((sum(msl_quota)/count(iid))+1)/365)*400) 
+       end quota,
+       Region,
+       RegionUser,
+       TeRegion,
+       theraupticArea,
+ case when (sum(face_to_face)/10>sum(Telephone) ) then sum(Telephone) else round(sum(face_to_face)/10) end  msl_Allowable
+from
+(SELECT 
+      o.optvalue,
+      i.interaction_id iid,
+      i.userid,
+      case when o.optvalue='1:1 Face to Face (2 or less)' then
+            1
+            else
+            0
+      end Face_To_face,
+      case when o.optvalue='Telephone' then
+            1
+            else
+            0
+      end Telephone,
+      case when o.optvalue='Email' then
+            1
+            else
+            0
+      end Email,
+      case when o.optvalue='Group Presentation (3 or more)' then
+            1
+            else
+            0
+      end GroupPresentation,
+      
+      case WHEN $P!{Te_Re}='Detail' then TerritoryInfo.Territory else TerritoryInfo.Region end Region,
+      case WHEN $P!{Te_Re}='Detail' then TerritoryInfo.name else TerritoryInfo.RegionUser end user_name,
+      case when TO_date($P{startDateOSR},'MM/DD/YYYY') > to_date('01-Jan-2009') then
+                case when TO_date($P{startDateOSR},'MM/DD/YYYY')  < TerritoryInfo.territoryStartDate then      
+                     TO_date($P{endDateOSR},'MM/DD/YYYY') - TerritoryInfo.territoryStartDate 
+                else
+                     TO_date($P{endDateOSR},'MM/DD/YYYY') - TO_date($P{startDateOSR},'MM/DD/YYYY')
+                end     
+          else
+  		case when to_date('01-Jan-2009')  < TerritoryInfo.territoryStartDate then      
+                     TO_date($P{endDateOSR},'MM/DD/YYYY') - TerritoryInfo.territoryStartDate 
+                else
+                     TO_date($P{endDateOSR},'MM/DD/YYYY') - to_date('01-Jan-2009')
+		end
+      END msl_quota,
+      TerritoryInfo.Region TeRegion,
+      TerritoryInfo.RegionUser RegionUser,
+      TerritoryInfo.territory Territory,
+      TerritoryInfo.name territoryUser,
+      TerritoryInfo.TA theraupticArea
+FROM 
+    interaction i,
+    option_lookup o,
+  (select 
+    u.id as userId,
+    o.optvalue as territory,
+    o1.optvalue as region,
+    o2.optvalue as TA,
+    u.lastname||', '||u.firstname name,
+    u.msl_start_date msl_start,
+    u2.lastname||', '||u2.firstname RegionUser,
+    u.msl_start_date territoryStartDate,
+    u2.msl_start_date regionStartDate
+    from user_table u,
+    user_relationship ur,
+    user_relationship ur1,
+    user_table u2,
+    option_lookup o,
+    option_lookup o1,
+    option_lookup o2
+    where 
+      ur.user_id = u.id
+    and ur1.user_id = u2.id
+    and o.id = ur.territory
+    and o1.id = ur1.territory
+    and o1.id = o.parent
+    and o2.id = o1.parent
+    and ur.relationship_type = 1
+    and ur1.relationship_type = 2 
+    and u.id in ($P!{usersList})
+    and ur.begin_date <= sysdate
+	and ur.end_date >= sysdate
+	and ur1.begin_date <= sysdate
+	and ur1.end_date >= sysdate
+    
+    
+    )
+    TerritoryInfo
+where 
+    i.interaction_type_id = o.id 
+and i.userid = TerritoryInfo.userId
+and i.deleteflag != 'Y'
+and i.interactionDate >= to_date('01-jan-2009') 
+AND i.interactionDate <= to_date('31-dec-2009')
+and i.interactionDate >= TO_TIMESTAMP($P{startDateOSR},'MM/DD/YYYY') 
+AND i.interactionDate <= TO_TIMESTAMP($P{endDateOSR},'MM/DD/YYYY')
+)
+group by territoryUser,Territory,user_name,Region,RegionUser,TeRegion,theraupticArea 
+) t
+group by user_name,Region,RegionUser,TeRegion, theraupticArea]]></queryString>
+
+	<field name="FACE_TO_FACE" class="java.lang.Integer"/>
+	<field name="TELEPHONE" class="java.lang.Integer"/>
+	<field name="EMAIL" class="java.lang.Integer"/>
+	<field name="QUOTA" class="java.lang.Integer"/>
+	<field name="TOTAL_MSL_ALLOWABLE" class="java.lang.Integer"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="19"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="0"
+						width="303"
+						height="18"
+						forecolor="#847C40"
+						backcolor="#F2F0DE"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{title}]]></textFieldExpression>
+				</textField>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="50"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="-1"
+						width="107"
+						height="50"
+						forecolor="#847C40"
+						backcolor="#F2F0DE"
+						key="staticText-37"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Total Interactions Towards 
+Objective]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="107"
+						y="-1"
+						width="98"
+						height="50"
+						forecolor="#847C40"
+						backcolor="#F2F0DE"
+						key="staticText-38"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Interaction Objective]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						mode="Opaque"
+						x="205"
+						y="-1"
+						width="98"
+						height="50"
+						forecolor="#847C40"
+						backcolor="#F2F0DE"
+						key="staticText-39"/>
+					<box topBorder="Thin" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[% Attain.]]></text>
+				</staticText>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="42"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="0"
+						y="-1"
+						width="107"
+						height="42"
+						backcolor="#FFFFFF"
+						key="textField-3"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[new Integer($F{FACE_TO_FACE}.intValue()+$F{TOTAL_MSL_ALLOWABLE}.intValue())]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="107"
+						y="-1"
+						width="98"
+						height="42"
+						backcolor="#FFFFFF"
+						key="textField-5"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="Thin" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Integer"><![CDATA[$F{QUOTA}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="205"
+						y="-1"
+						width="98"
+						height="42"
+						backcolor="#FFFFFF"
+						key="textField-9"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="Thin" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Verdana"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[new DecimalFormat("#00").format(Math.round((($F{FACE_TO_FACE}.floatValue()+ $F{TOTAL_MSL_ALLOWABLE}.floatValue())/$F{QUOTA}.floatValue())*100))+""]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

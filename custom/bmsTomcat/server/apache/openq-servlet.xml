@@ -1,0 +1,2690 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+ 	<!--bean id="exceptionResolver" class="com.openq.ExceptionResolver">
+    <property name="exceptionMappings">
+      <props>
+        <prop key="java.lang.Exception">sessionexpired</prop>
+      </props>
+    </property>
+    </bean-->
+
+    <bean id="entityDetailsServiceTarget" class="com.openq.eav.entitydetails.EntityDetailsService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="entityDetailsService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="entityDetailsServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean name="/login.htm" class="com.openq.web.controllers.LoginController">
+        <property name="authenticationServiceProvider">
+            <ref bean="authenticationServiceProvider"/>
+        </property>
+        <property name="userService">
+            <ref bean="userService"/>
+        </property>
+        <property name="optionService">
+            <ref bean="optionService"/>
+        </property>
+    <property name="groupService">
+      <ref bean="groupService"/>
+        </property>
+    <property name="userGroupMapService">
+      <ref bean="userGroupMapService"/>
+        </property>
+        <property name="featureAccessService">
+          <ref bean="featureAccessService"/>
+        </property>
+        <property name="encryptPasswordService">
+          <ref bean="encryptPasswordService"/>
+        </property>
+	 	<property name="userRelationshipService">
+            <ref bean="userRelationshipService"/>
+        </property>
+    </bean>
+
+	<bean name="/change_password.htm"
+          class="com.openq.web.controllers.ChangePasswordController">
+      <property name="userService">
+            <ref bean="userService"/>
+        </property>
+    </bean>
+
+    <bean name="/slideMerge.htm"
+          class="com.openq.web.controllers.SlideMergeController">
+    	<property name="slideMergeService">
+              <ref bean="slideMergeService"/>
+           </property>
+    </bean>
+    <bean name="/sendNotificationEmail.htm"
+           class="com.openq.web.controllers.NotificationEmailController">
+           <property name="dataService">
+              <ref bean="dataService"/>
+           </property>
+           <property name="metadataService">
+               <ref bean="metadataService" />
+           </property>
+    </bean>
+
+    <bean name="/alert.htm" class="com.openq.web.controllers.AlertController">
+        <property name="alertsService">
+            <ref bean="alertsService"/>
+        </property>
+        <property name="metadataService">
+            <ref bean="metadataService"/>
+        </property>
+        <property name="groupService">
+            <ref bean="groupService"/>
+        </property>
+    </bean>
+
+    <bean name="/addSurvey.htm" class="com.openq.web.controllers.SurveyController">
+        <property name="surveyService">
+            <ref bean="surveyService"/>
+        </property>
+        </bean>
+    <bean name="/viewSurvey.htm" class="com.openq.web.controllers.ViewSurveyController">
+        <property name="surveyService">
+            <ref bean="surveyService"/>
+        </property>
+        </bean>
+
+    <bean name="/survey.htm" class="com.openq.web.controllers.AddSurveyController">
+        <property name="surveyService">
+            <ref bean="surveyService"/>
+        </property>
+		<property name="featurePermissionService">
+			<ref bean="featurePermissionService"/>
+		</property>
+        </bean>
+
+   <bean name="/reportsTree.htm" class="com.openq.web.controllers.ReportstreeController">
+   <property name="reportGroupService">
+            <ref bean="reportGroupService"/>
+        </property>
+        <property name="reportGroupMapService">
+            <ref bean="reportGroupMapService"/>
+        </property>
+        <property name="reportService">
+            <ref bean="reportService"/>
+        </property>
+    </bean>
+
+    <bean name="/addalert.htm" class="com.openq.web.controllers.AddAlertController">
+        <property name="alertsService">
+            <ref bean="alertsService"/>
+        </property>
+        <property name="metadataService">
+            <ref bean="metadataService"/>
+        </property>
+        <property name="groupService">
+            <ref bean="groupService"/>
+        </property>
+    </bean>
+
+    <bean name="/editalert.htm" class="com.openq.web.controllers.EditAlertController">
+        <property name="alertsService">
+            <ref bean="alertsService"/>
+        </property>
+        <property name="metadataService">
+            <ref bean="metadataService"/>
+        </property>
+        <property name="groupService">
+            <ref bean="groupService"/>
+        </property>
+    </bean>
+
+     <bean name="/pubcap.htm"
+          class="com.openq.web.controllers.PubCapController">
+    </bean>
+
+      <bean name="/pubdetails.htm"
+          class="com.openq.web.controllers.PubDetailsController">
+       <property name="publicationsService">
+            <ref bean="publicationsService" />
+        </property>
+    </bean>
+
+    <bean name="/exp_present_mat.htm"
+          class="com.openq.web.controllers.EventMaterialController">
+       <property name="eventMaterialService">
+            <ref bean="eventMaterialService" />
+        </property>
+    </bean>
+
+       <bean name="/pubexpert.htm"
+          class="com.openq.web.controllers.PubExpertController">
+      <property name="userService">
+            <ref bean="userService"/>
+        </property>
+        <property name="publicationsService">
+            <ref bean="publicationsService" />
+        </property>
+     <property name="olPubSummaryService">
+          <ref bean="olPuSummaryService" />
+        </property>
+    </bean>
+
+    <bean name="/pubresults.htm"
+          class="com.openq.web.controllers.PubResultController">
+     <property name="olPubSummaryService">
+          <ref bean="olPuSummaryService" />
+        </property>
+
+    </bean>
+
+     <bean name="/pubdatasource.htm"
+          class="com.openq.web.controllers.PubDataSourceController">
+     <property name="ovidDbService">
+            <ref bean="ovidDbService" />
+        </property>
+    </bean>
+    <bean name="/pubschedule.htm"
+          class="com.openq.web.controllers.PubScheduleController">
+        <property name="userService">
+            <ref bean="userService"/>
+        </property>
+        <property name="publicationsService">
+            <ref bean="publicationsService" />
+        </property>
+        <property name="ovidClient">
+          <ref bean="ovidClient" />
+        </property>
+        <property name="requestService">
+          <ref bean="requestService" />
+        </property>
+          <property name="cmaPubOlService">
+          <ref bean="cmaPubOlService" />
+        </property>
+    </bean>
+    <bean name="/kolstrategy_home.htm"
+          class="com.openq.web.controllers.KolStrategyController">
+      <property name="strategyStatusOption">
+            <ref bean="optionService"/>
+            </property>
+          <property name="dataService">
+            <ref bean="dataService"/>
+         </property>
+
+
+    </bean>
+
+    <bean name="/printFullProfile.htm"
+          class="com.openq.web.controllers.PrintFullProfileController">
+          <property name="dataService">
+            <ref bean="dataService"/>
+         </property>
+          <property name="metadataService">
+            <ref bean="metadataService"/>
+         </property>
+	  </bean>
+
+   <bean name="/profileCapture.htm" class="com.openq.web.controllers.ProfileCaptureController" >
+         <property name="userService">
+            <ref bean="userService"/>
+            </property>
+          <property name="dataService">
+            <ref bean="dataService"/>
+         </property>
+     </bean>
+
+     <bean name="/kol_main_objectives.htm" class="com.openq.web.controllers.KolStrategyController" >
+   </bean>
+
+   <bean name="/kol_create_node.htm" class="com.openq.web.controllers.KolStrategyController" >
+   </bean>
+
+   <bean name="/kol_keymessages.htm" class="com.openq.web.controllers.KolStrategyController" >
+   </bean>
+
+    <bean name="/kol_tactics.htm" class="com.openq.web.controllers.KolStrategyController" >
+   </bean>
+
+   <bean name="/kol_setsegment.htm" class="com.openq.web.controllers.KolStrategyController" >
+          <property name="dataService">
+            <ref bean="dataService"/>
+         </property>
+     </bean>
+
+   <bean name="/employee_search.htm" class="com.openq.web.controllers.EmpSearchController">
+     <property name="authenticationServiceProvider">
+            <ref bean="authenticationServiceProvider"/>
+        </property>
+   </bean>
+   <bean name="/employee_search_event.htm" class="com.openq.web.controllers.EmpSearchEventController">
+	 	<property name="authenticationServiceProvider">
+            <ref bean="authenticationServiceProvider"/>
+        </property>
+	 </bean>
+
+   <bean name="/calendar/agenda.htm" class="com.openq.web.controllers.CalendarController">
+    <property name="eventService">
+        <ref bean="eventService"/>
+    </property>
+    <property name="optionServiceWrapper">
+        <ref bean="optionServiceWrapper"/>
+    </property>
+   </bean>
+
+   <bean name="/calendar/calendar.htm" class="com.openq.web.controllers.CalendarController">
+    <property name="eventService">
+        <ref bean="eventService"/>
+    </property>
+    <property name="kolCalendarService">
+        <ref bean="kolCalendarService"/>
+    </property>
+    <property name="optionServiceWrapper">
+        <ref bean="optionServiceWrapper"/>
+    </property>
+   </bean>
+
+   <bean name="/calendar/calendar1.htm" class="com.openq.web.controllers.CalendarController">
+        <property name="eventService">
+        <ref bean="eventService"/>
+    </property>
+    <property name="optionServiceWrapper">
+        <ref bean="optionServiceWrapper"/>
+    </property>
+   </bean>
+
+   <bean name="/calendar/calendar2.htm" class="com.openq.web.controllers.CalendarController">
+        <property name="eventService">
+        <ref bean="eventService"/>
+    </property>
+    <property name="optionServiceWrapper">
+        <ref bean="optionServiceWrapper"/>
+    </property>
+   </bean>
+
+   <bean name="/eventsList.htm" class="com.openq.web.controllers.EventListController">
+        <property name="eventService">
+        <ref bean="eventService"/>
+    </property>
+    <property name="userService">
+        <ref bean="userService"/>
+    </property>
+    <property name="interactionDataService">
+        <ref bean="interactionDataService"/>
+    </property>
+   </bean>
+
+   <bean name="/updateEventStatus.htm" class="com.openq.web.controllers.UpdateEventStatusController">
+        <property name="eventService">
+        <ref bean="eventService"/>
+    </property>
+   </bean>
+
+   <bean name="/interactionOrgSearch.htm" class="com.openq.web.controllers.OrgSimpleSearchController">
+   </bean>
+
+   <bean name="/searchORX.htm" class="com.openq.web.controllers.SearchORXController">
+   </bean>
+
+   <bean name="/search_hcp.htm" class="com.openq.web.controllers.SearchORXController">
+     <property name="userService">
+       <ref bean="userService"/>
+     </property>
+
+     <property name="optionService">
+       <ref bean="optionService"/>
+     </property>
+        <property name="optionServiceWrapper">
+            <ref bean="optionServiceWrapper"/>
+        </property>
+   </bean>
+
+    <bean name="/event_ol_search.htm" class="com.openq.web.controllers.OLSearchController">
+     <property name="searchUserService">
+       <ref bean="userService"/>
+     </property>
+   </bean>
+
+    <bean name="/searchKol.htm"
+          class="com.openq.web.controllers.SearchKolController">
+        <property name="expertlistService">
+            <ref bean="expertlistService"/>
+        </property>
+        <property name="searchUserService">
+            <ref bean="userService"/>
+        </property>
+        <property name="orgService">
+            <ref bean="orgService"/>
+        </property>
+        <property name="optionService">
+       <ref bean="optionService"/>
+     </property>
+
+    <property name="optionServiceWrapper">
+            <ref bean="optionServiceWrapper"/>
+    </property>
+    <property name="dataService">
+		<ref bean="dataService"/>
+    </property>
+     <property name="alertsService">
+            <ref bean="alertsService"/>
+     </property>
+    </bean>
+    <bean name="/search.htm"
+          class="com.openq.web.controllers.SearchController">
+        <property name="entitySearchService">
+            <ref bean="entitySearchService"/>
+         </property>
+
+    </bean>
+  <bean name="/OL_Search.htm"
+    class="com.openq.web.controllers.OLSearchController">
+    <property name="searchUserService">
+      <ref bean="userService"/>
+    </property>
+  </bean>
+
+  <bean name="/add_guest_hcp.htm"
+    class="com.openq.web.controllers.AddGuestController">
+     <property name="optionService">
+       <ref bean="optionService"/>
+     </property>
+        <property name="addUserService">
+            <ref bean="userService"/>
+        </property>
+        <property name="expertlistService">
+            <ref bean="expertlistService"/>
+        </property>
+        <property name="expertDetailsService">
+            <ref bean="expertDetailsService"/>
+        </property>
+        <property name="optionServiceWrapper">
+            <ref bean="optionServiceWrapper"/>
+        </property>
+  </bean>
+
+    <bean name="/addUser.htm"
+          class="com.openq.web.controllers.AddUserController">
+        <property name="formView" value="create_user"/>
+        <property name="successView" value="create_user"/>
+        <property name="commandName" value="userForm"/>
+        <property name="commandClass" value="com.openq.web.forms.UserForm"/>
+        <property name="addUserService">
+            <ref bean="userService"/>
+        </property>
+        <property name="userGroupMapService">
+            <ref bean="userGroupMapService"/>
+        </property>
+        <property name="optionService">
+            <ref bean="optionService"/>
+        </property>
+        <property name="userGroupsService">
+            <ref bean="groupService"/>
+        </property>
+        <property name="attendeeService">
+            <ref bean="attendeeService"/>
+        </property>
+    <property name="optionServiceWrapper">
+            <ref bean="optionServiceWrapper"/>
+        </property>
+        <property name="encryptPasswordService">
+          <ref bean="encryptPasswordService"/>
+        </property>
+    </bean>
+    <bean name="/advancedSearch.htm"
+          class="com.openq.web.controllers.AdvanceSearchController">
+        <property name="formView" value="advsearch"/>
+        <property name="successView" value="advsearch"/>
+        <property name="commandName" value="advancedSearchForm"/>
+        <property name="commandClass" value="com.openq.web.forms.AdvancedSearchForm"/>
+        <property name="dataService">
+            <ref bean="dataService"/>
+        </property>
+        <property name="optionServiceWrapper">
+            <ref bean="optionServiceWrapper"/>
+        </property>
+        <property name="orgOlMapService">
+            <ref bean="orgOlMapService"/>
+        </property>
+        <property name="userService">
+            <ref bean="userService"/>
+        </property>
+
+    </bean>
+    <bean name="/searchInteraction.htm"
+          class="com.openq.web.controllers.KolSearchInteractionController">
+
+       <property name="interactionService">
+            <ref bean="interactionService"/>
+        </property>
+        <property name="attendeeService">
+            <ref bean="attendeeService"/>
+        </property>
+        <property name="searchUserService">
+            <ref bean="userService"/>
+        </property>
+         <property name="options">
+            <ref bean="optionService"/>
+        </property>
+        <property name="optionServiceWrapper">
+            <ref bean="optionServiceWrapper"/>
+        </property>
+        <property name="interactionDataService">
+         <ref bean="interactionDataService"/>
+       </property>
+        <property name="dataAuditService">
+            <ref bean="dataAuditService"/>
+        </property>
+    </bean>
+
+    <bean name="/home.htm"
+          class="com.openq.web.controllers.HomeController">
+          <property name="reportService">
+            <ref bean="reportService"/>
+          </property>
+    <property name="optionService">
+       <ref bean="optionService"/>
+     </property>
+     <property name="optionServiceWrapper">
+            <ref bean="optionServiceWrapper"/>
+        </property>
+        <property name="alertsService">
+            <ref bean="alertsService"/>
+        </property>
+        <property name="userPreferenceService">
+            <ref bean="userPreferenceService"/>
+        </property>
+
+    </bean>
+
+
+    <bean name="/experthome.htm"
+          class="com.openq.web.controllers.ExpertHomeController">
+      <property name="reportService">
+        <ref bean="reportService"/>
+      </property>
+      <property name="optionService">
+        <ref bean="optionService"/>
+      </property>
+      <property name="userService">
+        <ref bean="userService"/>
+      </property>
+      <property name="optionServiceWrapper">
+        <ref bean="optionServiceWrapper"/>
+      </property>
+      <property name="eventService">
+        <ref bean="eventService"/>
+      </property>
+      <property name="eventMaterialService">
+        <ref bean="eventMaterialService"/>
+      </property>
+      <property name="kolCalendarService">
+        <ref bean="kolCalendarService"/>
+      </property>
+    </bean>
+
+  <bean name="/reports.htm"
+          class="com.openq.web.controllers.ReportsController">
+    </bean>
+
+  <bean id="multipartResolver"
+    class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+
+    <!-- one of the properties available; the maximum file size in bytes -->
+    <property name="maxUploadSize">
+        <value>9000000</value>
+    </property>
+  </bean>
+
+	  <bean name="/getBinary.htm"
+          class="com.openq.web.controllers.GetBinaryController">
+          <property name="dataService">
+            <ref bean="dataService"/>
+          </property>
+    </bean>
+
+	  <bean name="/reportsViewer.htm"
+          class="com.openq.web.controllers.ReportsViewerController">
+          <property name="reportService">
+            <ref bean="reportService"/>
+          </property>
+          <property name="dataSource">
+            <ref bean="dataSource"/>
+          </property>
+          <property name="optionService">
+            <ref bean="optionService"/>
+        </property>
+        <property name="userRelationshipService">
+            <ref bean="userRelationshipService"/>
+        </property>
+
+    </bean>
+
+	  <bean name="/reportsUser.htm"
+          class="com.openq.web.controllers.ReportsUserController">
+          <property name="reportService">
+            <ref bean="reportService"/>
+          </property>
+          <property name="optionService">
+            <ref bean="optionService"/>
+          </property>
+    </bean>
+
+	  <bean name="/reportsDisplay.htm"
+          class="com.openq.web.controllers.ReportsDisplayController">
+          <property name="reportService">
+            <ref bean="reportService"/>
+          </property>
+          <property name="reportGroupMapService">
+          <ref bean="reportGroupMapService"/>
+        </property>
+		 <property name="featurePermissionService">
+			<ref bean="featurePermissionService"/>
+		</property>
+    </bean>
+    <bean name="/reportsGroupMap.htm"
+          class="com.openq.web.controllers.ReportsGroupMapController">
+          <property name="reportService">
+            <ref bean="reportService"/>
+          </property>
+          <property name="reportGroupMapService">
+          <ref bean="reportGroupMapService"/>
+        </property>
+        <property name="reportGroupService">
+            <ref bean="reportGroupService"/>
+          </property>
+		 <property name="featurePermissionService">
+			<ref bean="featurePermissionService"/>
+		</property>
+    </bean>
+    <bean name="/reportsAdmin.htm"
+          class="com.openq.web.controllers.ReportsAdminController">
+          <property name="reportService">
+            <ref bean="reportService"/>
+          </property>
+    </bean>
+    <bean name="/event_add.htm"
+          class="com.openq.web.controllers.EventsController">
+        <property name="optionServiceWrapper">
+        <ref bean="optionServiceWrapper"/>
+    </property>
+        <property name="eventService">
+        <ref bean="eventService"/>
+    </property>
+    <property name="userService">
+        <ref bean="userService"/>
+    </property>
+    <property name="eventMaterialService">
+        <ref bean="eventMaterialService"/>
+    </property>
+    </bean>
+   <bean name="/event_schedule.htm"
+          class="com.openq.web.controllers.EventScheduleController">
+        <property name="eventService">
+        <ref bean="eventService"/>
+    </property>
+    <property name="optionServiceWrapper">
+        <ref bean="optionServiceWrapper"/>
+    </property>
+    <property name="userGroupMapService">
+        <ref bean="userGroupMapService"/>
+    </property>
+    </bean>
+    <bean name="/event_search.htm"
+          class="com.openq.web.controllers.SearchEventsController">
+        <property name="optionServiceWrapper">
+        <ref bean="optionServiceWrapper"/>
+    </property>
+        <property name="eventService">
+        <ref bean="eventService"/>
+    </property>
+        <property name="optionService">
+            <ref bean="optionService"/>
+        </property>
+    <property name="groupService">
+      <ref bean="groupService"/>
+        </property>
+    <property name="userGroupMapService">
+      <ref bean="userGroupMapService"/>
+        </property>
+        <property name="dataAuditService">
+          <ref bean="dataAuditService"/>
+        </property>
+    </bean>
+
+     <bean name="/OLAlignment.htm" class="com.openq.web.controllers.OLAlignmentController" >
+      <property name="expertListService">
+            <ref bean="expertlistService"/>
+        </property>
+         <property name="userService">
+        <ref bean="userService"/>
+    </property>
+     </bean>
+
+       <bean name="/orgAlignment.htm" class="com.openq.web.controllers.OrgAlignmentController" >
+      <property name="orgContactsService">
+            <ref bean="orgContactsService"/>
+        </property>
+         <property name="userService">
+		    <ref bean="userService"/>
+		</property>
+		<property name="orgService">
+		    <ref bean="orgService"/>
+		</property>
+     </bean>
+
+     <bean name="/userRelationship.htm" class="com.openq.web.controllers.UserRelationshipController">
+	 	<property name="userRelationshipService">
+            <ref bean="userRelationshipService"/>
+        </property>
+        <property name="userService">
+            <ref bean="userService"/>
+        </property>
+        <property name="optionServiceWrapper">
+            <ref bean="optionServiceWrapper"/>
+        </property>
+       </bean>
+
+
+    <bean name="/search_interaction_main.htm"
+          class="com.openq.web.controllers.InteractionsController">
+        <property name="optionService">
+            <ref bean="optionService"/>
+        </property>
+        <property name="surveyService">
+            <ref bean="surveyService"/>
+        </property>
+        <property name="optionServiceWrapper">
+			<ref bean="optionServiceWrapper"/>
+		</property>
+	    <property name="interactionService">
+            <ref bean="interactionService"/>
+        </property>
+    </bean>
+
+     <bean name="/list.htm"
+          class="com.openq.web.controllers.ListController">
+    </bean>
+
+     <bean name="/grp.htm"
+          class="com.openq.web.controllers.GroupsController">
+    </bean>
+
+    <bean name="/users.htm"
+          class="com.openq.web.controllers.UsersController">
+        <property name="searchUserService">
+            <ref bean="userService"/>
+        </property>
+        <property name="userGroupsService">
+            <ref bean="groupService"/>
+        </property>
+
+        <property name="optionService">
+            <ref bean="optionService"/>
+        </property>
+        <property name="userGroupMapService">
+            <ref bean="userGroupMapService"/>
+        </property>
+     <property name="optionServiceWrapper">
+           <ref bean="optionServiceWrapper"/>
+      </property>
+     <property name="contactsService">
+           <ref bean="contactsService"/>
+      </property>
+    </bean>
+
+    <bean name="/userTree.htm"
+          class="com.openq.web.controllers.UserTreeController">
+    </bean>
+
+    <bean name="/interaction.htm"
+          class="com.openq.web.controllers.KolInteractionController">
+
+        <property name="formView" value="add_interaction_main"/>
+        <property name="successView" value="add_interaction_main"/>
+        <property name="commandName" value="interactionForm"/>
+        <property name="commandClass" value="com.openq.web.forms.InteractionForm"/>
+
+       <property name="optionService">
+            <ref bean="optionService"/>
+        </property>
+       <property name="eventService">
+        	<ref bean="eventService"/>
+    	</property>
+       <property name="surveyService">
+            <ref bean="surveyService"/>
+        </property>
+        <property name="interactionService">
+            <ref bean="interactionService"/>
+        </property>
+       <property name="attendeeService">
+            <ref bean="attendeeService"/>
+        </property>
+        <property name="userService">
+          <ref bean="userService"/>
+        </property>
+     <property name="orgService">
+       <ref bean="orgService"/>
+     </property>
+        <property name="optionServiceWrapper">
+        <ref bean="optionServiceWrapper"/>
+    </property>
+         <property name="interactionDataService">
+        <ref bean="interactionDataService"/>
+    </property>
+        <property name="dataAuditService">
+          <ref bean="dataAuditService"/>
+        </property>
+      </bean>
+
+    <bean name="/organization_search.htm"
+          class="com.openq.web.controllers.OrganizationSearchController">
+       <property name="orgService">
+       <ref bean="orgService"/>
+     </property>
+    </bean>
+
+    <bean name="/admin.htm"
+          class="com.openq.web.controllers.AdminController">
+    </bean>
+    <bean name="/available_calendar.htm"
+          class="com.openq.web.controllers.AvailableCalendarController">
+        <property name="eventService">
+        	<ref bean="eventService"/>
+    	</property>
+    </bean>
+    <bean name="/grpDisplay.htm"
+          class="com.openq.web.controllers.GroupDisplayController">
+        <property name="groupService">
+            <ref bean="groupService"/>
+        </property>
+        <property name="userGroupMapService">
+          <ref bean="userGroupMapService"/>
+        </property>
+    <property name="optionService">
+            <ref bean="optionService"/>
+        </property>
+    <property name="optionServiceWrapper">
+            <ref bean="optionServiceWrapper"/>
+        </property>
+    </bean>
+	<bean name="/reportsGroupDisplay.htm"
+          class="com.openq.web.controllers.ReportsGroupDisplayController">
+        <property name="reportGroupService">
+            <ref bean="reportGroupService"/>
+        </property>
+        <property name="reportGroupMapService">
+          <ref bean="reportGroupMapService"/>
+        </property>
+    <property name="optionService">
+            <ref bean="optionService"/>
+        </property>
+    <property name="optionServiceWrapper">
+            <ref bean="optionServiceWrapper"/>
+        </property>
+	    <property name="featurePermissionService">
+            <ref bean="featurePermissionService"/>
+        </property>
+    </bean>
+
+    <bean name="/grpTree.htm"
+          class="com.openq.web.controllers.GroupTreeController">
+        <property name="groupService">
+            <ref bean="groupService"/>
+        </property>
+    </bean>
+
+  <bean name="/contacts.htm"
+    class="com.openq.web.controllers.AmgenContactController">
+    <property name="contactsService">
+            <ref bean="contactsService"/>
+        </property>
+        <property name="optionServiceWrapper">
+            <ref bean="optionServiceWrapper"/>
+        </property>
+        <property name="optionService">
+            <ref bean="optionService"/>
+        </property>
+        <property name="dataAuditService">
+            <ref bean="dataAuditService"/>
+        </property>
+  </bean>
+
+  <bean name="/ol_org_map.htm"
+    class="com.openq.web.controllers.OlOrgMapController">
+        <property name="orgOlMapService">
+            <ref bean="orgOlMapService"/>
+        </property>
+        <property name="userService">
+            <ref bean="userService"/>
+        </property>
+  </bean>
+
+  <bean name="/trial_to_ol_map.htm"
+    class="com.openq.web.controllers.TrialToOlMapController">
+        <property name="trialOlMapService">
+            <ref bean="trialOlMapService"/>
+        </property>
+        <property name="userService">
+            <ref bean="userService"/>
+        </property>
+  </bean>
+
+  <bean name="/ol_to_trial_map.htm"
+    class="com.openq.web.controllers.OlToTrialMapController">
+        <property name="dataService">
+            <ref bean="dataService"/>
+        </property>
+        <property name="metadataService">
+            <ref bean="metadataService"/>
+        </property>
+        <property name="privilegeService">
+            <ref bean="privilegeService"/>
+        </property>
+        <property name="trialOlMapService">
+            <ref bean="trialOlMapService"/>
+        </property>
+        <property name="trialService">
+            <ref bean="trialService"/>
+        </property>
+        <property name="optionServiceWrapper">
+            <ref bean="optionServiceWrapper"/>
+        </property>
+  </bean>
+
+  <bean name="/related_org.htm"
+    class="com.openq.web.controllers.RelatedOrgController">
+        <property name="orgOlMapService">
+            <ref bean="orgOlMapService"/>
+        </property>
+        <property name="userService">
+            <ref bean="userService"/>
+        </property>
+        <property name="orgService">
+            <ref bean="orgService"/>
+        </property>
+        <property name="dataAuditService">
+            <ref bean="dataAuditService"/>
+        </property>
+        <property name="dataService">
+            <ref bean="dataService"/>
+        </property>
+  </bean>
+
+  <bean name="/org_list.htm"
+    class="com.openq.web.controllers.RelatedOrgController">
+        <property name="orgService">
+            <ref bean="orgService"/>
+        </property>
+        <property name="orgOlMapService">
+            <ref bean="orgOlMapService"/>
+        </property>
+        <property name="dataAuditService">
+            <ref bean="dataAuditService"/>
+        </property>
+        <property name="dataService">
+            <ref bean="dataService"/>
+        </property>
+  </bean>
+
+  <bean name="/ol_list.htm"
+    class="com.openq.web.controllers.OlOrgMapController">
+  </bean>
+
+  <bean name="/contacts_list.htm"
+    class="com.openq.web.controllers.AmgenContactController">
+  </bean>
+
+    <bean name="/grpList.htm"
+          class="com.openq.web.controllers.GroupListController">
+        <property name="groupService">
+            <ref bean="groupService"/>
+        </property>
+        <property name="optionService">
+            <ref bean="optionService"/>
+        </property>
+    </bean>
+	<bean name="/reportList.htm"
+          class="com.openq.web.controllers.ReportListController">
+        <property name="reportGroupService">
+            <ref bean="reportGroupService"/>
+        </property>
+        <property name="optionService">
+            <ref bean="optionService"/>
+        </property>
+    </bean>
+    <bean name="/metadataEdit.htm"
+          class="com.openq.web.controllers.MetadataEditController">
+    </bean>
+
+    <bean name="/metadataTree.htm"
+          class="com.openq.web.controllers.MetadataTreeController">
+        <property name="metadataService">
+            <ref bean="metadataService"/>
+        </property>
+    </bean>
+
+    <bean name="/valueList.htm"
+          class="com.openq.web.controllers.ValueListController">
+        <property name="optionService">
+            <ref bean="optionService"/>
+        </property>
+		 <property name="featurePermissionService">
+			<ref bean="featurePermissionService"/>
+		</property>
+    </bean>
+
+    <bean name="/addAttribute.htm"
+          class="com.openq.web.controllers.AddAttributeController">
+        <property name="metadataService">
+            <ref bean="metadataService"/>
+        </property>
+        <property name="uiHelper">
+            <ref bean="uiHelper"/>
+        </property>
+        <property name="optionService">
+            <ref bean="optionService"/>
+        </property>
+         <property name="privilegeService">
+            <ref bean="privilegeService"/>
+        </property>
+        <property name="groupService">
+          <ref bean="groupService"/>
+        </property>
+    <property name="optionServiceWrapper">
+            <ref bean="optionServiceWrapper"/>
+        </property>
+    </bean>
+	<bean name="/createAttribute.htm"
+          class="com.openq.web.controllers.CreateAttributeController">
+        <property name="metadataService">
+            <ref bean="metadataService"/>
+        </property>
+        <property name="uiHelper">
+            <ref bean="uiHelper"/>
+        </property>
+    </bean>
+
+    <bean name="/editAttribute.htm"
+          class="com.openq.web.controllers.EditAttributeController">
+    </bean>
+
+    <bean name="/createUser.htm"
+          class="com.openq.web.controllers.CreateUserController">
+
+        <property name="optionService">
+            <ref bean="optionService"/>
+        </property>
+    <property name="optionServiceWrapper">
+            <ref bean="optionServiceWrapper"/>
+        </property>
+
+
+    </bean>
+
+    <bean name="/expertlist.htm"
+          class="com.openq.web.controllers.ExpertListController">
+        <property name="expertlistService">
+            <ref bean="expertlistService"/>
+        </property>
+        <property name="expertDetailsService">
+            <ref bean="expertDetailsService"/>
+        </property>
+    </bean>
+
+    <bean name="/expertfullprofile.htm"
+          class="com.openq.web.controllers.ExpertFullProfileController">
+        <property name="metadataService">
+            <ref bean="metadataService"/>
+        </property>
+        <property name="userService">
+            <ref bean="userService"/>
+        </property>
+        <property name="dataService">
+            <ref bean="dataService"/>
+        </property>
+         <property name="privilegeService">
+            <ref bean="privilegeService"/>
+        </property>
+    </bean>
+
+    <bean name="/institutions.htm"
+          class="com.openq.web.controllers.ViewEntityController">
+        <property name="metadataService">
+            <ref bean="metadataService"/>
+        </property>
+        <property name="dataService">
+            <ref bean="dataService"/>
+        </property>
+    </bean>
+
+    <bean name="/trials.htm"
+          class="com.openq.web.controllers.TrialViewController">
+        <property name="metadataService">
+            <ref bean="metadataService"/>
+        </property>
+        <property name="dataService">
+            <ref bean="dataService"/>
+        </property>
+    </bean>
+
+    <bean name="/innerProfilePage.htm"
+          class="com.openq.web.controllers.InnerProfilePageController">
+        <property name="metadataService">
+            <ref bean="metadataService"/>
+        </property>
+        <property name="dataService">
+            <ref bean="dataService"/>
+        </property>
+         <property name="privilegeService">
+            <ref bean="privilegeService"/>
+        </property>
+         <property name="notifyService">
+            <ref bean="notifyService"/>
+        </property>
+        <property name="userPreferenceService">
+            <ref bean="userPreferenceService"/>
+        </property>
+  </bean>
+
+    <bean name="/showBasicAttributes.htm"
+          class="com.openq.web.controllers.ShowBasicAttributesController">
+        <property name="metadataService">
+            <ref bean="metadataService"/>
+        </property>
+        <property name="dataService">
+            <ref bean="dataService"/>
+        </property>
+        <property name="auditService">
+            <ref bean="auditService"/>
+        </property>
+        <property name="dataAuditService">
+            <ref bean="dataAuditService"/>
+        </property>
+         <property name="privilegeService">
+            <ref bean="privilegeService"/>
+        </property>
+    <property name="userGroupMapService">
+      <ref bean="userGroupMapService"/>
+        </property>
+    </bean>
+
+    <bean name="/editProfileAttributes.htm"
+          class="com.openq.web.controllers.EditProfileAttributesController">
+        <property name="metadataService">
+            <ref bean="metadataService"/>
+        </property>
+        <property name="dataService">
+            <ref bean="dataService"/>
+        </property>
+        <property name="optionService">
+            <ref bean="optionService"/>
+        </property>
+        <property name="userService">
+            <ref bean="userService"/>
+        </property>
+         <property name="hibernateUtilService">
+            <ref bean="hibernateUtilService"/>
+        </property>
+    </bean>
+
+    <bean name="/advOrgSearch.htm"
+          class="com.openq.web.controllers.AdvancedOrgSerchController">
+        <property name="orgService">
+            <ref bean="orgService"/>
+        </property>
+        <property name="optionServiceWrapper">
+            <ref bean="optionServiceWrapper"/>
+        </property>
+        <!-- property name="organizationName" value="151"/>
+      <property name="organizationAcroNym" value="152"/>
+      <property name="organizationCountry" value="166"/>
+      <property name="organizationState" value="164"/>
+      <property name="organizationType" value="153"/>
+      <property name="organizationMajorSeg" value="154"/>
+      <property name="organizationMinorSeg" value="155"/-->
+        <property name="organizationName" value="118"/>
+        <property name="organizationAcroNym" value="119"/>
+        <property name="organizationCountry" value="133"/>
+        <property name="organizationState" value="131"/>
+        <property name="organizationType" value="120"/>
+        <property name="organizationMajorSeg" value="121"/>
+        <property name="organizationMinorSeg" value="122"/>
+    </bean>
+
+    <bean name="/advTrialSearch.htm"
+          class="com.openq.web.controllers.AdvancedTrialSearchController">
+        <property name="trialService">
+            <ref bean="trialService"/>
+        </property>
+        <property name="optionServiceWrapper">
+            <ref bean="optionServiceWrapper"/>
+        </property>
+    </bean>
+
+    <bean name="/expert_map.htm"
+          class="com.openq.web.controllers.ExpertMapActionController">
+        <property name="userService">
+            <ref bean="userService"/>
+        </property>
+    </bean>
+
+    <bean name="/geocode_experts.htm"
+          class="com.openq.web.controllers.GeocodeExpertsController">
+        <property name="userService">
+            <ref bean="userService"/>
+        </property>
+        <property name="geocodeService">
+            <ref bean="geocodeService"/>
+        </property>
+        <property name="commandName" value="geocodeExpertsForm"/>
+        <property name="commandClass" value="com.openq.web.forms.GeocodeExpertsForm"/>
+    </bean>
+
+	<bean name="/keyword_pubmed_crawler.htm"
+          class="com.openq.web.controllers.KeywordCrawlerController">
+         <property name="networkMapDataService">
+            <ref bean="networkMapDataService"/>
+         </property>
+		 <property name="commandName" value="keywordCrawlerForm"/>
+         <property name="commandClass" value="com.openq.web.forms.KeywordCrawlerForm"/>
+    </bean>
+
+	<bean name="/keyword_crawl_results.htm"
+          class="com.openq.web.controllers.KeywordCrawlResultsController">
+         <property name="networkMapDataService">
+            <ref bean="networkMapDataService"/>
+         </property>
+    </bean>
+
+    <bean name="/printSummaryProfile.htm"
+          class="com.openq.web.controllers.PrintSummaryProfileController">
+         <property name="dataService">
+            <ref bean="dataService"/>
+         </property>
+         <property name="metadataService">
+            <ref bean="metadataService"/>
+         </property>
+          <property name="interactionService">
+            <ref bean="interactionService"/>
+          </property>
+          <property name="userService">
+            <ref bean="userService"/>
+          </property>
+        <property name="contactsService">
+           <ref bean="contactsService"/>
+        </property>
+        <property name="orgOlMapService">
+            <ref bean="orgOlMapService"/>
+        </property>
+        <property name="orgService">
+            <ref bean="orgService"/>
+        </property>
+        <property name="optionServiceWrapper">
+        	<ref bean="optionServiceWrapper"/>
+        </property>
+        <property name="entityDetailsService">
+        	<ref bean="entityDetailsService"/>
+        </property>
+		<property name="expertDetailsService">
+        	<ref bean="expertDetailsService"/>
+        </property>
+
+    </bean>
+
+	<bean name="/mobileHandler.htm"
+          class="com.openq.web.controllers.MobileController">
+        <property name="userService">
+            <ref bean="userService"/>
+        </property>
+        <property name="dataService">
+            <ref bean="dataService"/>
+        </property>
+        <property name="metadataService">
+            <ref bean="metadataService"/>
+        </property>
+        <property name="expertlistService">
+            <ref bean="expertlistService"/>
+        </property>
+        <property name="interactionService">
+        	<ref bean="interactionService"/>
+        </property>
+        <property name="attendeeService">
+        	<ref bean="attendeeService"/>
+        </property>
+        <property name="optionServiceWrapper">
+        	<ref bean="optionServiceWrapper"/>
+        </property>
+		<property name="interactionDataService">
+        	<ref bean="interactionDataService"/>
+        </property>
+    </bean>
+
+	<bean name="/timeReport.htm"
+          class="com.openq.web.controllers.TimeReportController">
+		<property name="timeReportService">
+            <ref bean="timeReportService"/>
+        </property>
+        <property name="optionServiceWrapper">
+		    <ref bean="optionServiceWrapper"/>
+		</property>
+    </bean>
+
+    <bean name="/userPreference.htm"
+          class="com.openq.web.controllers.UserPreferenceController">
+        <property name="userPreferenceService">
+            <ref bean="userPreferenceService"/>
+        </property>
+	</bean>
+
+	 <bean name="/selectGroupsForPermission.htm"
+    class="com.openq.web.controllers.SelectGroupsForPermissionController">
+	<property name="featurePermissionService">
+		<ref bean="featurePermissionService"/>
+	</property>
+	<property name="groupService">
+		<ref bean="groupService"/>
+	</property>
+   </bean>
+	<bean name="/globalConstants.htm"
+          class="com.openq.web.controllers.GlobalConstantsController">
+      <property name="globalConstantsService">
+            <ref bean="globalConstantsService"/>
+      </property>
+    </bean>
+
+	<bean name="/populateChildLOV.htm"
+          class="com.openq.web.controllers.PopulateChildLOVController">
+      <property name="optionService">
+            <ref bean="optionService"/>
+      </property>
+    </bean>
+
+	<bean name="/relatedSurvey.htm"
+    class="com.openq.web.controllers.RelatedSurveyController">
+	<property name="userService">
+		<ref bean="userService"/>
+	</property>
+	<property name="surveyService">
+		<ref bean="surveyService"/>
+	</property>
+   </bean>
+
+
+
+
+	<bean id="ldapAuthenticationService" class="com.openq.authentication.ldap.LdapAuthenticationService">
+    </bean>
+
+    <bean id="dbAuthenticationService" class="com.openq.authentication.db.DbAuthenticationService">
+        <property name="userService">
+            <ref bean="userService"/>
+        </property>
+
+    </bean>
+
+    <bean id="authenticationServiceProvider" class="com.openq.authentication.AuthenticationServiceProvider">
+        <property name="ldapAuthenticationService">
+            <ref bean="ldapAuthenticationService"/>
+        </property>
+        <property name="dbAuthenticationService">
+            <ref bean="dbAuthenticationService"/>
+        </property>
+    </bean>
+<!--bean id="dataSource"
+                class="org.apache.commons.dbcp.BasicDataSource"
+                destroy-method="close">
+                <property name="driverClassName" value="${jdbc.driverClassName}" />
+                <property name="url" value="${jdbc.url}" />
+                <property name="username" value="${jdbc.username}" />
+                <property name="password" value="${jdbc.password}" />
+                <property name="initialSize" value="10" />
+                <property name="maxActive" value="10" />
+                <property name="minIdle" value="5" />
+                <property name="poolPreparedStatements" value="false" />
+                <property name="defaultAutoCommit" value="false" />
+        </bean-->
+<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+<property name="driverClassName" value="${jdbc.driverClassName}"/>
+<property name="url" value="${jdbc.url}"/>
+<property name="username" value="${jdbc.username}"/>
+<property name="password" value="${jdbc.password}"/>
+</bean>
+    <bean id="propertyConfigurer"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>/WEB-INF/classes/resources/ServerConfig.properties</value>
+                <value>/WEB-INF/classes/resources/jdbc.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="hibernateMappingResources" class="org.springframework.beans.factory.config.ListFactoryBean">
+        <property name="sourceList">
+            <list>
+                <value>hbm/AuditLogRecord.hbm.xml</value>
+                <value>hbm/Attendee.hbm.xml</value>
+                <value>hbm/Contacts.hbm.xml</value>
+                <value>hbm/Data.hbm.xml</value>
+                <value>hbm/Expertlist.hbm.xml</value>
+                <value>hbm/Group.hbm.xml</value>
+                <value>hbm/Interaction.hbm.xml</value>
+                <value>hbm/Metadata.hbm.xml</value>
+                <value>hbm/Option.hbm.xml</value>
+                <value>hbm/User.hbm.xml</value>
+                <value>hbm/UserAddress.hbm.xml</value>
+                <value>hbm/UserGroupMap.hbm.xml</value>
+                <value>hbm/AuditInfo.hbm.xml</value>
+                <value>hbm/OrgOLMap.hbm.xml</value>
+                <value>hbm/EventEntity.hbm.xml</value>
+                <value>hbm/TrialOlMap.hbm.xml</value> <!-- Entry for the Trial OL Map bean -->
+                <value>hbm/Privilege.hbm.xml</value> <!-- Entry for the privilege bean -->
+                <value>hbm/AsynchPubMedCrawlerJob.hbm.xml</value>
+                <value>hbm/AsynchPubMedCrawlerJobItem.hbm.xml</value>
+                <value>hbm/ExpertTADetails.hbm.xml</value>
+                <value>hbm/KeywordCrawlResult.hbm.xml</value>
+                <value>hbm/KeywordCategory.hbm.xml</value>
+                <value>hbm/AsynchGeocodeItem.hbm.xml</value>
+                <value>hbm/AsynchGeocodeJob.hbm.xml</value>
+                <value>hbm/EventAttendee.hbm.xml</value>
+                <value>hbm/SpecialtyView.hbm.xml</value>
+                <value>hbm/LocationView.hbm.xml</value>
+                <value>hbm/PrimaryLocationView.hbm.xml</value>
+                <value>hbm/HomeUserView.hbm.xml</value>
+                <value>hbm/HomeUserPhoneView.hbm.xml</value>
+                <value>hbm/HomeUserAddressView.hbm.xml</value>
+                <value>hbm/InteractionData.hbm.xml</value>
+                <value>hbm/OlTotalPubs.hbm.xml</value>
+                <value>hbm/OvidDb.hbm.xml</value>
+                <value>hbm/Publications.hbm.xml</value>
+                <value>hbm/request.hbm.xml</value>
+                <value>hbm/CmaPubOl.hbm.xml</value>
+                <value>hbm/OlPublicationSummaryDTO.hbm.xml</value>
+                <value>hbm/Alert.hbm.xml</value>
+                <value>hbm/Operator.hbm.xml</value>
+                <value>hbm/AlertDetail.hbm.xml</value>
+                <value>hbm/EmailTemplate.hbm.xml</value>
+                <value>hbm/Recipient.hbm.xml</value>
+                <value>hbm/AlertQueue.hbm.xml</value>
+                <value>hbm/AlertAuditQueue.hbm.xml</value>
+                <value>hbm/Report.hbm.xml</value>
+                <value>hbm/EventMaterial.hbm.xml</value>
+                <value>hbm/KolCalendar.hbm.xml</value>
+                <value>hbm/ReportGroups.hbm.xml</value>
+                <value>hbm/ReportGroupMap.hbm.xml</value>
+                <value>hbm/survey.hbm.xml</value>
+                <value>hbm/TimeReport.hbm.xml</value>
+                <value>hbm/OrgContacts.hbm.xml</value>
+                <value>hbm/UserRelationship.hbm.xml</value>
+                <value>hbm/Notify.hbm.xml</value>
+                <value>hbm/ChangeNotify.hbm.xml</value>
+                <value>hbm/NewSurvey.hbm.xml</value>
+                <value>hbm/GlobalConstants.hbm.xml</value>
+                <value>hbm/UserPreference.hbm.xml</value>
+                <value>hbm/FeaturePermissionMetadata.hbm.xml</value>
+                <value>hbm/FeatureUsergroupMap.hbm.xml</value>
+				<value>hbm/InteractionTripletSectionMap.hbm.xml</value>
+				<value>hbm/InteractionSearchView.hbm.xml</value>
+                <value>hbm/OrganizationView.hbm.xml</value>
+                <value>hbm/ExpertDetails.hbm.xml</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate.LocalSessionFactoryBean" depends-on="dataSource">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mappingResources">
+            <ref bean="hibernateMappingResources" />
+        </property>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">net.sf.hibernate.dialect.Oracle9Dialect</prop>
+                <!--prop key="hibernate.dialect">net.sf.hibernate.dialect.MySQLDialect</prop-->
+
+                <!-- Echo all executed SQL to stdout -->
+                <!--prop key="hibernate.show_sql">true</prop-->
+                <prop key="hibernate.cglib.use_reflection_optimizer">false</prop>
+
+          <prop key="hibernate.c3p0.minPoolSize">5</prop>
+            <prop key="hibernate.c3p0.maxPoolSize">20</prop>
+                <prop key="hibernate.c3p0.timeout">100</prop>
+
+                 <prop key="hibernate.cache.use_query_cache ">false</prop>
+                 <prop key="hibernate.cache.use_minimal_puts">false</prop>
+                <!-- Drop and re-create the database schema on startup -->
+                <!--prop key="hibernate.hbm2ddl.auto">create-drop</prop-->
+
+                <!--prop key="hibernate.cache.provider_class">net.sf.hibernate.cache.EhCacheProvider</prop-->
+            </props>
+        </property>
+        <!-- Enable the entity interceptor on the session factory -->
+        <property name="entityInterceptor"><ref local="auditLogInterceptor"/></property>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.orm.hibernate.HibernateTransactionManager"
+          depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="metadataServiceTarget" class="com.openq.eav.metadata.MetadataService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="metadataService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="metadataServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="create*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="eventMaterialServiceTarget" class="com.openq.event.materials.EventMaterialService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="eventMaterialService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="eventMaterialServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+
+    <bean id="orgOlMapServiceTarget" class="com.openq.eav.org.OrgOlMapService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="orgOlMapService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="orgOlMapServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+	<bean id="slideMergeServiceTarget" class="com.openq.presentation.SlideMergeService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="slideMergeService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="slideMergeServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                 <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+                 <prop key="set*">PROPAGATION_REQUIRED</prop>
+                 <prop key="save*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+    </bean>
+    <bean id="surveyServiceTarget" class="com.openq.survey.SurveyService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="featurePermissionService">
+		<ref bean="featurePermissionService"/>
+	</property>
+    </bean>
+
+    <bean id="surveyService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="surveyServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                 <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+                 <prop key="set*">PROPAGATION_REQUIRED</prop>
+                 <prop key="save*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+    </bean>
+    <bean id="trialOlMapServiceTarget" class="com.openq.eav.trials.TrialOlMapService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="trialOlMapService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="trialOlMapServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="optionServiceTarget" class="com.openq.eav.option.OptionService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+		<property name="featurePermissionService">
+			<ref bean="featurePermissionService"/>
+		</property>
+    </bean>
+
+    <bean id="optionService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="optionServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="contactsServiceTarget" class="com.openq.contacts.ContactsService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="userService">
+            <ref bean="userService"/>
+        </property>
+    </bean>
+
+
+  <bean id="contactsService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+    <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="contactsServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+        <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+
+    <bean id="expertlistServiceTarget" class="com.openq.eav.expert.ExpertListService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+         <property name="dataService">
+            <ref bean="dataService"/>
+        </property>
+    </bean>
+
+    <bean id="expertlistService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="expertlistServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="search*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+	<bean id="expertDetailsServiceTarget" class="com.openq.eav.expert.ExpertDetailsService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="expertDetailsService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="expertDetailsServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="search*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="entitySearchServiceTarget" class="com.openq.eav.entitySearch.EntitySearchService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="dataService">
+            <ref bean="dataService"/>
+        </property><property name="orgService">
+            <ref bean="orgService"/>
+        </property><property name="trialService">
+            <ref bean="trialService"/>
+        </property>
+        <property name="metadataService">
+            <ref bean="metadataService"/>
+        </property>
+        <property name="userService">
+            <ref bean="userService"/>
+        </property>
+                <property name="featureSearchPermissionService">
+            <ref bean="featurePermissionService"/>
+        </property>
+    </bean>
+
+
+     <bean id="orgContactsService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+  		<property name="transactionManager" ref="transactionManager"/>
+  		<property name="target" ref="orgContactsServiceTarget"/>
+  		<property name="transactionAttributes">
+    		<props>
+      			<prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+    	</property>
+	</bean>
+
+		<bean id="orgContactsServiceTarget" class="com.openq.orgContacts.OrgContactsService" depends-on="sessionFactory">
+		<property name="sessionFactory" ref="sessionFactory"/>
+		<property name="orgService">
+            <ref bean="orgService"/>
+        </property>
+        <property name="userService">
+            <ref bean="userService"/>
+        </property>
+        <property name="dataService">
+            <ref bean="dataService"/>
+        </property>
+	</bean>
+
+    <bean id="userRelationshipService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+  		<property name="transactionManager" ref="transactionManager"/>
+  		<property name="target" ref="userRelationshipServiceTarget"/>
+  		<property name="transactionAttributes">
+    		<props>
+      			<prop key="search*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="save*">PROPAGATION_REQUIRED</prop>
+      			<prop key="add*">PROPAGATION_REQUIRED</prop>
+      			<prop key="delete*">PROPAGATION_REQUIRED</prop>
+      			<prop key="update*">PROPAGATION_REQUIRED</prop>
+      			<prop key="create*">PROPAGATION_REQUIRED</prop>
+    		</props>
+       </property>
+	</bean>
+
+     <bean id="userRelationshipServiceTarget" class="com.openq.interactionData.UserRelationshipService" depends-on="sessionFactory">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+
+
+
+    <bean id="entitySearchService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="entitySearchServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="search*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="dataServiceTarget" class="com.openq.eav.data.DataService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="metadataService" ref="metadataService"/>
+        <property name="auditService" ref="auditService"/>
+        <property name="hibernateUtilService" ref="hibernateUtilService"/>
+    </bean>
+
+    <bean id="dataService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="dataServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="create*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="reportServiceTarget" class="com.openq.report.ReportService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+		<property name="featurePermissionService">
+			<ref bean="featurePermissionService"/>
+		</property>
+    </bean>
+
+    <bean id="reportService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="reportServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="create*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+    <bean id="auditServiceTarget" class="com.openq.eav.audit.AuditService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="auditService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="auditServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!-- Define the Data Auditing Service -->
+    <bean id="dataAuditServiceTarget" class="com.openq.audit.DataAuditService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="userService" ref="userService"/>
+    </bean>
+
+    <bean id="dataAuditService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="dataAuditServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="groupServiceTarget" class="com.openq.group.GroupService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+
+    <bean id="groupService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="groupServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="userServiceTarget" class="com.openq.user.UserService" depends-on="sessionFactory">
+    <property name="sessionFactory" ref="sessionFactory"/>
+
+        <property name="metadataService">
+            <ref bean="metadataService"/>
+        </property>
+        <property name="dataService">
+            <ref bean="dataService"/>
+        </property>
+
+  </bean>
+
+  <bean id="userService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager" ref="transactionManager"/>
+      <property name="target" ref="userServiceTarget"/>
+      <property name="transactionAttributes">
+        <props>
+            <prop key="save*">PROPAGATION_REQUIRED</prop>
+            <prop key="add*">PROPAGATION_REQUIRED</prop>
+            <prop key="delete*">PROPAGATION_REQUIRED</prop>
+            <prop key="update*">PROPAGATION_REQUIRED</prop>
+            <prop key="create*">PROPAGATION_REQUIRED</prop>
+            <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            <prop key="search*">PROPAGATION_REQUIRED,readOnly</prop>
+        </props>
+      </property>
+  </bean>
+
+  <bean id="interactionServiceTarget" class="com.openq.interaction.InteractionService" depends-on="sessionFactory">
+    <property name="sessionFactory" ref="sessionFactory"/>
+      <property name="attendeeService" ref="attendeeService" />
+  </bean>
+
+
+
+    <bean id="interactionService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager" ref="transactionManager"/>
+      <property name="target" ref="interactionServiceTarget"/>
+      <property name="transactionAttributes">
+        <props>
+            <prop key="save*">PROPAGATION_REQUIRED</prop>
+            <prop key="add*">PROPAGATION_REQUIRED</prop>
+            <prop key="delete*">PROPAGATION_REQUIRED</prop>
+            <prop key="update*">PROPAGATION_REQUIRED</prop>
+            <prop key="create*">PROPAGATION_REQUIRED</prop>
+            <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="is*">PROPAGATION_REQUIRED,readOnly</prop>
+            <prop key="search*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+      </property>
+  </bean>
+
+  <bean id="eventServiceTarget" class="com.openq.event.EventService" depends-on="sessionFactory">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="optionService">
+		<ref bean="optionService"/>
+	</property>
+  </bean>
+
+  <bean id="eventService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager" ref="transactionManager"/>
+      <property name="target" ref="eventServiceTarget"/>
+      <property name="transactionAttributes">
+        <props>
+            <prop key="save*">PROPAGATION_REQUIRED</prop>
+            <prop key="add*">PROPAGATION_REQUIRED</prop>
+            <prop key="delete*">PROPAGATION_REQUIRED</prop>
+            <prop key="update*">PROPAGATION_REQUIRED</prop>
+            <prop key="create*">PROPAGATION_REQUIRED</prop>
+            <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            <prop key="is*">PROPAGATION_REQUIRED,readOnly</prop>
+            <prop key="search*">PROPAGATION_REQUIRED,readOnly</prop>
+        </props>
+      </property>
+  </bean>
+
+
+
+
+
+
+
+  <bean id="kolCalendarServiceTarget" class="com.openq.event.KolCalendarService" depends-on="sessionFactory">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+  <bean id="kolCalendarService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager" ref="transactionManager"/>
+      <property name="target" ref="kolCalendarServiceTarget"/>
+      <property name="transactionAttributes">
+        <props>
+            <prop key="save*">PROPAGATION_REQUIRED</prop>
+            <prop key="add*">PROPAGATION_REQUIRED</prop>
+            <prop key="delete*">PROPAGATION_REQUIRED</prop>
+            <prop key="update*">PROPAGATION_REQUIRED</prop>
+            <prop key="create*">PROPAGATION_REQUIRED</prop>
+            <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            <prop key="is*">PROPAGATION_REQUIRED,readOnly</prop>
+            <prop key="search*">PROPAGATION_REQUIRED,readOnly</prop>
+        </props>
+      </property>
+  </bean>
+
+
+    <bean id="attendeeServiceTarget" class="com.openq.attendee.AttendeeService" depends-on="sessionFactory">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+     <bean id="interactionDataServiceTarget" class="com.openq.interactionData.InteractionDataService" depends-on="sessionFactory">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+    <bean id="attendeeService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager" ref="transactionManager"/>
+      <property name="target" ref="attendeeServiceTarget"/>
+      <property name="transactionAttributes">
+        <props>
+            <prop key="save*">PROPAGATION_REQUIRED</prop>
+            <prop key="add*">PROPAGATION_REQUIRED</prop>
+            <prop key="delete*">PROPAGATION_REQUIRED</prop>
+            <prop key="update*">PROPAGATION_REQUIRED</prop>
+            <prop key="create*">PROPAGATION_REQUIRED</prop>
+            <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+        </props>
+      </property>
+  </bean>
+
+    <bean id="interactionDataService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager" ref="transactionManager"/>
+      <property name="target" ref="interactionDataServiceTarget"/>
+      <property name="transactionAttributes">
+        <props>
+            <prop key="add*">PROPAGATION_REQUIRED</prop>
+            <prop key="delete*">PROPAGATION_REQUIRED</prop>
+            <prop key="create*">PROPAGATION_REQUIRED</prop>
+            <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+        </props>
+      </property>
+  </bean>
+  <bean id="userGroupMapServiceTarget" class="com.openq.group.UserGroupMapService" depends-on="sessionFactory">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="groupService" ref="groupService" />
+  </bean>
+
+  <bean id="userGroupMapService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager" ref="transactionManager"/>
+      <property name="target" ref="userGroupMapServiceTarget"/>
+      <property name="transactionAttributes">
+        <props>
+            <prop key="save*">PROPAGATION_REQUIRED</prop>
+            <prop key="add*">PROPAGATION_REQUIRED</prop>
+            <prop key="delete*">PROPAGATION_REQUIRED</prop>
+            <prop key="update*">PROPAGATION_REQUIRED</prop>
+            <prop key="create*">PROPAGATION_REQUIRED</prop>
+            <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+        </props>
+      </property>
+  </bean>
+
+  <bean id="reportGroupServiceTarget" class="com.openq.report.ReportGroupService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+
+    <bean id="reportGroupService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="reportGroupServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+<bean id="reportGroupMapServiceTarget" class="com.openq.report.ReportGroupMapService" depends-on="sessionFactory">
+    <property name="sessionFactory" ref="sessionFactory"/>
+	<property name="featurePermissionService">
+		<ref bean="featurePermissionService"/>
+	</property>
+  </bean>
+
+<bean id="reportGroupMapService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager" ref="transactionManager"/>
+      <property name="target" ref="reportGroupMapServiceTarget"/>
+      <property name="transactionAttributes">
+        <props>
+            <prop key="save*">PROPAGATION_REQUIRED</prop>
+            <prop key="add*">PROPAGATION_REQUIRED</prop>
+            <prop key="delete*">PROPAGATION_REQUIRED</prop>
+            <prop key="update*">PROPAGATION_REQUIRED</prop>
+            <prop key="create*">PROPAGATION_REQUIRED</prop>
+            <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+        </props>
+      </property>
+  </bean>
+  <bean id="orgServiceTarget" class="com.openq.eav.org.OrganizationService" depends-on="sessionFactory">
+    <property name="sessionFactory" ref="sessionFactory"/>
+      <property name="dataService" ref="dataService" />
+        <property name="optionService" ref="optionService" />
+    </bean>
+
+  <bean id="orgService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager" ref="transactionManager"/>
+      <property name="target" ref="orgServiceTarget"/>
+      <property name="transactionAttributes">
+        <props>
+            <prop key="search*">PROPAGATION_REQUIRED,readOnly</prop>
+        </props>
+      </property>
+  </bean>
+  <!-- Hibernate util service-->
+   <bean id="hibernateUtilServiceTarget" class="com.openq.utils.HibernateUtilService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="hibernateUtilService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="hibernateUtilServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+               <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+  <bean id="trialServiceTarget" class="com.openq.eav.trials.TrialService" depends-on="sessionFactory">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="dataService">
+        <ref bean="dataService"/>
+    </property>
+    <property name="optionService">
+        <ref bean="optionService"/>
+    </property>
+  </bean>
+
+  <bean id="trialService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager" ref="transactionManager"/>
+      <property name="target" ref="trialServiceTarget"/>
+      <property name="transactionAttributes">
+        <props>
+            <prop key="search*">PROPAGATION_REQUIRED,readOnly</prop>
+        </props>
+      </property>
+  </bean>
+
+  <bean name="/advanced_org_search.htm"
+        class="com.openq.web.controllers.AdvancedOrgSerchController">
+      <property name="optionServiceWrapper">
+           <ref bean="optionServiceWrapper"/>
+      </property>
+  </bean>
+
+  <bean name="/advanced_trial_search.htm"
+        class="com.openq.web.controllers.AdvancedTrialSearchController">
+      <property name="optionServiceWrapper">
+           <ref bean="optionServiceWrapper"/>
+      </property>
+  </bean>
+
+  <bean name="/materialList.htm"
+       class="com.openq.web.controllers.MaterialListController">
+        <property name="eventMaterialService">
+        <ref bean="eventMaterialService"/>
+        </property>
+   </bean>
+
+    <bean id="optionServiceWrapperTarget" class="com.openq.eav.option.OptionServiceWrapper" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="groupMapService" ref="userGroupMapService" />
+        <property name="groupService" ref="groupService" />
+    </bean>
+
+    <bean id="optionServiceWrapper" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="optionServiceWrapperTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+
+
+
+  <bean id="olTotalPubsServiceTarget" class="com.openq.publication.data.OlTotalPubsService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="olTotalPubsService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="olTotalPubsServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                 <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="ovidDbServiceTarget" class="com.openq.publication.data.OvidDbService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="ovidDbService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="ovidDbServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                 <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="publicationsServiceTarget" class="com.openq.publication.data.PublicationsService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="publicationsService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="publicationsServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                 <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="requestServiceTarget" class="com.openq.publication.data.RequestService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="requestService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="requestServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                 <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+  <bean id="cmaPubOlServiceTarget" class="com.openq.publication.data.CmaPubOlService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="cmaPubOlService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="cmaPubOlServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                 <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="olPubSummaryServiceTarget" class="com.openq.publication.data.OlPubSummaryService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="olPuSummaryService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="olPubSummaryServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                 <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+     <bean id="alertsServiceTarget" class="com.openq.alerts.AlertsService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="metadataService" ref="metadataService"/>
+    </bean>
+
+    <bean id="alertsService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="alertsServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                 <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+
+    <!--  Batch Notification -->
+    <bean id="notificationServiceTarget" class="com.openq.batchNotification.NotificationService" depends-on="sessionFactory">
+        <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="userService" ref="userService" />
+        <property name="interactionService" ref="interactionService"/>
+        <property name="attendeeService" ref="attendeeService"/>
+        <property name="userPreferenceService" ref="userPreferenceService"/>
+         <property name="alertsService" ref="alertsService"/>
+    </bean>
+
+
+
+   <bean id="notificationService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="target" ref="notificationServiceTarget"/>
+        <property name="transactionAttributes">
+            <props>
+                 <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+
+
+    <!-- WhitePage Processor -->
+
+
+
+
+       <bean id="ovidClient" class="com.openq.publication.ovidClient.OvidClient">
+        <property name="userService">
+            <ref bean="userService"/>
+        </property>
+        <property name="olTotalPubsService">
+          <ref bean="olTotalPubsService" />
+        </property>
+        <property name="ovidDbService">
+            <ref bean="ovidDbService" />
+        </property>
+        <property name="publicationsService">
+            <ref bean="publicationsService" />
+        </property>
+        <property name="requestService">
+          <ref bean="requestService" />
+        </property>
+         <property name="cmaPubOlService">
+          <ref bean="cmaPubOlService" />
+        </property>
+        <property name="olPubSummaryService">
+          <ref bean="olPuSummaryService" />
+        </property>
+    </bean>
+
+    <bean id="uiHelper" class="com.openq.web.controllers.helpers.UIHelper" depends-on="groupService">
+        <property name="groupService" ref="groupService"/>
+        <property name="optionService">
+            <ref bean="optionService"/>
+        </property>
+    </bean>
+
+    <bean id="viewResolver"
+          class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix">
+            <value>/</value>
+        </property>
+        <property name="suffix">
+            <value>.jsp</value>
+        </property>
+    </bean>
+
+    <!-- Define the Privilege Service -->
+    <bean id="privilegeServiceTarget" class="com.openq.authorization.PrivilegeService" depends-on="sessionFactory">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="groupService" ref="groupService" />
+    <property name="userGroupMapService" ref="userGroupMapService" />
+    <property name="userService" ref="userService" />
+  </bean>
+
+  <bean id="privilegeService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager" ref="transactionManager"/>
+      <property name="target" ref="privilegeServiceTarget"/>
+      <property name="transactionAttributes">
+        <props>
+            <prop key="set*">PROPAGATION_REQUIRED</prop>
+            <prop key="add*">PROPAGATION_REQUIRED</prop>
+            <prop key="update*">PROPAGATION_REQUIRED</prop>
+            <prop key="delete*">PROPAGATION_REQUIRED</prop>
+            <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            <prop key="is*">PROPAGATION_REQUIRED,readOnly</prop>
+        </props>
+      </property>
+  </bean>
+ <!-- Encryption -->
+ <bean id="encryptPasswordService" class="com.openq.encription.EncryptPasswordService" depends-on="sessionFactory">
+  	<!--  	 <property name="sessionFactory" ref="sessionFactory"/>-->
+
+<!--       <property name="target" ref="encryptPasswordServiceTarget"/> -->
+
+  </bean>
+
+  <!--<bean id="encryptPasswordServiceTarget" class="com.openq.encription.EncryptPasswordService" depends-on="sessionFactory">
+  <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+
+  --><!-- Define the Feature Access Service -->
+  <bean id="featureAccessServiceTarget" class="com.openq.authorization.FeatureAccessService">
+  </bean>
+
+  <bean id="featureAccessService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager" ref="transactionManager"/>
+      <property name="target" ref="featureAccessServiceTarget"/>
+      <property name="transactionAttributes">
+        <props>
+            <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            <prop key="is*">PROPAGATION_REQUIRED,readOnly</prop>
+        </props>
+      </property>
+  </bean>
+
+  <!-- Define the Pubmed Article Service -->
+
+  <bean id="pubMedCrawlerServiceTarget" class="com.openq.pubmed.PubMedCrawlerService" depends-on="sessionFactory">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="dataService" ref="dataService"/>
+    <property name="metadataService" ref="metadataService"/>
+    <property name="auditService" ref="auditService"/>
+  </bean>
+  
+  <bean id="pubMedCrawlerService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager" ref="transactionManager"/>
+      <property name="target" ref="pubMedCrawlerServiceTarget"/>
+      <property name="transactionAttributes">
+        <props>
+            <prop key="set*">PROPAGATION_REQUIRED</prop>
+            <prop key="add*">PROPAGATION_REQUIRED</prop>
+            <prop key="update*">PROPAGATION_REQUIRED</prop>
+            <prop key="delete*">PROPAGATION_REQUIRED</prop>
+            <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            <prop key="is*">PROPAGATION_REQUIRED,readOnly</prop>
+        </props>
+      </property>
+  </bean>
+
+  <!-- Background scheduler for PubMedCrawler -->
+  <bean id="pubMedCrawlerScheduler" class="com.openq.pubmed.PubMedBackgroundSchedulerThread">
+    <property name="dataService" ref="dataService" />
+    <property name="userService" ref="userService" />
+    <property name="pubMedCrawlerService" ref="pubMedCrawlerService" />
+  </bean>
+
+  <bean id="pubMedCrawlerScheduledTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+    <!-- wait 10 seconds before starting repeated execution -->
+    <property name="delay" value="10000" />
+    <!-- run 10 mins -->
+    <property name="period" value="600000" />
+    <property name="timerTask" ref="pubMedCrawlerScheduler" />
+  </bean>
+
+  <!-- Background scheduler for PubMedCrawler -->
+  <bean id="updateAsynchPubmedJobScheduler" class="com.openq.pubmed.UpdateAsynchPubmedJobThread">
+    <property name="dataService" ref="dataService" />
+    <property name="userService" ref="userService" />
+    <property name="pubMedCrawlerService" ref="pubMedCrawlerService" />
+  </bean>
+
+  <bean id="updateAsynchPubmedJobScheduledTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+    <!-- wait 10 seconds before starting repeated execution -->
+    <property name="delay" value="10000" />
+    <!-- run 10 mins -->
+    <property name="period" value="600000" />
+    <property name="timerTask" ref="updateAsynchPubmedJobScheduler" />
+  </bean>
+  
+  <!-- Background scheduler for AuditRecordArchiver -->
+  <bean id="auditRecordArchiveScheduler" class="com.openq.audit.AuditRecordArchiverThread">
+    <property name="sessionFactory" ref="auditSessionFactory" />
+  </bean>
+
+  <bean id="auditRecordArchiveScheduledTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+    <!-- wait 10 seconds before starting repeated execution -->
+    <property name="delay" value="10000" />
+    <!-- run once a week -->
+    <property name="period" value="604800000" />
+    <property name="timerTask" ref="auditRecordArchiveScheduler" />
+  </bean>
+
+  <!-- Define the Network Map Data Servie -->
+  <bean id="networkMapDataServiceTarget" class="com.openq.ig.pubmed.crawler.keyword.NetworkMapDataService" depends-on="sessionFactory">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+  <bean id="networkMapDataService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager" ref="transactionManager"/>
+      <property name="target" ref="networkMapDataServiceTarget"/>
+      <property name="transactionAttributes">
+        <props>
+            <prop key="set*">PROPAGATION_REQUIRED</prop>
+            <prop key="add*">PROPAGATION_REQUIRED</prop>
+            <prop key="update*">PROPAGATION_REQUIRED</prop>
+            <prop key="delete*">PROPAGATION_REQUIRED</prop>
+            <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+            <prop key="is*">PROPAGATION_REQUIRED,readOnly</prop>
+        </props>
+      </property>
+  </bean>
+
+
+	<bean id="timeReportServiceTarget" class="com.openq.time.TimeReportService" depends-on="sessionFactory">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+
+	<bean id="timeReportService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+  		<property name="transactionManager" ref="transactionManager"/>
+  		<property name="target" ref="timeReportServiceTarget"/>
+  		<property name="transactionAttributes">
+    		<props>
+      			<prop key="set*">PROPAGATION_REQUIRED</prop>
+      			<prop key="add*">PROPAGATION_REQUIRED</prop>
+      			<prop key="update*">PROPAGATION_REQUIRED</prop>
+      			<prop key="delete*">PROPAGATION_REQUIRED</prop>
+      			<prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+      			<prop key="is*">PROPAGATION_REQUIRED,readOnly</prop>
+    		</props>
+  		</property>
+	</bean>
+
+
+  <!-- Define the Geocode Service -->
+  <bean id="geocodeServiceTarget" class="com.openq.geocode.YahooGeocodeService" depends-on="sessionFactory">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="userService" ref="userService" />
+  </bean>
+
+  <bean id="geocodeService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager" ref="transactionManager"/>
+      <property name="target" ref="geocodeServiceTarget"/>
+      <property name="transactionAttributes">
+        <props>
+            <prop key="add*">PROPAGATION_REQUIRED</prop>
+            <prop key="mark*">PROPAGATION_REQUIRED</prop>
+        </props>
+      </property>
+  </bean>
+
+  <bean id="alertsProcessor" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean">
+    <property name="targetObject" ref="alertsServiceTarget" />
+    <property name="targetMethod" value="processAlerts" />
+  </bean>
+
+  <bean id="alertsScheduler" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+    <!-- wait 10 seconds before starting repeated execution -->
+    <property name="delay" value="96000" />
+    <!-- run every 60 seconds -->
+    <property name="period" value="99900" />
+    <property name="timerTask" ref="alertsProcessor" />
+  </bean>
+
+  <bean id="timerFactory" class="org.springframework.scheduling.timer.TimerFactoryBean">
+    <property name="scheduledTimerTasks">
+        <list>
+            <!--ref bean="alertsScheduler" /-->
+            <ref bean="auditRecordArchiveScheduledTask" />
+            <ref bean="updateAsynchPubmedJobScheduledTask" />
+            <ref bean="pubMedCrawlerScheduledTask" />
+        </list>
+    </property>
+  </bean>
+
+  <!-- Notification -->
+
+	  <bean id="notificationProcessor" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		 <property name="targetObject" ref="notificationServiceTarget" />
+	    <property name="targetMethod" value="processNotifications" />
+	</bean>
+
+
+
+	<bean id="notificationScheduler" class="org.springframework.scheduling.quartz.CronTriggerBean">
+	  <property name="jobDetail">
+	    <ref bean="notificationProcessor"/>
+	  </property>
+	  <property name="cronExpression">
+	    <!-- run every morning at 12 AM -->
+	    <value>0 30 14 * * ?</value>
+	  </property>
+	</bean>
+
+	  <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+	  <property name="triggers">
+		      <ref bean="notificationScheduler"/>
+	  </property>
+	</bean>
+
+	<!-- WhitePageProcessor -->
+
+
+
+
+	<bean id="notifyServiceTarget" class="com.openq.Notify.NotifyService"
+		depends-on="sessionFactory">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+
+		<bean id="notifyService"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager" ref="transactionManager"/>
+		<property name="target" ref="notifyServiceTarget"/>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="save*">PROPAGATION_REQUIRED</prop>
+				<prop key="add*">PROPAGATION_REQUIRED</prop>
+				<prop key="delete*">PROPAGATION_REQUIRED</prop>
+				<prop key="update*">PROPAGATION_REQUIRED</prop>
+				<prop key="insert*">PROPAGATION_REQUIRED</prop>
+				<prop key="remove*">PROPAGATION_REQUIRED</prop>
+				<prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+				<prop key="find*">PROPAGATION_REQUIRED,readOnly</prop>
+				<prop key="is*">PROPAGATION_REQUIRED,readOnly</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="globalConstantsServiceTarget" class="com.openq.utils.GlobalConstantsService"
+		depends-on="sessionFactory">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+
+	<bean id="globalConstantsService"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager" ref="transactionManager"/>
+		<property name="target" ref="globalConstantsServiceTarget"/>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="update*">PROPAGATION_REQUIRED</prop>
+				<prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="featurePermissionServiceTarget" class="com.openq.authorization.FeaturePermissionService"
+		depends-on="sessionFactory">
+		<property name="sessionFactory" ref="sessionFactory"/>
+		<property name="groupService">
+			<ref bean="groupService"/>
+		</property>
+	</bean>
+	<bean id="featurePermissionService"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager" ref="transactionManager"/>
+		<property name="target" ref="featurePermissionServiceTarget"/>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="save*">PROPAGATION_REQUIRED</prop>
+				<prop key="update*">PROPAGATION_REQUIRED</prop>
+				<prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+				<prop key="delete*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+
+
+	<bean id="userPreferenceServiceTarget" class="com.openq.userPreference.UserPreferenceService"
+		depends-on="sessionFactory">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+
+		<bean id="userPreferenceService"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager" ref="transactionManager"/>
+		<property name="target" ref="userPreferenceServiceTarget"/>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="save*">PROPAGATION_REQUIRED</prop>
+				<prop key="add*">PROPAGATION_REQUIRED</prop>
+				<prop key="delete*">PROPAGATION_REQUIRED</prop>
+				<prop key="update*">PROPAGATION_REQUIRED</prop>
+				<prop key="insert*">PROPAGATION_REQUIRED</prop>
+				<prop key="remove*">PROPAGATION_REQUIRED</prop>
+				<prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+				<prop key="find*">PROPAGATION_REQUIRED,readOnly</prop>
+				<prop key="is*">PROPAGATION_REQUIRED,readOnly</prop>
+			</props>
+		</property>
+	</bean>
+
+    <!-- Alternate session factory to be used only for hibernate audit-logging -->
+    <bean id="auditSessionFactory" class="org.springframework.orm.hibernate.LocalSessionFactoryBean" depends-on="dataSource">
+        <property name="dataSource"><ref local="dataSource"/></property>
+        <property name="mappingResources">
+            <ref bean="hibernateMappingResources" />
+        </property>
+        <!-- Below listed property is copy/pasted from "sessionFactory" definition -->
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">net.sf.hibernate.dialect.Oracle9Dialect</prop>
+                <!--prop key="hibernate.dialect">net.sf.hibernate.dialect.MySQLDialect</prop-->
+
+                <!-- Echo all executed SQL to stdout -->
+                <!--prop key="hibernate.show_sql">true</prop-->
+                <prop key="hibernate.cglib.use_reflection_optimizer">false</prop>
+
+                <prop key="hibernate.c3p0.minPoolSize">5</prop>
+                <prop key="hibernate.c3p0.maxPoolSize">20</prop>
+                <prop key="hibernate.c3p0.timeout">100</prop>
+
+                 <prop key="hibernate.cache.use_query_cache ">false</prop>
+                 <prop key="hibernate.cache.use_minimal_puts">false</prop>
+                 <!-- Drop and re-create the database schema on startup -->
+                 <!--prop key="hibernate.hbm2ddl.auto">create-drop</prop-->
+
+                 <!--prop key="hibernate.cache.provider_class">net.sf.hibernate.cache.EhCacheProvider</prop-->
+            </props>
+        </property>
+    </bean>
+
+    <bean id="auditLogInterceptor" class="com.openq.audit.AuditLogInterceptor">
+        <property name="sessionFactory">
+            <ref local="auditSessionFactory"/>
+        </property>
+    </bean>
+
+    <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping">
+        <property name="interceptors">
+            <list>
+                <bean class="com.openq.audit.HttpRequestMonitor"/>
+            </list>
+        </property>
+    </bean>
+	<!--bean id="DBUtil" class="com.openq.kol.DBUtil" factory-method="getInstance">
+		<property name="dataSource">
+            <ref bean="dataSource"/>
+        </property>
+	</bean-->
+</beans>

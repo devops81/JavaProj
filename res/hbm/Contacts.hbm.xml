@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="com.openq.contacts.Contacts" table="contacts">
+        <id name="contactId" column="contactId">
+            <generator class="native"/>
+        </id>
+        <property name="kolId" type="long"/>
+        <property name="type"/>
+        <property name="contactName"/>
+        <property name="email"/>
+        <property name="phone"/>
+        <property name="brand"/>
+        <property name="isPrimaryContact"/>
+        <property name="role"/>
+        <property name="otherRole"/>
+        <property name="staffid" type="long"/>
+        <property name="begindate" type="date"/>
+        <property name="enddate" type="date"/>
+     </class>
+</hibernate-mapping>

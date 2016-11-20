@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="com.openq.interaction.Interaction" table="interaction" batch-size="100">
+        <id name="id" column="interaction_id">
+            <generator class="native"/>
+        </id>
+        <many-to-one name="type" class="com.openq.eav.option.OptionLookup" column="interaction_type_id" />
+        <property name="userId" type="long"/>
+        <property name="ta"/>
+        <property name="interactionDate" type="date"/>
+        <property name="createTime" type="date"/>
+        <property name="updateTime" type="date"/>        
+        <property name="deleteFlag" type="string"/>
+        <property name="staffId" type="long"/>
+        <property name="supervisorId" column = "SUPERVISOR_ID" type="long"/>
+		<property name="groupId" column = "GROUP_ID" type="long"/>
+		<property name="territoryId" column = "TERRITORY_ID" type="long"/>
+		<property name="reportLevelId" column = "REPORT_LEVEL_ID" type="long"/>
+        
+        <set name ="attendees" inverse="true" cascade="all" lazy="true" batch-size="50">
+        	<key column="interaction_id"/>
+        	<one-to-many class ="com.openq.attendee.Attendee"/>        
+        </set>
+        <set name="interactionData" inverse="true" cascade="all" lazy="true" batch-size="50">
+            <key column="interaction_id" />
+            <one-to-many class="com.openq.interactionData.InteractionData"/>
+        </set>
+    </class>
+     
+</hibernate-mapping>  

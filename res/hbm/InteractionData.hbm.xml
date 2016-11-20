@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="com.openq.interactionData.InteractionData" table="Interaction_Data" >
+        <id name="id">
+            <generator class="native"/>
+        </id>
+        <property name="type" />
+        <property name="data" />
+        <many-to-one name="lovId" class="com.openq.eav.option.OptionLookup" column="lovId"  />
+        <many-to-one name="interaction" column="interaction_id" class="com.openq.interaction.Interaction" not-null="true"/>
+		<many-to-one name="secondaryLovId" class="com.openq.eav.option.OptionLookup" column="SECONDARY_LOVID" />
+		<many-to-one name="tertiaryLovId" class="com.openq.eav.option.OptionLookup" column="TERTIARY_LOVID" />
+     </class>
+</hibernate-mapping>

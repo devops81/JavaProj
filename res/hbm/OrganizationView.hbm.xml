@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="com.openq.eav.org.OrganizationView" table="Org_View_Materialized">
+        <id name="id" column="ID">
+            <generator class="native"/>
+        </id>
+        <property name="id" type="long" />
+        <property name="name" type="string"/>
+        <property name="acronym" type="string" />
+        <property name="addrLine1" column="ADDR_LINE1" type="string" />
+        <property name="addrLine2" column="ADDR_LINE2" type="string" />
+        <property name="country" type="string" />
+		<property name="city" type="string" />
+		<property name="state" type="string" />
+		<property name="type" type="string" />
+		<property name="zip" type="string" />
+	</class>
+
+</hibernate-mapping>

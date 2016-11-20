@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="com.openq.alerts.data.AlertAuditQueue" table="alert_audit_queue">
+        <id name="id" >
+            <generator class="native"/>
+        </id>
+        <property name="attributeId" column="attribute_id" />
+        <property name="operation" />
+        <property name="originalValue" column="original_value" />
+        <property name="newValue" column="new_value" />
+        <property name="createdAt" column="created_at"/>
+        <property name="updatedAt" column="updated_at"/>
+        <property name="attribute" column="attribute" type="long"/>
+        <property name="source" column="source"/>
+        <property name="kolId" column="kolid" type="long"/>
+     </class>
+</hibernate-mapping>

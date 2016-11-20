@@ -1,0 +1,959 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="HQ_BMS_Potential_Adboard_Experts"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Landscape"
+		 pageWidth="1830"
+		 pageHeight="560"
+		 columnWidth="1830"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<style 
+		name="DefaultStyle"
+		isDefault="true"
+		fontName="Verdana"
+	/>
+	<style 
+		name="TableRow-GrayBack"
+		isDefault="false"
+		mode="Opaque"
+		backcolor="#FFFFFF"
+		fontName="Verdana"
+	/>
+	<style 
+		name="TableHeader-BlueBack"
+		isDefault="false"
+		mode="Opaque"
+		forecolor="#000000"
+		backcolor="#CCCCCC"
+		fontName="Verdana"
+		fontSize="11"
+		isBold="true"
+	/>
+	<style 
+		name="OLStyle"
+		isDefault="false"
+	>
+
+		<conditionalStyle>
+			<conditionExpression><![CDATA[new Boolean($V{OLColorSelector}.intValue()%2==0)]]></conditionExpression>
+			<style 
+				name="OLStyle"
+				isDefault="false"
+				mode="Opaque"
+				backcolor="#CCFFFF"
+			/>
+		</conditionalStyle>
+	</style>
+
+	<parameter name="diseaseArea" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["'All'"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["'All'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="areaOfExpertise" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["'%'"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["'%'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="userId" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA["'84702011'"]]></parameterDescription>
+		<defaultValueExpression ><![CDATA["'-1'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="finalDiseaseArea" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[($P{diseaseArea}.equals( "'All'" ) ? "'%'" : ("'" + $P{diseaseArea}.substring(1,($P{diseaseArea}.length()-1)).replaceAll("'", "''") + "'"))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="finalAreaOfExpertise" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[($P{areaOfExpertise}.equals( "'%'" ) ? "'%'" : ("'" + $P{areaOfExpertise}.substring(1,($P{areaOfExpertise}.length()-1)).replaceAll("'", "''") + "'"))
+]]></defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select ol.*, soi.value as Sphere_of_influence, 
+AFFI_ATTR.ta as ol_ta,
+decode(author.value, 'N/A', '', author.value ) as author_flag,
+decode(investigator.value, 'N/A', '', investigator.value ) as investigator_flag, 
+decode(advisor.value, 'N/A', '', advisor.value ) as advisor_flag,
+decode(speaker.value, 'N/A', '', speaker.value ) as speaker_flag,
+da1.value as diseaseArea1, 
+da2.value as diseaseArea2, da3.value as diseaseArea3, 
+aoe1.value as AreaOfExpertise1, aoe2.value as AreaOfExpertise2, 
+aoe3.value as AreaOfExpertise3,
+(select value from global_constants where name = 'OBJECTIVETEXT_BMS_POTENTIAL_EXPERTS' ) as OBJECTIVE_TEXT
+from hq_ol_view ol
+left outer join attribute_value_view da1
+on (da1.root_entity_id = ol.kolid and da1.column_name = 'Disease Area 1')
+left outer join attribute_value_view da2
+on (da2.root_entity_id = ol.kolid and da2.column_name = 'Disease Area 2')
+left outer join attribute_value_view da3
+on (da3.root_entity_id = ol.kolid and da3.column_name = 'Disease Area 3')
+left outer join attribute_value_view aoe1
+on (aoe1.root_entity_id = ol.kolid and aoe1.column_name = 'Area of Expertise 1')
+left outer join attribute_value_view aoe2
+on (aoe2.root_entity_id = ol.kolid and aoe2.column_name = 'Area of Expertise 2')
+left outer join attribute_value_view aoe3
+on (aoe3.root_entity_id = ol.kolid and aoe3.column_name = 'Area of Expertise 3')
+left outer join hq_ol_soi_view soi
+on (soi.root_entity_id = ol.kolid)
+left outer join HQ_OL_AFFILIATION_VIEW AFFI_ATTR 
+on ( OL.kolid = AFFI_ATTR.root_entity_id )
+left outer join hq_ol_author_view author
+on (author.root_entity_id = AFFI_ATTR.root_entity_id and author.ta = AFFI_ATTR.ta)
+left outer join hq_ol_advisor_view advisor
+on (advisor.root_entity_id = AFFI_ATTR.root_entity_id and advisor.ta = AFFI_ATTR.ta)
+left outer join hq_ol_speaker_view speaker
+on (speaker.root_entity_id = AFFI_ATTR.root_entity_id and speaker.ta = AFFI_ATTR.ta)
+left outer join hq_ol_investigator_view investigator
+on (investigator.root_entity_id = AFFI_ATTR.root_entity_id and investigator.ta = AFFI_ATTR.ta)
+where 
+((da1.value like ($P!{finalDiseaseArea}) and aoe1.value like ($P!{finalAreaOfExpertise})) 
+or (da2.value like ($P!{finalDiseaseArea}) and aoe2.value like ($P!{finalAreaOfExpertise}))
+or (da3.value like ($P!{finalDiseaseArea}) and aoe3.value like ($P!{finalAreaOfExpertise})))
+and (
+( da1.value like ($P!{finalDiseaseArea}) and aoe1.value like ($P!{finalAreaOfExpertise})
+and da1.value in (select optvalue from option_lookup where option_id in 
+(select id from option_names where name like 'Disease Area')
+and id not in
+(select feature_id from feature_usergroup_map where permission_on_feature = 2 
+  and usergroup_id 
+  like '%,'||(select group_id from user_group_map where user_id in ($P!{userId}))||',%')
+) and aoe1.value in 
+(select optValue from option_lookup where option_id = 
+(select id from option_names where name like 'Area of Expertise')
+and parent in (select id from option_lookup where optvalue = da1.value
+  and option_id = (select id from option_names where name like 'Disease Area'))
+and id not in 
+(select feature_id from feature_usergroup_map where permission_on_feature = 2 
+  and usergroup_id 
+  like '%,'||(select group_id from user_group_map where user_id in ($P!{userId}))||',%'))
+) or
+( da2.value like ($P!{finalDiseaseArea}) and aoe2.value like ($P!{finalAreaOfExpertise})
+and da2.value in (select optvalue from option_lookup where option_id in 
+(select id from option_names where name like 'Disease Area')
+and id not in
+(select feature_id from feature_usergroup_map where permission_on_feature = 2 
+  and usergroup_id 
+  like '%,'||(select group_id from user_group_map where user_id in ($P!{userId}))||',%')
+) and aoe2.value in 
+(select optValue from option_lookup where option_id = 
+(select id from option_names where name like 'Area of Expertise')
+and parent in (select id from option_lookup where optvalue = da2.value
+  and option_id = (select id from option_names where name like 'Disease Area'))
+and id not in 
+(select feature_id from feature_usergroup_map where permission_on_feature = 2 
+  and usergroup_id 
+  like '%,'||(select group_id from user_group_map where user_id in ($P!{userId}))||',%'))
+) or
+( da3.value like ($P!{finalDiseaseArea}) and aoe3.value like ($P!{finalAreaOfExpertise})
+and da3.value in (select optvalue from option_lookup where option_id in 
+(select id from option_names where name like 'Disease Area')
+and id not in
+(select feature_id from feature_usergroup_map where permission_on_feature = 2 
+  and usergroup_id 
+  like '%,'||(select group_id from user_group_map where user_id in ($P!{userId}))||',%')
+) and aoe3.value in 
+(select optValue from option_lookup where option_id = 
+(select id from option_names where name like 'Area of Expertise')
+and parent in (select id from option_lookup where optvalue = da3.value
+  and option_id = (select id from option_names where name like 'Disease Area'))
+and id not in 
+(select feature_id from feature_usergroup_map where permission_on_feature = 2 
+  and usergroup_id 
+  like '%,'||(select group_id from user_group_map where user_id in ($P!{userId}))||',%'))
+))
+order by lower(AFFI_ATTR.ta), lower(ol.ollastname), lower(ol.olfirstname)]]></queryString>
+
+	<field name="EXPERT_ID" class="java.math.BigDecimal"/>
+	<field name="OLFIRSTNAME" class="java.lang.String"/>
+	<field name="OLLASTNAME" class="java.lang.String"/>
+	<field name="KOLID" class="java.math.BigDecimal"/>
+	<field name="ADDRLINE1" class="java.lang.String"/>
+	<field name="ADDRLINE2" class="java.lang.String"/>
+	<field name="CITY" class="java.lang.String"/>
+	<field name="STATE" class="java.lang.String"/>
+	<field name="PHONE" class="java.lang.String"/>
+	<field name="EMAIL" class="java.lang.String"/>
+	<field name="FAX" class="java.lang.String"/>
+	<field name="TYPE" class="java.lang.String"/>
+	<field name="ZIP" class="java.lang.String"/>
+	<field name="SPECIALTY" class="java.lang.String"/>
+	<field name="SUFFIX" class="java.lang.String"/>
+	<field name="TITLE" class="java.lang.String"/>
+	<field name="DEGREE" class="java.lang.String"/>
+	<field name="SAXA_REVIEW_STATUS" class="java.lang.String"/>
+	<field name="SPHERE_OF_INFLUENCE" class="java.lang.String"/>
+	<field name="OL_TA" class="java.lang.String"/>
+	<field name="AUTHOR_FLAG" class="java.lang.String"/>
+	<field name="INVESTIGATOR_FLAG" class="java.lang.String"/>
+	<field name="ADVISOR_FLAG" class="java.lang.String"/>
+	<field name="SPEAKER_FLAG" class="java.lang.String"/>
+	<field name="DISEASEAREA1" class="java.lang.String"/>
+	<field name="DISEASEAREA2" class="java.lang.String"/>
+	<field name="DISEASEAREA3" class="java.lang.String"/>
+	<field name="AREAOFEXPERTISE1" class="java.lang.String"/>
+	<field name="AREAOFEXPERTISE2" class="java.lang.String"/>
+	<field name="AREAOFEXPERTISE3" class="java.lang.String"/>
+	<field name="OBJECTIVE_TEXT" class="java.lang.String"/>
+
+	<variable name="OLColorSelector" class="java.lang.Integer" resetType="Report" incrementType="Group" incrementGroup="OLGroup" calculation="Count">
+		<variableExpression><![CDATA[$V{OLColorSelector}]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+
+		<group  name="TAGroup" >
+			<groupExpression><![CDATA[$F{OL_TA}]]></groupExpression>
+			<groupHeader>
+			<band height="18"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="true" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="5"
+						y="0"
+						width="1822"
+						height="18"
+						backcolor="#CCCCFF"
+						key="textField-61"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["TA : " + $F{OL_TA}]]></textFieldExpression>
+				</textField>
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+			</groupFooter>
+		</group>
+		<group  name="OLGroup" >
+			<groupExpression><![CDATA[$F{KOLID}]]></groupExpression>
+			<groupHeader>
+			<band height="12"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="OLStyle"
+						mode="Opaque"
+						x="6"
+						y="0"
+						width="82"
+						height="12"
+						key="textField-25"
+						stretchType="RelativeToTallestObject"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{OLLASTNAME}+", "+$F{OLFIRSTNAME}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="OLStyle"
+						mode="Opaque"
+						x="88"
+						y="0"
+						width="93"
+						height="12"
+						key="textField-26"
+						stretchType="RelativeToTallestObject"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[($F{ADDRLINE1}!=null?$F{ADDRLINE1}:"")+($F{ADDRLINE2}!=null?","+$F{ADDRLINE2}:"")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="OLStyle"
+						mode="Opaque"
+						x="181"
+						y="0"
+						width="68"
+						height="12"
+						key="textField-27"
+						stretchType="RelativeToTallestObject"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{CITY}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="OLStyle"
+						mode="Opaque"
+						x="249"
+						y="0"
+						width="76"
+						height="12"
+						key="textField-28"
+						stretchType="RelativeToTallestObject"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{STATE}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="OLStyle"
+						mode="Opaque"
+						x="325"
+						y="0"
+						width="82"
+						height="12"
+						key="textField-29"
+						stretchType="RelativeToTallestObject"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{PHONE}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="OLStyle"
+						mode="Opaque"
+						x="407"
+						y="0"
+						width="82"
+						height="12"
+						key="textField-30"
+						stretchType="RelativeToTallestObject"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{FAX}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="OLStyle"
+						mode="Opaque"
+						x="489"
+						y="0"
+						width="88"
+						height="12"
+						key="textField-31"
+						stretchType="RelativeToTallestObject"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{EMAIL}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="OLStyle"
+						mode="Opaque"
+						x="655"
+						y="0"
+						width="79"
+						height="12"
+						key="textField-32"
+						stretchType="RelativeToTallestObject"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{TYPE}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="OLStyle"
+						mode="Opaque"
+						x="734"
+						y="0"
+						width="79"
+						height="12"
+						key="textField-33"
+						stretchType="RelativeToTallestObject"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{SPHERE_OF_INFLUENCE}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="OLStyle"
+						mode="Opaque"
+						x="813"
+						y="0"
+						width="79"
+						height="12"
+						key="textField-34"
+						stretchType="RelativeToTallestObject"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{SPECIALTY}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="OLStyle"
+						mode="Opaque"
+						x="892"
+						y="0"
+						width="79"
+						height="12"
+						key="textField-35"
+						stretchType="RelativeToTallestObject"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{DEGREE}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="OLStyle"
+						mode="Opaque"
+						x="971"
+						y="0"
+						width="79"
+						height="12"
+						key="textField-36"
+						stretchType="RelativeToTallestObject"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{SUFFIX}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="OLStyle"
+						mode="Opaque"
+						x="1050"
+						y="0"
+						width="79"
+						height="12"
+						key="textField-37"
+						stretchType="RelativeToTallestObject"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{TITLE}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="OLStyle"
+						mode="Opaque"
+						x="1129"
+						y="0"
+						width="79"
+						height="12"
+						key="textField-38"
+						stretchType="RelativeToTallestObject"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{SPEAKER_FLAG}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="OLStyle"
+						mode="Opaque"
+						x="1208"
+						y="0"
+						width="79"
+						height="12"
+						key="textField-39"
+						stretchType="RelativeToTallestObject"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ADVISOR_FLAG}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="OLStyle"
+						mode="Opaque"
+						x="1287"
+						y="0"
+						width="79"
+						height="12"
+						key="textField-41"
+						stretchType="RelativeToTallestObject"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{INVESTIGATOR_FLAG}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="OLStyle"
+						mode="Opaque"
+						x="577"
+						y="0"
+						width="78"
+						height="12"
+						key="textField-49"
+						stretchType="RelativeToTallestObject"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{ZIP}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="OLStyle"
+						mode="Opaque"
+						x="1366"
+						y="0"
+						width="81"
+						height="12"
+						key="textField-51"
+						stretchType="RelativeToTallestObject"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{AUTHOR_FLAG}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="OLStyle"
+						mode="Opaque"
+						x="1447"
+						y="0"
+						width="380"
+						height="12"
+						key="textField-60"
+						stretchType="RelativeToTallestObject"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[(($F{DISEASEAREA1}!=null && !("".equals( $F{DISEASEAREA1})))?$F{DISEASEAREA1}:"") +
+(($F{AREAOFEXPERTISE1}!=null && !("".equals( $F{AREAOFEXPERTISE1} )))?"/"+$F{AREAOFEXPERTISE1}+", ":"") +
+(($F{DISEASEAREA2}!=null && !("".equals( $F{DISEASEAREA2})))?$F{DISEASEAREA2}:"") +
+(($F{AREAOFEXPERTISE2}!=null && !("".equals( $F{AREAOFEXPERTISE2} )))?"/"+$F{AREAOFEXPERTISE2}+", ":"") +
+(($F{DISEASEAREA3}!=null && !("".equals( $F{DISEASEAREA3})))?$F{DISEASEAREA3}:"") +
+(($F{AREAOFEXPERTISE3}!=null && !("".equals( $F{AREAOFEXPERTISE3} )))?"/"+$F{AREAOFEXPERTISE3}:"")]]></textFieldExpression>
+				</textField>
+			</band>
+			</groupHeader>
+			<groupFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+			</groupFooter>
+		</group>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="75"  isSplitAllowed="true" >
+				<printWhenExpression><![CDATA[new Boolean ( $V{PAGE_NUMBER}.intValue() ==  1 )]]></printWhenExpression>
+				<staticText>
+					<reportElement
+						x="531"
+						y="32"
+						width="332"
+						height="18"
+						key="staticText-18"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" size="12" isBold="true"/>
+					</textElement>
+				<text><![CDATA[BMS Potential Adboard Experts]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="531"
+						y="18"
+						width="332"
+						height="14"
+						key="textField-53"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{OBJECTIVE_TEXT} !=null ? $F{OBJECTIVE_TEXT} : ""]]></textFieldExpression>
+				</textField>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="35"  isSplitAllowed="true" >
+				<printWhenExpression><![CDATA[new Boolean ( $V{PAGE_NUMBER}.intValue() ==  1 )]]></printWhenExpression>
+				<staticText>
+					<reportElement
+						style="TableHeader-BlueBack"
+						x="6"
+						y="0"
+						width="82"
+						height="35"
+						key="staticText-3"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($V{PAGE_NUMBER}.intValue()==1)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="9"/>
+					</textElement>
+				<text><![CDATA[Name]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						style="TableHeader-BlueBack"
+						x="88"
+						y="0"
+						width="93"
+						height="35"
+						key="staticText-4"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($V{PAGE_NUMBER}.intValue()==1)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="9"/>
+					</textElement>
+				<text><![CDATA[Address]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						style="TableHeader-BlueBack"
+						x="655"
+						y="0"
+						width="79"
+						height="35"
+						key="staticText-5"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($V{PAGE_NUMBER}.intValue()==1)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="9"/>
+					</textElement>
+				<text><![CDATA[MSL TL Type]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						style="TableHeader-BlueBack"
+						x="181"
+						y="0"
+						width="68"
+						height="35"
+						key="staticText-6"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($V{PAGE_NUMBER}.intValue()==1)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="9"/>
+					</textElement>
+				<text><![CDATA[City]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						style="TableHeader-BlueBack"
+						x="325"
+						y="0"
+						width="82"
+						height="35"
+						key="staticText-7"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($V{PAGE_NUMBER}.intValue()==1)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="9"/>
+					</textElement>
+				<text><![CDATA[Phone]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						style="TableHeader-BlueBack"
+						x="489"
+						y="0"
+						width="88"
+						height="35"
+						key="staticText-8"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($V{PAGE_NUMBER}.intValue()==1)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="9"/>
+					</textElement>
+				<text><![CDATA[Email]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						style="TableHeader-BlueBack"
+						x="407"
+						y="0"
+						width="82"
+						height="35"
+						key="staticText-9"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($V{PAGE_NUMBER}.intValue()==1)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="9"/>
+					</textElement>
+				<text><![CDATA[Fax]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						style="TableHeader-BlueBack"
+						x="249"
+						y="0"
+						width="76"
+						height="35"
+						key="staticText-10"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($V{PAGE_NUMBER}.intValue()==1)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="9"/>
+					</textElement>
+				<text><![CDATA[State]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						style="TableHeader-BlueBack"
+						x="813"
+						y="0"
+						width="79"
+						height="35"
+						backcolor="#CCCCCC"
+						key="staticText-12"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($V{PAGE_NUMBER}.intValue()==1)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Specialty]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						style="TableHeader-BlueBack"
+						x="971"
+						y="0"
+						width="79"
+						height="35"
+						backcolor="#CCCCCC"
+						key="staticText-13"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($V{PAGE_NUMBER}.intValue()==1)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Suffix]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						style="TableHeader-BlueBack"
+						x="892"
+						y="0"
+						width="79"
+						height="35"
+						backcolor="#CCCCCC"
+						key="staticText-14"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($V{PAGE_NUMBER}.intValue()==1)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Degree]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						style="TableHeader-BlueBack"
+						x="1050"
+						y="0"
+						width="79"
+						height="35"
+						backcolor="#CCCCCC"
+						key="staticText-15"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($V{PAGE_NUMBER}.intValue()==1)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Title]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="734"
+						y="0"
+						width="79"
+						height="35"
+						backcolor="#CCCCCC"
+						key="textField-43"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($V{PAGE_NUMBER}.intValue()==1)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[" Sphere Of Influence"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="1129"
+						y="0"
+						width="79"
+						height="35"
+						backcolor="#CCCCCC"
+						key="textField-44"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($V{PAGE_NUMBER}.intValue()==1)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[" Speaker"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="1208"
+						y="0"
+						width="79"
+						height="35"
+						backcolor="#CCCCCC"
+						key="textField-45"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($V{PAGE_NUMBER}.intValue()==1)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[" Advisor"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="1287"
+						y="0"
+						width="79"
+						height="35"
+						backcolor="#CCCCCC"
+						key="textField-46"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($V{PAGE_NUMBER}.intValue()==1)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Investigator"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="1366"
+						y="0"
+						width="81"
+						height="35"
+						backcolor="#CCCCCC"
+						key="textField-47"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($V{PAGE_NUMBER}.intValue()==1)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Author"]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						style="TableHeader-BlueBack"
+						x="577"
+						y="0"
+						width="78"
+						height="35"
+						key="staticText-17"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($V{PAGE_NUMBER}.intValue()==1)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="9"/>
+					</textElement>
+				<text><![CDATA[Zip]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="DefaultStyle"
+						mode="Opaque"
+						x="1447"
+						y="0"
+						width="380"
+						height="35"
+						backcolor="#CCCCCC"
+						key="textField-54"
+						isRemoveLineWhenBlank="true">
+							<printWhenExpression><![CDATA[new Boolean($V{PAGE_NUMBER}.intValue()==1)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Verdana" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Disease Area/Area of Expertise"]]></textFieldExpression>
+				</textField>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>
