@@ -1,4 +1,0 @@
-<settings>
-	<backUrl><![CDATA[http://localhost:7001/openQ41/search.htm?back=true]]></backUrl>
-	<dataPath><![CDATA[http://localhost:7001/openQ41/olsearchdata.jsp]]></dataPath>
-</settings>

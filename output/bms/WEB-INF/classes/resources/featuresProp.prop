@@ -1,6 +1,0 @@
-#Make an entry to remove the Tab from the Header.jsp
-#Set Property value to 0 to disable the Tab
-#Set Property value to 1 to enable the Tab
-#Set value for Tier Display
-DISPLAY_TIER=TL Type
-MAX_NUM_USERS_PER_PAGE=25
