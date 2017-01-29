@@ -1,0 +1,42 @@
+DIV#nav UL #news UL {
+	DISPLAY: block; POSITION: fixed
+}
+DIV#nav UL LI #news .submenu:hover {
+	PADDING-RIGHT: 0px; PADDING-LEFT: 0px; PADDING-BOTTOM: 0px; PADDING-TOP: 0px
+}
+DIV#nav UL #news UL UL {
+	DISPLAY: none; LEFT: 12.5em; POSITION: absolute; TOP: 0px
+}
+DIV#nav UL #news .level2 LI.submenu:hover UL.level3 {
+	DISPLAY: block
+}
+UL#primary-nav UL#news {
+	DISPLAY: block; LEFT: 0px; POSITION: relative
+}
+UL#primary-nav UL#news LI UL {
+	DISPLAY: none; LEFT: 13.9em; POSITION: absolute
+}
+.news-second {
+	BACKGROUND: url(/resources/images/newsroom/news-second.jpg) #ff9900 no-repeat 100% 50%
+}
+.news {
+	BACKGROUND: url(/resources/images/newsroom/news-third.jpg) #ff9900 no-repeat 100% 50%
+}
+.newsblank {
+	BACKGROUND-COLOR: #ff9900
+}
+H1 {
+	MARGIN-TOP: 0px; FONT-SIZE: 1.5em; COLOR: #ff9900; FONT-FAMILY: Verdana, sans-serif
+}
+.right-pic {
+	BACKGROUND: url(/resources/images/newsroom/news-right.jpg) no-repeat left top; WIDTH: 10em; HEIGHT: 4.91em
+}
+BLOCKQUOTE {
+	COLOR: #ff9900
+}
+H2 {
+	PADDING-RIGHT: 0px; PADDING-LEFT: 0px; FONT-SIZE: 1.25em; MARGIN-BOTTOM: -1.1em; PADDING-BOTTOM: 0px; COLOR: #ff9900; PADDING-TOP: 0px
+}
+.pi {
+	PADDING-RIGHT: 0px; PADDING-LEFT: 0px; FONT-SIZE: 0.75em; PADDING-BOTTOM: 0px; MARGIN: 0.5em 0px 1em; PADDING-TOP: 0px
+}

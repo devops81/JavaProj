@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.openq.interaction.InteractionTripletSectionMap" table="INTERACTION_LOVTRIPLET_SECTION" >
+        <id name="id" >
+            <generator class="native"/>
+        </id>
+        <property name="section"/>
+		<property name="primaryLOVId" column="PRIMARY_LOVID"/>
+		<property name="secondaryLOVId" column="SECONDARY_LOVID"/>
+		<property name="tertiaryLOVId" column="TERTIARY_LOVID"/>
+     </class>
+</hibernate-mapping>

@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="com.openq.authorization.Privilege" table="expertdna_privileges">  
+        <id name="privilegeId" column="privilege_id">
+            <generator class="native"/>
+        </id>
+
+		<property name="groupId" column="group_id" type="long"/>
+        <property name="userType" column="user_type" type="long"/>
+        <property name="featureKey" column="feature_key"/>
+        <property name="allowCreate" column="allow_create" type="yes_no"/>
+        <property name="allowRead" column="allow_read" type="yes_no"/>
+        <property name="allowUpdate" column="allow_update" type="yes_no"/>
+        <property name="allowDelete" column="allow_delete" type="yes_no"/>
+        
+     </class>
+
+   
+</hibernate-mapping>    

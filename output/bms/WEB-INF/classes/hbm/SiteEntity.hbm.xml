@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.openq.siteSearch.SiteEntity" table="SITES">
+        <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+        <property name="protocolNumber" column="PROTOCOL_NUMBER" type="string"/>
+        <property name="firstName" column="FORENAME" type="string"/>
+        <property name="middleName" column="MIDDLENAME	" type="string"/>
+        <property name="lastName" column="SURNAME" type="string"/>
+        <property name="centerName" column="CENTERNAME" type="string"/>
+        <property name="investigatorTitle" column="INVESTIGATOR_TITLE" type="string" />
+        <property name="siteReference" column="SITE_REFERENCE" type="long" />
+        <property name="purpose" type="string" />
+        <property name="address" type="string" />
+        <property name="city" type="string"/>
+        <property name="provinceCounty" column="PROVINCE_COUNTY" type="string"/>
+        <property name="poastalCode" column="POASTAL_CODE" type="string" />
+        <property name="country" type="string" />
+        <property name="telephone" column="TELEPHONE_NUMBER" type="string" />
+        <property name="fax" column="FAX_NUMBER" type="string" />
+    </class>
+</hibernate-mapping>

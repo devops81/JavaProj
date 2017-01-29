@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="com.openq.ig.pubmed.crawler.keyword.KeywordCrawlResult" table="keyword_crawl_result">  
+		<id name="id" >
+            <generator class="native"/>
+        </id>
+		
+		<property name="authorName" column="authorName"/>
+        <property name="pubCount" column="pubCount" type="long"/>
+     </class>
+
+   
+</hibernate-mapping>

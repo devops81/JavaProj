@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="com.openq.publication.data.OlTotalPubs" table="ovid_total_publications">
+        <id name="id" >
+        	<generator class="native"/>
+        </id>
+        <property name="authorId" column="author_id" type="long" />
+        <property name="totalPublications" column="total_publications" type="int" />
+        <property name="lastSearchYear" column="year_searched" type="int" />
+        <property name="ovidDbId" column="ovid_db_id" type="int" />
+     </class>
+</hibernate-mapping>

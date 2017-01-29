@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping>
+
+<class name="com.openq.survey.NewSurvey" table="surveymetadata">
+     <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+      <property name="name" />
+      <property name="type" />
+      <property name="state" /> 
+      <property name="active" />
+      <property name ="surveyStartDate" column="date_start"/>
+      <property name ="surveyEndDate" column="date_end"/>
+	  <set name ="questions"  inverse="true" >
+        <key column="surveyid"/>
+        <one-to-many class="com.openq.survey.NewSurveyQuestion"/>
+        </set>
+  </class>
+
+<class name="com.openq.survey.NewSurveyQuestion" table="surveyquestionsmetadata">
+     <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+    <many-to-one name="parentSurvey" column="surveyid" class="com.openq.survey.NewSurvey" not-null="true"/>
+    <property name="questionText" column="questiontext"/>
+    <property name="questionType" column="type"/>
+	<property name="questionNumber" column="questionnumber"/> 
+	<property name="mandatory" column="mandatory"/> 
+    <set name ="answerOptions"  inverse="true" >
+        <key column="questionid"/>
+        <one-to-many class="com.openq.survey.NewSurveyAnswerOptions"/>
+	</set>
+	<set name ="subQuestions"  inverse="true" >
+		<key column="questionid"/>
+		<one-to-many class="com.openq.survey.NewSurveySubQuestions"/>
+	</set>
+ </class> 
+
+<class name="com.openq.survey.NewSurveySubQuestions" table="surveysubquestionsmetadata">
+     <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+   <property name="subQuestionText" column="subquestiontext"/>
+   <many-to-one name="parentQuestion" column="questionid" class="com.openq.survey.NewSurveyQuestion" not-null="true"/>
+</class>
+
+<class name="com.openq.survey.NewSurveyAnswerOptions" table="surveyanswersdata">
+     <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+   <property name="answerOptionText" column="answertext"/>
+      <property name="optionOrder" column="OPTION_ORDER" type="long"/>
+   <many-to-one name="parentQuestion" column="questionid" class="com.openq.survey.NewSurveyQuestion" not-null="true"/>
+</class>
+
+<class name="com.openq.survey.NewSurveyFilled" table="filled_survey">
+     <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+      <property name="surveyId" column="surveyid"/>
+      <property name="interactionId" column="interactionid" />
+      <property name="expertId" column="expertid" />
+      <property name="userId" column="userid" />
+      <property name="startDate" column="createdate" type="date"/>
+      <property name="updateDate" column="updatedate" type="date"/> 
+      <set name ="questionsFilled"  inverse="true" >
+        <key column="parent_survey"/>
+        <one-to-many class="com.openq.survey.NewSurveyQuestionsFilled"/>
+        </set>
+  </class>
+
+<class name="com.openq.survey.NewSurveyQuestionsFilled" table="filled_questions">
+     <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+    <many-to-one name="parentSurvey" column="parent_survey" class="com.openq.survey.NewSurveyFilled" not-null="true"/>
+    <property name="questionId" column="questionid"/> 
+	<property name="answerText" column="answer_text"/> 
+    <set name ="subQuesAnsFilled"  inverse="true" >
+        <key column="parent_question"/>
+        <one-to-many class="com.openq.survey.NewSurveySubQuesAnsFilled"/>
+	</set>
+ </class> 
+
+<class name="com.openq.survey.NewSurveySubQuesAnsFilled" table="filled_subques_answers">
+     <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+      <many-to-one name="parentQuestion" column="parent_question" class="com.openq.survey.NewSurveyQuestionsFilled" not-null="true"/>
+	  <property name="subQuestion" column="sub_question"/>
+	  <property name="answerOption" column="answer_option"/>
+
+</class>
+</hibernate-mapping>

@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+     
+     <class name="com.openq.user.UserAddress" table="user_address">
+        <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+    
+       
+       <property name="userId" type="long"/>
+       <property name="address1"/>
+       <property name="address2"/>
+       <property name="city"/>
+       <property name="suiteRoom"/>
+	   <many-to-one name="state" class="com.openq.eav.option.OptionLookup" column="state_lookup_id" />
+	   <many-to-one name="country" class="com.openq.eav.option.OptionLookup" column="country_lookup_id"/>
+	   <property name="zip" />
+	   <property name="phoneNumber"/>
+	   <property name="emailAddress"/>
+	   <property name="cellPhoneNumber"/>
+	   <property name="faxNumber"/>
+	   <property name="fullprofile" type="boolean"/>
+	
+        
+        </class>
+     
+</hibernate-mapping> 
+
+

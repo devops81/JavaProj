@@ -1,0 +1,498 @@
+<?xml version="1.0"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <OfficeDocumentSettings xmlns="urn:schemas-microsoft-com:office:office">
+  <DownloadComponents/>
+  <LocationOfComponents HRef="file:///D:\"/>
+ </OfficeDocumentSettings>
+ <ExcelWorkbook xmlns="urn:schemas-microsoft-com:office:excel">
+  <WindowHeight>8190</WindowHeight>
+  <WindowWidth>16380</WindowWidth>
+  <WindowTopX>0</WindowTopX>
+  <WindowTopY>0</WindowTopY>
+  <ProtectStructure>False</ProtectStructure>
+  <ProtectWindows>False</ProtectWindows>
+ </ExcelWorkbook>
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Bottom"/>
+   <Borders/>
+   <Font x:Family="Swiss"/>
+   <Interior/>
+   <NumberFormat/>
+   <Protection/>
+  </Style>
+  <Style ss:ID="s21">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Bottom"/>
+  </Style>
+  <Style ss:ID="s22">
+   <Alignment ss:Horizontal="Left" ss:Vertical="Bottom" ss:WrapText="1"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2"
+     ss:Color="#FFFFCC"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="2"
+     ss:Color="#FFFFCC"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="2"
+     ss:Color="#FFFFCC"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2"
+     ss:Color="#FFFFCC"/>
+   </Borders>
+   <Font ss:FontName="Verdana" x:Family="Swiss" ss:Size="8" ss:Color="#008080"/>
+   <Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s23">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Bottom"/>
+   <Font x:Family="Swiss" ss:Bold="1"/>
+  </Style>
+  <Style ss:ID="s24">
+   <Alignment ss:Horizontal="Left" ss:Vertical="Bottom" ss:WrapText="1"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2"
+     ss:Color="#FFFFCC"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="2"
+     ss:Color="#FFFFCC"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2"
+     ss:Color="#FFFFCC"/>
+   </Borders>
+   <Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s25">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Bottom" ss:WrapText="1"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2"
+     ss:Color="#FFFFCC"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="2"
+     ss:Color="#FFFFCC"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="2"
+     ss:Color="#FFFFCC"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2"
+     ss:Color="#FFFFCC"/>
+   </Borders>
+   <Font ss:FontName="Verdana" x:Family="Swiss" ss:Size="8" ss:Color="#008080"/>
+   <Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s26">
+   <Font ss:FontName="Verdana" x:Family="Swiss" ss:Size="8" ss:Color="#008080"/>
+  </Style>
+  <Style ss:ID="s27">
+   <Alignment ss:Horizontal="Left" ss:Vertical="Bottom" ss:WrapText="1"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2"
+     ss:Color="#FFFFCC"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="2"
+     ss:Color="#FFFFCC"/>
+   </Borders>
+   <Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="s28">
+   <Alignment ss:Vertical="Top" ss:WrapText="1"/>
+   <Font ss:FontName="Verdana" x:Family="Swiss" ss:Size="8" ss:Color="#008080"/>
+  </Style>
+ </Styles>
+ <Names>
+  <NamedRange ss:Name="ExternalData_1_1" ss:RefersTo="=Sheet1!R5C1"/>
+ </Names>
+ <Worksheet ss:Name="Sheet1">
+  <Table ss:ExpandedColumnCount="9" ss:ExpandedRowCount="35" x:FullColumns="1"
+   x:FullRows="1">
+   <Column ss:Index="2" ss:StyleID="s21" ss:AutoFitWidth="0"/>
+   <Column ss:StyleID="s22" ss:AutoFitWidth="0" ss:Width="150.75" ss:Span="2"/>
+   <Column ss:Index="6" ss:StyleID="s22" ss:AutoFitWidth="0" ss:Width="386.25"/>
+   <Column ss:Index="8" ss:AutoFitWidth="0" ss:Width="70.5"/>
+   <Row ss:Index="4">
+    <Cell ss:Index="3" ss:StyleID="s23"><Data ss:Type="String">Name</Data></Cell>
+    <Cell ss:StyleID="s23"><Data ss:Type="String">Specialty</Data></Cell>
+    <Cell ss:StyleID="s23"><Data ss:Type="String">Location</Data></Cell>
+    <Cell ss:StyleID="s23"><Data ss:Type="String">Hyperlink</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s23"><Data ss:Type="String">Biography</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s24"><NamedCell ss:Name="ExternalData_1_1"/></Cell>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=82620020&amp;entityId=82620021&amp;currentKOLName=Blaszkowsky,%20Lawrence%20"><Data
+      ss:Type="String">Blaszkowsky, Lawrence </Data></Cell>
+    <Cell><Data ss:Type="String">Carcinoid Cancer, Hepatocellular Carcinoma</Data></Cell>
+    <Cell><Data ss:Type="String">&#160;&#160;&#160;&#160;Boston, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=82620020&amp;entityId=82620021&amp;currentKOLName=Blaszkowsky,%20Lawrence%20</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Lawrence S. Blaszkowsky, MD is an assistant professor of Medicine at Tufts-New England Medical Center and Medical Director of Gastrointestinal Malignancies in Boston, Massachusetts. He completed his undergraduate studies at Clark University and graduated from Medical School at the State University of New York Health Science Center at Syracuse. </Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=82620101&amp;entityId=82620102&amp;currentKOLName=Britten,%20Carolyn"><Data
+      ss:Type="String">Britten, Carolyn</Data></Cell>
+    <Cell><Data ss:Type="String">Medical Oncology, Breast Cancer</Data></Cell>
+    <Cell><Data ss:Type="String">&#160;&#160;&#160;&#160;Los Angeles, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=82620101&amp;entityId=82620102&amp;currentKOLName=Britten,%20Carolyn</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Dr. Carolyn Britten and her colleagues are bringing new targeted anti-cancer therapies to the clinic. Phase I clinical trials are the first-in-human trials of new anticancer drugs. Britten, the Director of the Phase I Program at UCLA, has participated in over 50 phase I clinical trials for patients with advanced malignancies. She is currently studying agents that target cell surface receptors, intracellular signaling molecules, and growth factors.</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=25&amp;entityId=111&amp;currentKOLName=Brufsky,%20Adam"><Data
+      ss:Type="String">Brufsky, Adam</Data></Cell>
+    <Cell><Data ss:Type="String">Breast Cancer, Medical Oncology, Musculoskeletal</Data></Cell>
+    <Cell><Data ss:Type="String">&#160;&#160;&#160;&#160;Pittsburgh, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=25&amp;entityId=111&amp;currentKOLName=Brufsky,%20Adam</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Adam M. Brufsky, MD, PhD, is Assistant Professor of Medicine at the University of Pittsburgh School of Medicine. He serves as the Interim Co-Director of the Magee Breast Cancer Program of UPMC Cancer Centers and Medical Director of the Women's Cancer Center at Magee-Womens Hospital of UPMC, Pittsburgh, PA.</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=55&amp;entityId=3613&amp;currentKOLName=Budman,%20Daniel"><Data
+      ss:Type="String">Budman, Daniel</Data></Cell>
+    <Cell><Data ss:Type="String">Medical Oncology, Breast Cancer, Hematology</Data></Cell>
+    <Cell><Data ss:Type="String">&#160;&#160;&#160;New York, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=55&amp;entityId=3613&amp;currentKOLName=Budman,%20Daniel</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Dr. Budman is the Associate Director of Oncology at North Shore University Hospital in Manhasset and Professor of Clinical Medicine at New York University. He also one of the principal investigators for the Cancer and Leukemia Group B (CALGB) and serves on their Board of Directors, Breast Committee, and Institutional Performance Committee.</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=40&amp;entityId=1793&amp;currentKOLName=Burstein,%20Harold"><Data
+      ss:Type="String">Burstein, Harold</Data></Cell>
+    <Cell><Data ss:Type="String">Breast Cancer, Epidemiology, Oncology</Data></Cell>
+    <Cell><Data ss:Type="String">&#160;&#160;&#160;Boston, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=40&amp;entityId=1793&amp;currentKOLName=Burstein,%20Harold</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Dr. Burstein received a PhD in cellular immunology and a master's degree in the history of science from Harvard. He trained in internal medicine at Massachusetts General Hospital before his oncology fellowship at DFCI. In 1999, he joined the staff of DFCI and Brigham and Women's Hospital, where he is a clinician and clinical investigator in the Breast Oncology Center.</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=27&amp;entityId=153&amp;currentKOLName=Carlson,%20Robert"><Data
+      ss:Type="String">Carlson, Robert</Data></Cell>
+    <Cell><Data ss:Type="String">Breast Cancer, Oncology</Data></Cell>
+    <Cell><Data ss:Type="String">Los Angeles, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=27&amp;entityId=153&amp;currentKOLName=Carlson,%20Robert</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Robert W. Carlson, MD, is a professor of medicine in the division of oncology and Stanford medical informatics at Stanford University Medical Center where he is active in the QA/QI steering committee, QA committee, CME advisory committee, and women's health at Stanford advisory board. Dr. Carlson is a member of the American Association for Cancer Research, American Society of Clinical Oncology, American Medical Informatics Association, and European Society of Medical Oncology, and is a fellow of the American College of Physicians. He has been published in more than 50 scientific journals, and has written 18 book chapters.</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=82633799&amp;entityId=82633800&amp;currentKOLName=Castle,%20Philip"><Data
+      ss:Type="String">Castle, Philip</Data></Cell>
+    <Cell><Data ss:Type="String">Cervical Cancer, Cancer Prevention</Data></Cell>
+    <Cell><Data ss:Type="String">Bethesda, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=82633799&amp;entityId=82633800&amp;currentKOLName=Castle,%20Philip</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Dr. Castle received his Ph.D. in Biophysics from the Johns Hopkins University in 1995. In 1999, he joined the Cancer Prevention Fellowship at NCI and received his MPH from the Johns Hopkins Bloomberg School of Public Health in 2000. He did his Cancer Prevention Fellowship training with NCI's Hormonal and Reproductive Epidemiology Branch (2000-2003) and joined the branch as a principal investigator in 2003.</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=43&amp;entityId=2098&amp;currentKOLName=Citron,%20Marc"><Data
+      ss:Type="String">Citron, Marc</Data></Cell>
+    <Cell><Data ss:Type="String">Medical Oncology</Data></Cell>
+    <Cell><Data ss:Type="String">New York , United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=43&amp;entityId=2098&amp;currentKOLName=Citron,%20Marc</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Dr. Marc Citron is a Clinical Professor of Medicine and Also a Oncologist at the Albert Einstien College of Medicine</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=64&amp;entityId=7224&amp;currentKOLName=Gluck,%20Stefan"><Data
+      ss:Type="String">Gluck, Stefan</Data></Cell>
+    <Cell><Data ss:Type="String">Hematology, Oncology</Data></Cell>
+    <Cell><Data ss:Type="String">Miami, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=64&amp;entityId=7224&amp;currentKOLName=Gluck,%20Stefan</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Dr. Stefan Gluck, MD, FRCP(C), Ph.D., is a medical oncologist and Professor of Medicine, as well as, the Clinical Director of the BFBCI at UMSCCC. He coordinates clinical breast cancer services and clinical research for the BFBCI, as well as serves as a clinical liaison between basic and translational research and plays a major role in mentoring candidates in clinical trials and clinical aspects pertinent to translational research. Dr. Gluck is internationally known for his work on breast cancer and bone marrow transplant.</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=54&amp;entityId=3383&amp;currentKOLName=Gradishar,%20William"><Data
+      ss:Type="String">Gradishar, William</Data></Cell>
+    <Cell><Data ss:Type="String">Oncology, Breast Cancer, Hematology</Data></Cell>
+    <Cell><Data ss:Type="String">Chicago, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=54&amp;entityId=3383&amp;currentKOLName=Gradishar,%20William</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Dr. Gradishar is professor of medicine in the Division of Hematology and Medical Oncology, Department of Medicine, at the Feinberg School Medicine at Northwestern University in Chicago, and a member of the Robert H. Lurie Comprehensive Cancer Center of Northwestern University. His research focuses on the development of novel therapeutics for the treatment of breast cancer. He is the immediate past chair of the Oncology Training Program Committee of the American Society of Clinical Oncology (ASCO) as well as a member of ASCO's Program Committee.</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=63&amp;entityId=7187&amp;currentKOLName=Gralow,%20Julie"><Data
+      ss:Type="String">Gralow, Julie</Data></Cell>
+    <Cell><Data ss:Type="String">Investigational Breast Cancer Treatments, Gene Therapy</Data></Cell>
+    <Cell><Data ss:Type="String">Washington DC, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=63&amp;entityId=7187&amp;currentKOLName=Gralow,%20Julie</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Julie Gralow is the principle investigator on several clinical trials related to breast cancer treatment. She is board-certified in in medical oncology, and is a member of the American Association for Cancer Research, American Society of Clinical Oncology, National Alliance of Breast Cancer Organizations, Southwest Oncology Group, and the American Society of Breast Disease.</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=62&amp;entityId=6224&amp;currentKOLName=Hortobagyi,%20Gabriel"><Data
+      ss:Type="String">Hortobagyi, Gabriel</Data></Cell>
+    <Cell><Data ss:Type="String">Medical Oncology, Breast Cancer</Data></Cell>
+    <Cell><Data ss:Type="String">Houston, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=62&amp;entityId=6224&amp;currentKOLName=Hortobagyi,%20Gabriel</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Gabriel N. Hortobagyi, MD, FACP is Professor of Medicine, Chairman of the Department of Breast Medical Oncology and Nellie B. Connally Chair in Breast Cancer at the University of Texas MD Anderson Cancer Center. He is also the Director of the Breast Cancer Research Program at the same institution. Dr. Hortobagyi has over 400 full-length publications in peer-reviewed journals; more than 300 invited papers; and over 100 book chapters to his credit. </Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=47&amp;entityId=2901&amp;currentKOLName=Isaacs,%20Claudine"><Data
+      ss:Type="String">Isaacs, Claudine</Data></Cell>
+    <Cell><Data ss:Type="String">Ovarian Cancer, Breast Cancer, Hematology</Data></Cell>
+    <Cell><Data ss:Type="String">Washington DC , United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=47&amp;entityId=2901&amp;currentKOLName=Isaacs,%20Claudine</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Medical Director of the Cancer Assessment and Risk Evaluation program (CARE), Dr. Isaacs has expertise in the genetic factors which predispose to breast and other cancers. Her clinical interest includes the treatment of patients with breast cancer. A graduate of McGill University Medical School and the Georgetown program in medical oncology and hematology, Dr. Isaacs is Associate Professor of Oncology and Medicine.</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=45&amp;entityId=2539&amp;currentKOLName=Lyman,%20Gary"><Data
+      ss:Type="String">Lyman, Gary</Data></Cell>
+    <Cell><Data ss:Type="String">Hematology, Geriatric Oncology, Breast Cancer, Medical Oncology</Data></Cell>
+    <Cell><Data ss:Type="String">New York, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=45&amp;entityId=2539&amp;currentKOLName=Lyman,%20Gary</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Dr. Lyman is currently Professor of Medicine and Associate Center Director for Health Services and Outcomes Research at the James P Wilmot Cancer Center at the University of Rochester Medical Center in Rochester, New York. Dr Lyman received his undergraduate and medical degree from the State University of New York. He then pursued a residency in medicine at the University of North Carolina in Chapel Hill and a fellowship in Medical Oncology and Hematology at the Roswell Park Memorial Institute. Dr Lyman did additional postdoctoral training in biostatistics at the Harvard School of Public Health and the Dana Farber Cancer Institute in Boston.</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=82634068&amp;entityId=82634069&amp;currentKOLName=Meijer,%20Chris"><Data
+      ss:Type="String">Meijer, Chris</Data></Cell>
+    <Cell><Data ss:Type="String">Anticancer Immunotherapeutics, Cancer Immunology</Data></Cell>
+    <Cell><Data ss:Type="String">Amsterdam, Netherlands</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=82634068&amp;entityId=82634069&amp;currentKOLName=Meijer,%20Chris</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Dr. Chris Meijer is Chairman and Director of the Department of Pathology at the Vrije Universiteit Medical Center, The Netherlands. He is on the board of several medical journals and has published more than 600 scientific articles, in international, well-respected journals. His challenge is to integrate basic and translational research into clinical practice.</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=28&amp;entityId=174&amp;currentKOLName=Miller,%20Kathy"><Data
+      ss:Type="String">Miller, Kathy</Data></Cell>
+    <Cell><Data ss:Type="String">Internal Medicine, Tumors, Breast Cancer, Oncology, Hematology</Data></Cell>
+    <Cell><Data ss:Type="String">Indianapolis, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=28&amp;entityId=174&amp;currentKOLName=Miller,%20Kathy</Data></Cell>
+    <Cell ss:StyleID="s26"><Data ss:Type="String">Dr. Miller is associate professor of medicine at the Indiana University School of Medicine and a member of the medical staff of Clarian Health, where she specializes in the treatment of breast cancer. She is also a member of the National Cancer Institute designated cancer center at IU. Much of her research involves testing therapies for breast cancer through clinical trials of new chemotherapy agents, including anti-angiogenic agents that reduce the blood supply to tumors. </Data></Cell>
+    <Cell ss:StyleID="s28"/>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=36&amp;entityId=342&amp;currentKOLName=Nichols,%20Craig"><Data
+      ss:Type="String">Nichols, Craig</Data></Cell>
+    <Cell><Data ss:Type="String">Internal Medicine, Hematology, Oncology</Data></Cell>
+    <Cell><Data ss:Type="String">Portland, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=36&amp;entityId=342&amp;currentKOLName=Nichols,%20Craig</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Craig Nichols, M.D. is chief of the Division of Hematology and Medical Oncology, and associate director of the Oregon Health and Science University (OHSU) Cancer Center in Portland, Oregon. He specializes in testicular cancer, Hodgkin's disease and non-Hodgkin's lymphoma.He has also authored and contributed to numerous published medical articles and was named a clinical fellow by the American Cancer Society, Chief Oncology and the American College of Physicians. Dr. Nichols received his bachelor's degree from the University of Oregon and his medical degree from OHSU.</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=41&amp;entityId=1984&amp;currentKOLName=Norton,%20Larry"><Data
+      ss:Type="String">Norton, Larry</Data></Cell>
+    <Cell><Data ss:Type="String">Medical Oncology, Breast Cancer, Oncology</Data></Cell>
+    <Cell><Data ss:Type="String">New York , United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=41&amp;entityId=1984&amp;currentKOLName=Norton,%20Larry</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Dr. Larry Norton is Deputy Physician-in-Chief and Director of Breast Cancer Programs at Memorial Sloan-Kettering Cancer Center in New York City. Since its inception in 1993, Dr. Norton has served as chairman of the Medical Advisory Board of the Breast Cancer Research Foundation. He is Past President of the American Society of Clinical Oncology, and Chair of the ASCO Foundation. Dr. Norton was a Presidential Appointee to the National Cancer Advisory Board of the NCI (1998-2004).</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=37&amp;entityId=1273&amp;currentKOLName=Pegram,%20Mark"><Data
+      ss:Type="String">Pegram, Mark</Data></Cell>
+    <Cell><Data ss:Type="String">Hematology, Internal Medicine, Oncology</Data></Cell>
+    <Cell><Data ss:Type="String">Santa Monica, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=37&amp;entityId=1273&amp;currentKOLName=Pegram,%20Mark</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Dr. Mark Pegram is an Associate Professor of Medicine in the Division of Hematology/Oncology at the UCLA School of Medicine, and is currently Director of the Women's Cancer Program at the UCLA/Jonsson Comprehensive Cancer Center. Dr. Pegram took his medical training at the University of North Carolina, Chapel Hill and attended medical internship and residency at the University of Texas Southwestern Medical School in Dallas,TX Parkland Memorial Hospital before moving to UCLA for fellowship training in Hematology/Oncology.</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=56&amp;entityId=3732&amp;currentKOLName=Perez,%20Edith"><Data
+      ss:Type="String">Perez, Edith</Data></Cell>
+    <Cell><Data ss:Type="String">Oncology, Breast Cancer, Hematology</Data></Cell>
+    <Cell><Data ss:Type="String">Minneapolis, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=56&amp;entityId=3732&amp;currentKOLName=Perez,%20Edith</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Edith A. Perez, MD, is a Professor of Medicine at Mayo Medical School, in Rochester, Minnesota. She is a member of the Mayo Clinic Women¿s Cancer Program Steering Committee and Director of the Cancer Clinical Study Unit at the Mayo Clinic in Jacksonville, Florida, and is Chair of the Breast Committee for the North Central Cancer Treatment Group (NCCTG). </Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=44&amp;entityId=2285&amp;currentKOLName=Rugo,%20Hope"><Data
+      ss:Type="String">Rugo, Hope</Data></Cell>
+    <Cell><Data ss:Type="String">Breast Cancer, Hematology, Medical Oncology</Data></Cell>
+    <Cell><Data ss:Type="String">San Francisco, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=44&amp;entityId=2285&amp;currentKOLName=Rugo,%20Hope</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Dr. Hope Rugo is a medical oncologist and hematologist specializing in breast cancer research and treatment. An associate clinical professor of medicine at the University of California San Francisco Comprehensive Cancer Center, Dr. Rugo treats patients and participates in clinical research at the Breast Care Center. She has worked in the past in the field of malignant hematology and bone marrow transplantation for a variety of diseases, including breast cancer.</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=82633884&amp;entityId=82633885&amp;currentKOLName=Schiffman,%20Mark"><Data
+      ss:Type="String">Schiffman, Mark</Data></Cell>
+    <Cell><Data ss:Type="String">Cervical Cancer, Oncology, Epidemiology</Data></Cell>
+    <Cell><Data ss:Type="String">Bethesda, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=82633884&amp;entityId=82633885&amp;currentKOLName=Schiffman,%20Mark</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Dr. Schiffman received an M.D. from the University of Pennsylvania and an M.P.H. in epidemiology from The Johns Hopkins School of Hygiene and Public Health. He joined the NCI as a Staff Fellow in 1983, and was appointed Chief of the Interdisciplinary Studies Section in the Environmental Epidemiology Branch in 1996. Dr. Schiffman received a Fulbright Scholarship in 1977 to carry out epidemiologic studies in Senegal. He received the PHS Citation, Achievement, Commendation, and Outstanding Service Medals for his work in molecular epidemiology.</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=38&amp;entityId=1394&amp;currentKOLName=Schwartz,%20Gary"><Data
+      ss:Type="String">Schwartz, Gary</Data></Cell>
+    <Cell><Data ss:Type="String">Medical Oncology, Sarcomas, Melanoma</Data></Cell>
+    <Cell><Data ss:Type="String">New York, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=38&amp;entityId=1394&amp;currentKOLName=Schwartz,%20Gary</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Gary K. Schwartz has been named Chief of the newly created Melanoma and Sarcoma Service in the Department of Medicine's Division of Solid Tumor Oncology. Dr. Schwartz is a physician-scientist who has been a member of the Gastrointestinal Oncology Service for 16 years and is widely known for developing new drug treatments for tumors. In his laboratory, he and his colleagues have explored the underlying mechanisms of apoptosis (programmed cell death), developing cell cycle active drugs to enhance the effects of chemotherapy. He has focused on development of new drugs for both sarcoma and melanoma</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=29&amp;entityId=195&amp;currentKOLName=Seidman,%20Andrew"><Data
+      ss:Type="String">Seidman, Andrew</Data></Cell>
+    <Cell><Data ss:Type="String">Breast Cancer, Hematology, Medical Oncology</Data></Cell>
+    <Cell><Data ss:Type="String">New York, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=29&amp;entityId=195&amp;currentKOLName=Seidman,%20Andrew</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=42&amp;entityId=2035&amp;currentKOLName=Slamon,%20Dennis"><Data
+      ss:Type="String">Slamon, Dennis</Data></Cell>
+	<Cell ss:StyleID="s25"><Data ss:Type="String"> </Data></Cell>
+    <Cell ss:Index="5"><Data ss:Type="String">Los Angeles, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=42&amp;entityId=2035&amp;currentKOLName=Slamon,%20Dennis</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Dennis J. Slamon, M.D., Ph.D., is a professor of medicine at the UCLA Geffen School of Medicine. He serves as the Chief of the Division of Hematology/Oncology, and the Director of Clinical/Translational Research in the Jonsson Comprehensive Cancer Center. His research interest has been in the area of both oncogenes and tumor suppressor genes, particularly those implicated in breast and ovarian cancer, focusing on the investigation of molecular changes which occur in human malignancies</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=34&amp;entityId=300&amp;currentKOLName=Sledge,%20George"><Data
+      ss:Type="String">Sledge, George</Data></Cell>
+    <Cell><Data ss:Type="String">Breast Cancer, Medical Oncology</Data></Cell>
+    <Cell><Data ss:Type="String">Indianapolis, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=34&amp;entityId=300&amp;currentKOLName=Sledge,%20George</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">George Sledge is Professor of Medicine and Pathology at the Indiana University School of Medicine, where he is the Ballve-Lantero Professor of Oncology (Endowed Chair). He is the author of more than 100 scientific publications, most of which deal with the biology and treatment of breast cancer. He serves on numerous national committees, including the Food and Drug Administration's Oncology Drug Advisory Committee and the Department of Defense Breast Cancer Research Program's Integration Panel.</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=39&amp;entityId=1415&amp;currentKOLName=Socinski,%20Mark"><Data
+      ss:Type="String">Socinski, Mark</Data></Cell>
+    <Cell><Data ss:Type="String">Medical Oncology</Data></Cell>
+    <Cell><Data ss:Type="String">Chapel Hill, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=39&amp;entityId=1415&amp;currentKOLName=Socinski,%20Mark</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Mark Anthony Socinski, M.D. Associate Professor of Medicine Lineberger Comprehensive Cancer Center University of North Carolina at Chapel Hill Multidisciplinary Thoracic Oncology Program, Department of Hematology/Oncology Dr. Socinski earned his undergraduate and medical degrees at University of Vermont followed by an internship and residency at Harvard Medical School and an Oncology fellowship at Dana Farber Cancer Institute. </Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=46&amp;entityId=2722&amp;currentKOLName=Vogel,%20Victor"><Data
+      ss:Type="String">Vogel, Victor</Data></Cell>
+    <Cell><Data ss:Type="String">Medical Oncology, Breast Cancer</Data></Cell>
+    <Cell><Data ss:Type="String">Pittsburgh, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=46&amp;entityId=2722&amp;currentKOLName=Vogel,%20Victor</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Dr. Vogel was an Andrew W. Mellon Fellow in clinical epidemiology at Johns Hopkins and was on the faculty of the University of Texas M. D. Anderson Cancer Center as deputy chairman of the Department of Clinical Cancer Prevention. He is a fellow of the American Colleges of Medicine and Preventive Medicine. He is a recipient of a Career Development Award from the American Cancer Society, a research fellowship from the Susan G. Komen Breast Cancer Foundation, and the Achievement Medal from the US Public Health Service.</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=32&amp;entityId=258&amp;currentKOLName=Winer,%20Eric"><Data
+      ss:Type="String">Winer, Eric</Data></Cell>
+    <Cell><Data ss:Type="String">Medical Oncology, Breast Cancer</Data></Cell>
+    <Cell><Data ss:Type="String">Boston, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=32&amp;entityId=258&amp;currentKOLName=Winer,%20Eric</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Dr. Winer is a medical oncologist who has specialized in the area of breast cancer for over 15 years.  He remained on the Duke faculty until 1997, where he specialized in breast cancer and became the Co-Director of the Multidisciplinary Breast Program.</Data></Cell>
+   </Row>
+   <Row ss:Height="32.25">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=26&amp;entityId=132&amp;currentKOLName=Wolff,%20Antonio"><Data
+      ss:Type="String">Wolff, Antonio</Data></Cell>
+    <Cell><Data ss:Type="String">Investigational Breast Cancer Treatments, Breast Cancer, Medical Oncology</Data></Cell>
+    <Cell><Data ss:Type="String">Baltimore, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=26&amp;entityId=132&amp;currentKOLName=Wolff,%20Antonio</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Dr. Antonio Wolff is an Associate Professor of Oncology and member of the Breast Cancer Program at the Johns Hopkins Sidney Kimmel Comprehensive Cancer Center. His research interests are in the development of new treatment strategies and early predictive markers of benefit, such as imaging and circulating markers. He is a member of the Breast Cancer Committee of the Eastern Cooperative Oncology Group (ECOG) and of the Breast Cancer Guidelines Committee of the National Comprehensive Cancer Network (NCCN)</Data></Cell>
+   </Row>
+   <Row ss:Height="21.75">
+    <Cell ss:StyleID="s27"/>
+    <Cell ss:StyleID="s25"/>
+    <Cell ss:HRef="http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=53&amp;entityId=3274&amp;currentKOLName=Wolmark,%20Norman%20"><Data
+      ss:Type="String">Wolmark, Norman </Data></Cell>
+    <Cell><Data ss:Type="String">Surgical Oncology, Oncology, Breast Cancer</Data></Cell>
+    <Cell><Data ss:Type="String">Pittsburgh, United States</Data></Cell>
+    <Cell><Data ss:Type="String">http://sandbox.openq.com:8000/openQ32/expertfullprofile.htm?kolid=53&amp;entityId=3274&amp;currentKOLName=Wolmark,%20Norman%20</Data></Cell>
+    <Cell ss:Index="8" ss:StyleID="s26"><Data ss:Type="String">Norman Wolmark, M.D. is Chairman and Principal Investigator of the National Surgical Adjuvant Breast and Bowel Project (NSABP) which is primarily funded by the NCI and is based on the campus of Allegheny General Hospital in Pittsburgh, Pennsylvania. He is also Professor and Chairman of Human Oncology, Drexel University School of Medicine, and Chairman of the Department of Human Oncology, Allegheny General Hospital, Pittsburgh, Pennsylvania.</Data></Cell>
+   </Row>
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <PageSetup>
+    <Header x:Margin="0.51180555555555551"/>
+    <Footer x:Margin="0.51180555555555551"/>
+    <PageMargins x:Bottom="0.98402777777777772" x:Left="0.74791666666666667"
+     x:Right="0.74791666666666667" x:Top="0.98402777777777772"/>
+   </PageSetup>
+   <Print>
+    <ValidPrinterInfo/>
+    <HorizontalResolution>300</HorizontalResolution>
+    <VerticalResolution>300</VerticalResolution>
+   </Print>
+   <Selected/>
+   <LeftColumnVisible>2</LeftColumnVisible>
+   <Panes>
+    <Pane>
+     <Number>3</Number>
+     <ActiveRow>10</ActiveRow>
+     <ActiveCol>5</ActiveCol>
+    </Pane>
+   </Panes>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+  </WorksheetOptions>
+  <QueryTable xmlns="urn:schemas-microsoft-com:office:excel">
+   <Name>ExternalData_1_1</Name>
+   <AutoFormatName>List2</AutoFormatName>
+   <AutoFormatFont/>
+   <AutoFormatPattern/>
+   <QuerySource>
+    <QueryType>Web</QueryType>
+    <RefreshedInXl9/>
+    <HTMLFormat>All</HTMLFormat>
+    <URLString
+     x:HRef="http://sandbox.openq.com:8000/openQ32/advancedSearch.htm?action=advSearchUser"/>
+    <HTMLTables>
+     <Number>11</Number>
+    </HTMLTables>
+   </QuerySource>
+  </QueryTable>
+ </Worksheet>
+ <Worksheet ss:Name="Sheet2">
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <PageSetup>
+    <Header x:Margin="0.51180555555555551"/>
+    <Footer x:Margin="0.51180555555555551"/>
+    <PageMargins x:Bottom="0.98402777777777772" x:Left="0.74791666666666667"
+     x:Right="0.74791666666666667" x:Top="0.98402777777777772"/>
+   </PageSetup>
+   <Print>
+    <ValidPrinterInfo/>
+    <HorizontalResolution>300</HorizontalResolution>
+    <VerticalResolution>300</VerticalResolution>
+   </Print>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+  </WorksheetOptions>
+ </Worksheet>
+ <Worksheet ss:Name="Sheet3">
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <PageSetup>
+    <Header x:Margin="0.51180555555555551"/>
+    <Footer x:Margin="0.51180555555555551"/>
+    <PageMargins x:Bottom="0.98402777777777772" x:Left="0.74791666666666667"
+     x:Right="0.74791666666666667" x:Top="0.98402777777777772"/>
+   </PageSetup>
+   <Print>
+    <ValidPrinterInfo/>
+    <HorizontalResolution>300</HorizontalResolution>
+    <VerticalResolution>300</VerticalResolution>
+   </Print>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+  </WorksheetOptions>
+ </Worksheet>
+</Workbook>

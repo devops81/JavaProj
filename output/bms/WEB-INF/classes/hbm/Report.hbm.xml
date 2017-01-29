@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="com.openq.report.Report" table="REPORTS">
+        <id name="reportID" column="report_id">
+            <generator class="native"/>
+        </id>
+        <property name="name"/>
+        <property name="description"/>
+        <property name="reportDesign" column="report_design" type="blob"/>
+        <!--property name="fileName"/>
+        <property name="subReport" type="boolean"/-->
+     </class>
+     
+</hibernate-mapping>    

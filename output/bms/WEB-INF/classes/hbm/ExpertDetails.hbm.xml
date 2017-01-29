@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.openq.eav.expert.ExpertDetails" table="EXPERT_DETAILS_MVIEW">
+        <id name="id" column="id">
+            <generator class="assigned"/>
+        </id>
+        <property name="kolid" type="long" />
+        <property name="firstName"  type="string"/>
+        <property name="middleName"  type="string"/>
+        <property name="lastName"  type="string"/>
+        <property name="deleteFlag"  type="string"/>
+        <property name="primarySpeciality" column="primary_speciality" type="string" />
+        <property name="secondarySpeciality" column="secondary_speciality" type="string" />
+        <property name="tertiarySpeciality" column="tertiary_speciality" type="string" />
+        <property name="title" type="string" />
+        <property name="mslOlType" column="msl_ol_type" type="string"/>
+        <property name="sphereOfInfluence" column="sphere_of_Influence" type="string"/>
+        <property name="primaryPhone" column="primary_phone" type="string" />
+        <property name="primaryEmail" column="primary_email" type="string" />
+        <property name="primaryFax" column="primary_fax" type="string" />
+        <property name="primaryMobile" column="primary_mobile" type="string" />
+        <property name="addressLine1" column="addr_line_1" type="string" />
+        <property name="addressLine2" column="addr_line_2" type="string" />
+		<property name="addressCity" column="addr_city" type="string" />
+		<property name="addressState" column="addr_State" type="string" />
+		<property name="addressPostalCode" column="addr_postal_code" type="string" />
+		<property name="addressCountry" column="addr_Country" type="string" />
+     </class>
+</hibernate-mapping>

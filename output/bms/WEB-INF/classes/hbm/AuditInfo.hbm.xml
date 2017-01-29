@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="com.openq.eav.audit.AuditInfo" table="audit_info">
+        <id name="id" column="id">
+            <generator class="native"/>
+        </id>
+    
+        <property name="editedEntityId" type="long"/>
+        <property name="userName"/>
+        <property name="userId" type="long"/>
+        <property name="updateTime" type="timestamp"/>
+     </class>
+
+</hibernate-mapping>    

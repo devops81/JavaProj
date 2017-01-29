@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="com.openq.publication.data.Request" table="request">
+        <id name="requestId" type="long">
+        	<generator class="native"/>
+        </id>
+        <property name="userId" type="long" />
+        <property name="queryType" />
+        <property name="requestTimeStamp" type="timestamp"/>
+        <property name="status" />
+        <property name="priority" />
+        <property name="requestCompeleted" type="timestamp"/>
+          
+     </class>
+</hibernate-mapping>
